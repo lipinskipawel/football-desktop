@@ -61,7 +61,6 @@ class ImmutableBoard implements BoardInterface2 {
         return this.ballPosition.getPosition();
     }
 
-    // TODO make something about return null
     @Override
     public ImmutableBoard undoMove() {
 

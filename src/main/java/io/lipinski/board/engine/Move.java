@@ -1,34 +1,30 @@
 package io.lipinski.board.engine;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.math.PairedStats;
 import io.lipinski.board.Direction;
-import io.lipinski.board.engine.exceptions.IllegalMoveSizeException;
-import io.lipinski.board.engine.internal.Pair;
 
-import javax.crypto.IllegalBlockSizeException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
-// TODO This class probably will be removed as well as Pair class.
 public class Move {
 
-    private ImmutableList<Direction> directions;
-    private final Pair<? extends Direction,
-            ? extends Direction> move;
+    private List<Direction> directions;
 
 
-    public Move(List<Direction> direction) {
-        if (direction.size() != 2) {
-            throw new IllegalMoveSizeException("Not allow size of list " + direction.size() + ". Allow size is 2");
+    public Move(List<Direction> directions) {
+        Direction[] arr = new Direction[directions.size()];
+        for (int i = 0; i < directions.size(); i++) {
+            arr[i] = directions.get(i);
         }
-        this.move = Pair.pair(direction.get(0), direction.get(1));
-        this.directions = ImmutableList.<Direction>builder()
-                .addAll(direction)
-                .build();
+        this.directions = List.of(arr);
     }
+
+    Stream<Direction> stream() {
+        return this.directions.stream();
+    }
+
 
     public List<Direction> getMove() {
         List<String> all = new ArrayList<>();
