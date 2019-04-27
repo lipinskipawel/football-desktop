@@ -1,22 +1,26 @@
 package io.lipinski.board;
 
-import org.junit.Before;
-import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
-public class BoardTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@DisplayName("Running board test")
+class BoardTest {
 
     private BoardInterface board;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         this.board = new Board();
     }
 
 
     @Test
-    public void moveBallToNorthUsingPoint() {
+    @DisplayName("Make a one full move using points")
+    void moveBallToNorthUsingPoint() {
 
         //Given:
         Point destBallPosition = new Point(49);
@@ -31,7 +35,8 @@ public class BoardTest {
     }
 
     @Test
-    public void moveBallToNorthUsingDirections() {
+    @DisplayName("Make a one full move using directions")
+    void moveBallToNorthUsingDirections() {
 
         //Given:
         Point destBallPosition = new Point(49);
@@ -47,7 +52,8 @@ public class BoardTest {
 
 
     @Test
-    public void moveBallAndUndoTheMove() {
+    @DisplayName("Make a full move and then undo this move")
+    void moveBallAndUndoTheMove() {
 
         //Given:
         int ballPositionAtStart = board.getBallPosition();

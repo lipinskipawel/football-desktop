@@ -1,4 +1,4 @@
-package io.lipinski.board.engine;
+package io.lipinski.board.engine.exceptions;
 
 public class IllegalMoveException extends IllegalStateException {
 
