@@ -4,27 +4,52 @@ import io.lipinski.board.Direction;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+//TODO refactor this class with PointUtils
+// put them into the same package and play with package scope
 class Point2 {
 
     private int position;
     private Map<Direction, Boolean> availableDirections;
 
 
-    public Point2(int position) {
+    Point2(int position) {
         this.position = position;
         this.availableDirections = initAvailableDirections();
     }
 
+    private Point2(int position, Map<Direction, Boolean> availableDirections) {
+        this.position = position;
+        this.availableDirections = availableDirections.entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
 
-    public int getPosition() {
-        return position;
+
+    int getPosition() {
+        return this.position;
     }
 
     boolean isAvailable(final Direction destination) {
-        return availableDirections.get(destination);
+        return this.availableDirections.get(destination);
     }
 
+    Point2 notAvailableDirection(Direction direction) {
+        int position = this.position;
+        Map<Direction, Boolean> collect = this.availableDirections.entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        collect.put(direction, Boolean.FALSE);
+        return new Point2(position, collect);
+    }
+
+    // TODO this should be private
+    void notAvailableDirections(Direction... directions) {
+        for (Direction direction : directions) {
+            this.availableDirections.remove(direction);
+        }
+    }
 
     private Map<Direction, Boolean> initAvailableDirections() {
         final Map<Direction, Boolean> res = new HashMap<>();

@@ -2,11 +2,16 @@ package io.lipinski.board.engine;
 
 import io.lipinski.board.Direction;
 
-interface BoardInterface2 {
+import java.util.List;
 
+public interface BoardInterface2 {
+
+    BoardInterface2 loadMove(Move move);
+    BoardInterface2 loadMoves(List<Move> moves);
+
+    BoardInterface2 executeMove(final Direction destination);
     boolean isMoveAllowed(final Direction destination);
-    void executeMove(final Direction destination);
-    void undoMove();
+    void undoFullMove();
 
     int getBallPosition();
 
