@@ -8,6 +8,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * This class represents move on the board
+ */
 public class Move {
 
     private ImmutableList<Direction> directions;

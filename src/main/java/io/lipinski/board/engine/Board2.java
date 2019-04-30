@@ -16,13 +16,18 @@ class Board2 implements BoardInterface2 {
         this.ballPosition = points.get(58);
     }
 
-    Board2(List<Point2> points) {
+    Board2(final List<Point2> points,
+           final Point2 ballPosition) {
         this.points = points;
+        this.ballPosition = ballPosition;
     }
 
 
     @Override
     public BoardInterface2 loadMove(Move move) {
+        if (move.getMove().size() == 1) {
+            return executeMove(move.getMove().get(0));
+        }
         return null;
     }
 
@@ -39,10 +44,9 @@ class Board2 implements BoardInterface2 {
     @Override
     public Board2 executeMove(final Direction destination) {
 
-        int moveBall = destination.changeToInt();
-
         List<Point2> points = makeAMove(destination);
-        return new Board2(points);
+        int ballPosition = computeBallPosition(destination);
+        return new Board2(points, points.get(ballPosition));
     }
 
     @Override
@@ -62,20 +66,27 @@ class Board2 implements BoardInterface2 {
 
         int moveBall = destination.changeToInt();
         Point2 currentBall = new Point2(getBallPosition()).notAvailableDirection(destination);
-        // TODO compute next point and disable move back
 
         List<Point2> afterMove = new ArrayList<>(points);
         afterMove.set(getBallPosition(), currentBall);
 
 
-        int newPosition;
-        if (destination > 0)  {
-            newPosition = ballPosition.getPosition() - destination;
-        }
-        else {
-            newPosition = ballPosition.getPosition() + destination;
-        }
+        int newPosition = computePositionAfterMove(moveBall);
+
+        afterMove.set(newPosition, new Point2(newPosition)).notAvailableDirection(destination.opposite());
         return afterMove;
+    }
+
+    private int computeBallPosition(Direction destination) {
+        int moveBall = destination.changeToInt();
+        return computePositionAfterMove(moveBall);
+    }
+
+    private int computePositionAfterMove(int moveBall) {
+        int newPosition;
+        if (moveBall > 0)   newPosition = ballPosition.getPosition() - moveBall;
+        else                newPosition = ballPosition.getPosition() + moveBall;
+        return newPosition;
     }
 
 }

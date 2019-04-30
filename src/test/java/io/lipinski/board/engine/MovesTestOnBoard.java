@@ -20,12 +20,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class MovesTestOnBoard {
 
     private BoardInterface2 board;
+    private static int STARTING_BALL_POSITION;
     private static int POSITION_AFTER_N_MOVE;
     private static int POSITION_AFTER_N_N_MOVE;
 
 
     @BeforeAll
     static void setUpBall() {
+        STARTING_BALL_POSITION = 58;
         POSITION_AFTER_N_MOVE = 49;
         POSITION_AFTER_N_N_MOVE = 40;
     }
@@ -42,14 +44,12 @@ class MovesTestOnBoard {
         @Test
         @DisplayName("Make a proper full move")
         void makeAMove() {
-            System.out.println(board.getBallPosition());
 
             //When:
-            if (board.isMoveAllowed(Direction.N))
-                board.executeMove(Direction.N);
+            BoardInterface2 afterMove = board.executeMove(Direction.N);
 
             //Then:
-            int actualBallPosition = board.getBallPosition();
+            int actualBallPosition = afterMove.getBallPosition();
             assertEquals(POSITION_AFTER_N_MOVE, actualBallPosition);
 
         }
@@ -136,7 +136,7 @@ class MovesTestOnBoard {
 
             //Then:
             int actualBallPosition = board.getBallPosition();
-            assertEquals(POSITION_AFTER_N_MOVE, actualBallPosition);
+            assertEquals(STARTING_BALL_POSITION, actualBallPosition);
 
 
         }

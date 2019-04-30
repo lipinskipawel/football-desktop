@@ -2,12 +2,14 @@ package io.lipinski.board.engine;
 
 import io.lipinski.board.Direction;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 //TODO refactor this class with PointUtils
 // put them into the same package and play with package scope
+@Immutable
 class Point2 {
 
     private int position;
@@ -35,6 +37,11 @@ class Point2 {
         return this.availableDirections.get(destination);
     }
 
+    /**
+     *
+     * @param direction
+     * @return
+     */
     Point2 notAvailableDirection(Direction direction) {
         int position = this.position;
         Map<Direction, Boolean> collect = this.availableDirections.entrySet()

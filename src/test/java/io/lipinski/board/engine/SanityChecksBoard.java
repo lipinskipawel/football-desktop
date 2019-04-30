@@ -4,7 +4,6 @@ package io.lipinski.board.engine;
 import io.lipinski.board.Direction;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -35,20 +34,30 @@ class SanityChecksBoard {
 
         assertEquals(STARTING_BALL_POSITION,
                 this.board.getBallPosition());
-
     }
 
     @Test
     @DisplayName("Returning new instance of board after return")
-    @Disabled
     void afterMoveReturnNewBoard() {
-
 
         //When:
         BoardInterface2 afterMove = board.executeMove(Direction.N);
 
         //Then:
         assertNotEquals(afterMove, board);
+    }
+
+    @Test
+    @DisplayName("Make a move and don't track reference. Prove of board immutability")
+    void boardImmutability() {
+
+        //When:
+        if (board.isMoveAllowed(Direction.N))
+            board.executeMove(Direction.N);
+
+        //Then:
+        int actualBallPosition = board.getBallPosition();
+        assertEquals(STARTING_BALL_POSITION, actualBallPosition);
 
     }
 
