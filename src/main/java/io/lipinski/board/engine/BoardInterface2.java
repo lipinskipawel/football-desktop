@@ -6,12 +6,13 @@ import java.util.List;
 
 public interface BoardInterface2 {
 
-    BoardInterface2 loadMove(Move move);
-    BoardInterface2 loadMoves(List<Move> moves);
+    BoardInterface2 loadMove(final Move move);
+    BoardInterface2 loadMoves(final List<Move> moves);
 
     BoardInterface2 executeMove(final Direction destination);
+    BoardInterface2 undoMove();
+    BoardInterface2 undoFullMove();
     boolean isMoveAllowed(final Direction destination);
-    void undoFullMove();
 
     int getBallPosition();
 

@@ -4,7 +4,6 @@ import io.lipinski.board.Direction;
 import io.lipinski.board.engine.exceptions.IllegalMoveException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("Running new API Board tests")
@@ -22,6 +21,7 @@ class MovesTestOnBoard {
     private BoardInterface2 board;
     private static int STARTING_BALL_POSITION;
     private static int POSITION_AFTER_N_MOVE;
+    private static int POSITION_AFTER_S_MOVE;
     private static int POSITION_AFTER_N_N_MOVE;
 
 
@@ -29,6 +29,7 @@ class MovesTestOnBoard {
     static void setUpBall() {
         STARTING_BALL_POSITION = 58;
         POSITION_AFTER_N_MOVE = 49;
+        POSITION_AFTER_S_MOVE = 67;
         POSITION_AFTER_N_N_MOVE = 40;
     }
 
@@ -42,7 +43,7 @@ class MovesTestOnBoard {
     class MakeAMove {
 
         @Test
-        @DisplayName("Make a proper full move")
+        @DisplayName("Make a proper full move towards North")
         void makeAMove() {
 
             //When:
@@ -51,6 +52,19 @@ class MovesTestOnBoard {
             //Then:
             int actualBallPosition = afterMove.getBallPosition();
             assertEquals(POSITION_AFTER_N_MOVE, actualBallPosition);
+
+        }
+
+        @Test
+        @DisplayName("Make a proper full move towards South")
+        void makeAMoveTest() {
+
+            //When:
+            BoardInterface2 afterMove = board.executeMove(Direction.S);
+
+            //Then:
+            int actualBallPosition = afterMove.getBallPosition();
+            assertEquals(POSITION_AFTER_S_MOVE, actualBallPosition);
 
         }
 
@@ -91,32 +105,29 @@ class MovesTestOnBoard {
 
         // TODO return to this tests when executeMove returns Board
         @Test
-        @Disabled
         @DisplayName("Make a one full move and don't allow to move backwards")
         void notAllowToMakeAMove() {
 
             //When:
-            board.executeMove(Direction.N);
-            if (board.isMoveAllowed(Direction.S))
-                board.executeMove(Direction.S);
+            BoardInterface2 afterFirstMove = board.executeMove(Direction.N);
+            BoardInterface2 afterSecondMove = null;
+            if (afterFirstMove.isMoveAllowed(Direction.S)) {
+                afterSecondMove = board.executeMove(Direction.S);
+            }
 
             //Then:
-            assertEquals(POSITION_AFTER_N_MOVE, board.getBallPosition());
+            assertNull(afterSecondMove);
         }
 
 
         @Test
-        @Disabled
         @DisplayName("Make a one full move and go back directly to previous position")
         void notAllowIllegalMove() {
 
             assertThrows(IllegalMoveException.class,
-                    () -> {
-                        board.executeMove(Direction.N);
-                        board.executeMove(Direction.S);
-                    },
-                    "Move back to previous position is illegal.");
-
+                    () -> board.executeMove(Direction.N)
+                                .executeMove(Direction.S),
+                    "Move back to previous position is illegal");
         }
 
     }
@@ -127,18 +138,29 @@ class MovesTestOnBoard {
 
 
         @Test
-        @DisplayName("Make a one full move and then undo")
-        void makeAMoveAndUndoMove() {
+        @DisplayName("Make a one full N move and then undo")
+        void makeAMoveNAndUndoMove() {
 
             //When:
-            board.executeMove(Direction.N);
-            board.undoFullMove();
+            BoardInterface2 afterMove = board.executeMove(Direction.N);
+            BoardInterface2 afterUndo = afterMove.undoFullMove();
 
             //Then:
-            int actualBallPosition = board.getBallPosition();
+            int actualBallPosition = afterUndo.getBallPosition();
             assertEquals(STARTING_BALL_POSITION, actualBallPosition);
+        }
 
+        @Test
+        @DisplayName("Make a one full S move and then undo")
+        void makeAMoveSAndUndoMove() {
 
+            //When:
+            BoardInterface2 afterMove = board.executeMove(Direction.S);
+            BoardInterface2 afterUndo = afterMove.undoFullMove();
+
+            //Then:
+            int actualBallPosition = afterUndo.getBallPosition();
+            assertEquals(STARTING_BALL_POSITION, actualBallPosition);
         }
     }
 

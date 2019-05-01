@@ -4,8 +4,11 @@ import io.lipinski.board.Direction;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 //TODO refactor this class with PointUtils
 // put them into the same package and play with package scope
@@ -35,6 +38,23 @@ class Point2 {
 
     boolean isAvailable(final Direction destination) {
         return this.availableDirections.get(destination);
+    }
+
+    void setAvailableDirections(final Direction directions) {
+        this.availableDirections.put(directions, Boolean.TRUE);
+    }
+
+    List<Direction> getUnavailableDirection() {
+        return this.availableDirections
+                .entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().booleanValue() == Boolean.FALSE)
+                .map(Map.Entry::getKey)
+                .collect(toList());
+    }
+
+    boolean isOnStartingPoint() {
+        return this.position == 58;
     }
 
     /**
