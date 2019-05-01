@@ -11,19 +11,20 @@ class Board2 implements BoardInterface2 {
 
     private final List<Point2> points;
     private final Point2 ballPosition;
-    private List<Move> moveHistory;
+    private Player playerToMove;
 
     Board2() {
         this.points = PointUtils.initialPoints();
         this.ballPosition = points.get(58);
-        this.moveHistory = new ArrayList<>();
+        this.playerToMove = Player.FIRST;
     }
 
     Board2(final List<Point2> points,
-           final Point2 ballPosition) {
+           final Point2 ballPosition,
+           Player currentPlayer) {
         this.points = points;
         this.ballPosition = ballPosition;
-        this.moveHistory = new ArrayList<>();
+        this.playerToMove = currentPlayer;
     }
 
 
@@ -50,7 +51,14 @@ class Board2 implements BoardInterface2 {
 
         final List<Point2> points = makeAMove(destination);
         int ballPosition = computeBallPosition(destination);
-        return new Board2(points, points.get(ballPosition));
+        if (allowToMoveIn7Directions(points.get(ballPosition))) {
+            return new Board2(points,
+                    points.get(ballPosition),
+                    this.playerToMove.opposite());
+        }
+        return new Board2(points,
+                points.get(ballPosition),
+                this.playerToMove);
     }
 
     @Override
@@ -84,7 +92,14 @@ class Board2 implements BoardInterface2 {
         previousPositionPoint.setAvailableDirections(direction.opposite());
         afterMovePoints.set(afterMovePosition, previousPositionPoint);
 
-        return new Board2(afterMovePoints, afterMovePoints.get(afterMovePosition));
+        if (allowToMoveIn7Directions(points.get(this.ballPosition.getPosition()))) {
+            return new Board2(points,
+                    afterMovePoints.get(afterMovePosition),
+                    this.playerToMove.opposite());
+        }
+        return new Board2(points,
+                afterMovePoints.get(afterMovePosition),
+                this.playerToMove);
     }
 
     // TODO size() == 0 this is workaround if someone undo moves to the starting point
@@ -100,6 +115,11 @@ class Board2 implements BoardInterface2 {
             counter++;
         }
         return null;
+    }
+
+    @Override
+    public Player getPlayer() {
+        return this.playerToMove;
     }
 
 
@@ -135,6 +155,10 @@ class Board2 implements BoardInterface2 {
 
     private boolean allowToMoveAnywhere() {
         return this.ballPosition.getUnavailableDirection().size() == 0;
+    }
+
+    private boolean allowToMoveIn7Directions(Point2 point) {
+        return point.getUnavailableDirection().size() == 1;
     }
 
 }

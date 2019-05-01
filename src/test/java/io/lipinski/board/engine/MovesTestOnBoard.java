@@ -164,5 +164,33 @@ class MovesTestOnBoard {
         }
     }
 
+    @Nested
+    @DisplayName("Make a move, and check player")
+    class MakeAMoveAndCheckPlayer {
+
+        @Test
+        @DisplayName("Make a move as FIRST player and check if this is SECOND player turn")
+        void secondPlayerNeedToMove() {
+
+            final var afterMove = board.executeMove(Direction.E);
+
+            assertEquals(Player.SECOND, afterMove.getPlayer());
+        }
+
+        @Test
+        @DisplayName("Make a move, undo and check player turn")
+        void makeTwoMovesAndCheckPlayerTurn() {
+
+            final var afterTwoMoves = board.executeMove(Direction.W)
+                    .executeMove(Direction.NW);
+
+            final var afterUndoMove = afterTwoMoves.undoMove();
+
+            assertEquals(Player.SECOND, afterUndoMove.getPlayer());
+        }
+    }
+
+
+
 
 }

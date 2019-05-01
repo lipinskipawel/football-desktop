@@ -2,6 +2,7 @@ package io.lipinski.board.engine;
 
 
 import io.lipinski.board.Direction;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -58,6 +59,14 @@ class SanityChecksBoard {
         //Then:
         int actualBallPosition = board.getBallPosition();
         assertEquals(STARTING_BALL_POSITION, actualBallPosition);
+
+    }
+
+    @Test
+    @DisplayName("Default first player")
+    void defaultBoardPlayerOne() {
+
+        assertEquals(Player.FIRST, board.getPlayer());
 
     }
 

@@ -15,5 +15,6 @@ public interface BoardInterface2 {
     boolean isMoveAllowed(final Direction destination);
 
     int getBallPosition();
+    Player getPlayer();
 
 }
