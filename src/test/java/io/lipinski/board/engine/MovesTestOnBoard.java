@@ -14,6 +14,7 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("Running new API Board tests")
 class MovesTestOnBoard {
@@ -138,20 +139,7 @@ class MovesTestOnBoard {
 
 
         @Test
-        @DisplayName("Make a one full N move and then undo")
-        void makeAMoveNAndUndoMove() {
-
-            //When:
-            BoardInterface2 afterMove = board.executeMove(Direction.N);
-            BoardInterface2 afterUndo = afterMove.undoFullMove();
-
-            //Then:
-            int actualBallPosition = afterUndo.getBallPosition();
-            assertEquals(STARTING_BALL_POSITION, actualBallPosition);
-        }
-
-        @Test
-        @DisplayName("Make a one full S move and then undo")
+        @DisplayName("Make a one simple S move and then undo")
         void makeAMoveSAndUndoMove() {
 
             //When:
@@ -162,6 +150,55 @@ class MovesTestOnBoard {
             int actualBallPosition = afterUndo.getBallPosition();
             assertEquals(STARTING_BALL_POSITION, actualBallPosition);
         }
+
+        @Test
+        @DisplayName("Make a few moves and then complex one move and then undo sub move")
+        void makeAMoveNAndUndoMove() {
+
+            //When:
+            final var afterOneMove = board.executeMove(Direction.N);
+            final var afterSecondMove = afterOneMove.executeMove(Direction.E);
+
+            final var afterSubMove = afterSecondMove.executeMove(Direction.SW);
+
+            //Then:
+            final var shouldBeAfterSubMove = afterSubMove.undoMove();
+            assertEquals(afterSecondMove.getBallPosition(), shouldBeAfterSubMove.getBallPosition(),
+                    () -> "Ball should be in the same spot");
+        }
+
+        @Test
+        @DisplayName("Make a few moves and then complex one move and then undo sub move Another Check")
+        void makeAMoveNAndUndoMoveAnotherCheck() {
+
+            //When:
+            final var afterOneMove = board.executeMove(Direction.N);
+            final var afterSecondMove = afterOneMove.executeMove(Direction.E);
+
+            final var afterSubMove = afterSecondMove.executeMove(Direction.SW);
+
+            //Then:
+            final var shouldBeAfterSubMove = afterSubMove.undoMove();
+            assertTrue(shouldBeAfterSubMove.isMoveAllowed(Direction.SW),
+                    () -> "Make a move in 'undo' direction must be possible");
+        }
+
+        @Test
+        @DisplayName("Make a few moves and then complex one move and then undo sub move Another Check")
+        void makeAMoveNAndUndoMoveAnotherCheckYetAnother() {
+
+            //When:
+            final var afterOneMove = board.executeMove(Direction.N);
+            final var afterSecondMove = afterOneMove.executeMove(Direction.E);
+
+            final var afterSubMove = afterSecondMove.executeMove(Direction.SW);
+
+            //Then:
+            final var shouldBeAfterSubMove = afterSubMove.undoMove();
+            assertEquals(Player.SECOND, shouldBeAfterSubMove.getPlayer(),
+                    () -> "Not change player");
+        }
+
     }
 
     @Nested

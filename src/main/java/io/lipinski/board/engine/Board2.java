@@ -12,19 +12,23 @@ class Board2 implements BoardInterface2 {
     private final List<Point2> points;
     private final Point2 ballPosition;
     private Player playerToMove;
+    private MoveHistory moveHistory;
 
     Board2() {
         this.points = PointUtils.initialPoints();
         this.ballPosition = points.get(58);
         this.playerToMove = Player.FIRST;
+        this.moveHistory = new MoveHistory();
     }
 
     Board2(final List<Point2> points,
            final Point2 ballPosition,
-           Player currentPlayer) {
+           final Player currentPlayer,
+           final MoveHistory moveHistory) {
         this.points = points;
         this.ballPosition = ballPosition;
         this.playerToMove = currentPlayer;
+        this.moveHistory = moveHistory;
     }
 
 
@@ -49,16 +53,20 @@ class Board2 implements BoardInterface2 {
     @Override
     public Board2 executeMove(final Direction destination) {
 
-        final List<Point2> points = makeAMove(destination);
-        int ballPosition = computeBallPosition(destination);
+        final var points = makeAMove(destination);
+        final int ballPosition = computeBallPosition(destination);
+        final var moveHistoryNew = this.moveHistory.add(destination);
+
         if (allowToMoveIn7Directions(points.get(ballPosition))) {
             return new Board2(points,
                     points.get(ballPosition),
-                    this.playerToMove.opposite());
+                    this.playerToMove.opposite(),
+                    moveHistoryNew);
         }
         return new Board2(points,
                 points.get(ballPosition),
-                this.playerToMove);
+                this.playerToMove,
+                moveHistoryNew);
     }
 
     @Override
@@ -74,12 +82,7 @@ class Board2 implements BoardInterface2 {
             return null;
         }
 
-        final var cantMoveThere = this.ballPosition.getUnavailableDirection();
-        if (cantMoveThere.size() != 1) {
-            return null;
-        }
-        final var direction = cantMoveThere.get(0);
-
+        final var direction = moveHistory.getLastMove();
         final int moveBall = direction.changeToInt();
         final int afterMovePosition = computePositionAfterMove(moveBall);
 
@@ -92,14 +95,21 @@ class Board2 implements BoardInterface2 {
         previousPositionPoint.setAvailableDirections(direction.opposite());
         afterMovePoints.set(afterMovePosition, previousPositionPoint);
 
+        final var moveHistoryNew = this.moveHistory.subtract();
+
+        // TODO condition is wrong, according to test
+        // TODO probably compute Point and check if this point can make a move in 7 direction
+        // TODO in order to switch Player. Code will look similar to that one above
         if (allowToMoveIn7Directions(points.get(this.ballPosition.getPosition()))) {
             return new Board2(points,
                     afterMovePoints.get(afterMovePosition),
-                    this.playerToMove.opposite());
+                    this.playerToMove.opposite(),
+                    moveHistoryNew);
         }
         return new Board2(points,
                 afterMovePoints.get(afterMovePosition),
-                this.playerToMove);
+                this.playerToMove,
+                moveHistoryNew);
     }
 
     // TODO size() == 0 this is workaround if someone undo moves to the starting point
