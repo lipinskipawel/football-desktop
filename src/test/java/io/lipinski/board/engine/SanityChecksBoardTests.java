@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @DisplayName("Sanity checks of board state")
-class SanityChecksBoard {
+class SanityChecksBoardTests {
 
     private BoardInterface2 board;
     private static int STARTING_BALL_POSITION = 58;

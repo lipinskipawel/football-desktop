@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("Running new API Board tests")
-class MovesTestOnBoard {
+class MovesTestOnBoardTest {
 
     private BoardInterface2 board;
     private static int STARTING_BALL_POSITION;
