@@ -19,7 +19,7 @@ class MoveLog implements Serializable {
     private List<Integer> currentMove;
     private final Points points;
     /**
-     * This flag is used to handle with currentPlayer from Board
+     * This flag is used to handle with currentPlayer from MutableBoard
      */
     private boolean newPlayer;
 

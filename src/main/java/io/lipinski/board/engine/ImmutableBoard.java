@@ -7,42 +7,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-class Board2 implements BoardInterface2 {
+class ImmutableBoard implements BoardInterface2 {
 
     private final List<Point2> points;
     private final Point2 ballPosition;
     private Player playerToMove;
     private MoveHistory moveHistory;
 
-    Board2() {
+    ImmutableBoard() {
         this.points = PointUtils.initialPoints();
         this.ballPosition = points.get(58);
         this.playerToMove = Player.FIRST;
         this.moveHistory = new MoveHistory();
     }
 
-    Board2(final List<Point2> points,
-           final Point2 ballPosition,
-           final Player currentPlayer,
-           final MoveHistory moveHistory) {
+    private ImmutableBoard(final List<Point2> points,
+                           final Point2 ballPosition,
+                           final Player currentPlayer,
+                           final MoveHistory moveHistory) {
         this.points = points;
         this.ballPosition = ballPosition;
         this.playerToMove = currentPlayer;
         this.moveHistory = moveHistory;
-    }
-
-
-    @Override
-    public BoardInterface2 loadMove(final Move move) {
-        if (move.getMove().size() == 1) {
-            return executeMove(move.getMove().get(0));
-        }
-        return null;
-    }
-
-    @Override
-    public BoardInterface2 loadMoves(final List<Move> moves) {
-        return null;
     }
 
     @Override
@@ -51,22 +37,22 @@ class Board2 implements BoardInterface2 {
     }
 
     @Override
-    public Board2 executeMove(final Direction destination) {
+    public ImmutableBoard executeMove(final Direction destination) {
 
         final var points = makeAMove(destination);
         final int ballPosition = computeBallPosition(destination);
-        final var moveHistoryNew = this.moveHistory.add(destination);
+        final var newMoveHistory = this.moveHistory.add(destination);
 
         if (allowToMoveIn7Directions(points.get(ballPosition))) {
-            return new Board2(points,
+            return new ImmutableBoard(points,
                     points.get(ballPosition),
                     this.playerToMove.opposite(),
-                    moveHistoryNew);
+                    newMoveHistory);
         }
-        return new Board2(points,
+        return new ImmutableBoard(points,
                 points.get(ballPosition),
                 this.playerToMove,
-                moveHistoryNew);
+                newMoveHistory);
     }
 
     @Override
@@ -76,7 +62,7 @@ class Board2 implements BoardInterface2 {
 
     // TODO make something about return null
     @Override
-    public Board2 undoMove() {
+    public ImmutableBoard undoMove() {
 
         if (this.ballPosition.isOnStartingPoint() && allowToMoveAnywhere()) {
             return null;
@@ -101,12 +87,12 @@ class Board2 implements BoardInterface2 {
         // TODO probably compute Point and check if this point can make a move in 7 direction
         // TODO in order to switch Player. Code will look similar to that one above
         if (allowToMoveIn7Directions(points.get(this.ballPosition.getPosition()))) {
-            return new Board2(points,
+            return new ImmutableBoard(points,
                     afterMovePoints.get(afterMovePosition),
                     this.playerToMove.opposite(),
                     moveHistoryNew);
         }
-        return new Board2(points,
+        return new ImmutableBoard(points,
                 afterMovePoints.get(afterMovePosition),
                 this.playerToMove,
                 moveHistoryNew);
@@ -114,7 +100,7 @@ class Board2 implements BoardInterface2 {
 
     // TODO size() == 0 this is workaround if someone undo moves to the starting point
     @Override
-    public Board2 undoFullMove() {
+    public ImmutableBoard undoFullMove() {
         var counter = 0;
         while (counter < 100) {
             final var boardAfterUndo = undoMove();

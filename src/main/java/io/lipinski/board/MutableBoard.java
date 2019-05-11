@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
-public class Board implements BoardInterface, Serializable {
+public class MutableBoard implements BoardInterface, Serializable {
 
 
     private final MoveLog moveLog;
@@ -15,7 +15,7 @@ public class Board implements BoardInterface, Serializable {
 
     private Player currentPlayer;
 
-    public Board() {
+    public MutableBoard() {
         this.moveLog = new MoveLog();
         this.ballPosition = this.moveLog.getBall();
         this.currentPlayer = Player.FIRST;

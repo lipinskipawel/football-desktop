@@ -8,13 +8,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayName("Running board test")
-class BoardTest {
+class MutableBoardTest {
 
     private BoardInterface board;
 
     @BeforeEach
     void setUp() throws Exception {
-        this.board = new Board();
+        this.board = new MutableBoard();
     }
 
 
