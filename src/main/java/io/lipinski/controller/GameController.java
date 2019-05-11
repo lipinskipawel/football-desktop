@@ -1,10 +1,10 @@
 package io.lipinski.controller;
 
+import io.lipinski.board.MutableBoard;
 import io.lipinski.gui.GameDrawer;
 import io.lipinski.gui.Table;
 import io.lipinski.network.ConnectionHandler;
 import io.lipinski.network.ConnectionState;
-import io.lipinski.board.Board;
 import io.lipinski.board.BoardInterface;
 import io.lipinski.board.Point;
 import io.lipinski.network.ConnectionChat;
@@ -52,7 +52,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
 
 
     GameController(final Table table) {
-        this.board = new Board();
+        this.board = new MutableBoard();
         this.table = table;
         this.table.drawBoard(this.board, this.board.getCurrentPlayer());
         this.table.activePlayer(this.board.getCurrentPlayer());
@@ -344,7 +344,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
     }
 
     private void restartBoard() {
-        this.board = new Board();
+        this.board = new MutableBoard();
         this.table.drawBoard(this.board, this.playerView);
         this.table.activePlayer(this.board.getCurrentPlayer());
         this.endGame = false;

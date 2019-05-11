@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
-public class Board implements BoardInterface, Serializable {
+public class MutableBoard implements BoardInterface, Serializable {
 
 
     private final MoveLog moveLog;
@@ -15,7 +15,7 @@ public class Board implements BoardInterface, Serializable {
 
     private Player currentPlayer;
 
-    public Board() {
+    public MutableBoard() {
         this.moveLog = new MoveLog();
         this.ballPosition = this.moveLog.getBall();
         this.currentPlayer = Player.FIRST;
@@ -23,36 +23,67 @@ public class Board implements BoardInterface, Serializable {
 
 
     @Override
-    public boolean tryMakeMove(final Point destination){
+    public boolean tryMakeMove(final Point destination) {
         return makeMoveHelper(destination);
     }
+
     @Override
     public boolean tryMakeMove(final Direction direction) {
-        return makeMoveHelper(this.moveLog.getPoint(direction.changeToInt()));
+        Point point = calculatePointPosition(direction, ballPosition);
+//        return makeMoveHelper(this.moveLog.getPoint(direction.changeToInt()));
+        return makeMoveHelper(point);
     }
+
+    private Point calculatePointPosition(Direction direction, Point currentBallPosition) {
+
+        // some logic, that's need to be shift somewhere else when refactor of code will be executed
+        if (direction.changeToInt() > 0)
+            return new Point(currentBallPosition.getPosition() - direction.changeToInt());
+        else return new Point(currentBallPosition.getPosition() + direction.changeToInt());
+
+    }
+
     @Override
-    public boolean undoMove() {return undoMoveHelper(false);}
+    public boolean undoMove() {
+        return undoMoveHelper(false);
+    }
+
     @Override
-    public boolean undoMove(final boolean canIgoBack) {return undoMoveHelper(canIgoBack);}
+    public boolean undoMove(final boolean canIgoBack) {
+        return undoMoveHelper(canIgoBack);
+    }
 
 
     @Override
-    public List<List<Integer>> getMoveList() {return Collections.unmodifiableList(this.moveLog.getListOfMoves());}
+    public List<List<Integer>> getMoveList() {
+        return Collections.unmodifiableList(this.moveLog.getListOfMoves());
+    }
 
     @Override
-    public Player getCurrentPlayer() {return this.currentPlayer;}
+    public Player getCurrentPlayer() {
+        return this.currentPlayer;
+    }
+
     @Override
-    public Player getOppositePlayer() {return getOppositePlayerr();}
+    public Player getOppositePlayer() {
+        return getOppositePlayerr();
+    }
+
     @Override
-    public int getBallPosition() {return this.moveLog.getBall().getPosition();}
+    public int getBallPosition() {
+        return this.moveLog.getBall().getPosition();
+    }
+
     @Override
     public Point getPoint(final int position) {
         return new Point(this.moveLog.getPoint(position));
     }
+
     @Override
     public boolean isThisGoal(final Point point) {
         return this.moveLog.isThisGoal(point.getPosition());
     }
+
     @Override
     public Player winnerIs(final int goalCandidatePosition) {
         if (!this.moveLog.isThisGoal(goalCandidatePosition))
@@ -84,6 +115,7 @@ public class Board implements BoardInterface, Serializable {
 
     /**
      * This method operates on field points in the if statement.
+     *
      * @param destination Point that user wants to reach.
      * @return boolean true if the move is executed or false if doesn't.
      */
@@ -97,6 +129,7 @@ public class Board implements BoardInterface, Serializable {
         }
         return false;
     }
+
     private boolean undoMoveHelper(final boolean canIgoBack) {
         if (this.moveLog.undoMove(canIgoBack)) {
             this.ballPosition = this.moveLog.getBall();
