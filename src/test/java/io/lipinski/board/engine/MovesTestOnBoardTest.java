@@ -157,7 +157,7 @@ class MovesTestOnBoardTest {
 
             //Then:
             final var shouldBeAfterSubMove = afterSubMove.undoMove();
-            assertEquals(Player.SECOND, shouldBeAfterSubMove.getPlayer(),
+            assertEquals(Player.FIRST, shouldBeAfterSubMove.getPlayer(),
                     () -> "Not change player");
         }
 

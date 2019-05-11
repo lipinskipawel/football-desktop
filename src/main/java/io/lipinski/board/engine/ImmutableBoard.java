@@ -11,8 +11,8 @@ class ImmutableBoard implements BoardInterface2 {
 
     private final List<Point2> points;
     private final Point2 ballPosition;
-    private Player playerToMove;
-    private MoveHistory moveHistory;
+    private final Player playerToMove;
+    private final MoveHistory moveHistory;
 
     ImmutableBoard() {
         this.points = PointUtils.initialPoints();
@@ -70,7 +70,7 @@ class ImmutableBoard implements BoardInterface2 {
 
         final var direction = moveHistory.getLastMove();
         final int moveBall = direction.changeToInt();
-        final int afterMovePosition = computePositionAfterMove(moveBall);
+        final int afterMovePosition = computePositionAfterMove(-moveBall);
 
         final var afterMovePoints = new ArrayList<>(points);
 
@@ -78,14 +78,11 @@ class ImmutableBoard implements BoardInterface2 {
                 new Point2(this.ballPosition.getPosition()));
 
         final var previousPositionPoint = afterMovePoints.get(afterMovePosition);
-        previousPositionPoint.setAvailableDirections(direction.opposite());
+        previousPositionPoint.setAvailableDirections(direction);
         afterMovePoints.set(afterMovePosition, previousPositionPoint);
 
         final var moveHistoryNew = this.moveHistory.subtract();
 
-        // TODO condition is wrong, according to test
-        // TODO probably compute Point and check if this point can make a move in 7 direction
-        // TODO in order to switch Player. Code will look similar to that one above
         if (allowToMoveIn7Directions(points.get(this.ballPosition.getPosition()))) {
             return new ImmutableBoard(points,
                     afterMovePoints.get(afterMovePosition),
