@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 //TODO refactor this class with PointUtils
 // put them into the same package and play with package scope
@@ -44,13 +45,22 @@ class Point2 {
         this.availableDirections.put(directions, Boolean.TRUE);
     }
 
+    List<Direction> getAllowedDirection() {
+        return this.availableDirections
+                .entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().booleanValue() == Boolean.TRUE)
+                .map(Map.Entry::getKey)
+                .collect(toUnmodifiableList());
+    }
+
     List<Direction> getUnavailableDirection() {
         return this.availableDirections
                 .entrySet()
                 .stream()
                 .filter(entry -> entry.getValue().booleanValue() == Boolean.FALSE)
                 .map(Map.Entry::getKey)
-                .collect(toList());
+                .collect(toUnmodifiableList());
     }
 
     boolean isOnStartingPoint() {

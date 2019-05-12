@@ -2,6 +2,7 @@ package io.lipinski.board.engine;
 
 import io.lipinski.board.Direction;
 import io.lipinski.board.engine.exceptions.IllegalMoveException;
+import io.lipinski.board.engine.exceptions.IllegalUndoMoveException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,7 +21,7 @@ class MovesTestOnBoardTest {
     private static int STARTING_BALL_POSITION;
     private static int POSITION_AFTER_N_MOVE;
     private static int POSITION_AFTER_S_MOVE;
-    private static int POSITION_AFTER_N_N_MOVE;
+    private static int POSITION_AFTER_E_MOVE;
 
 
     @BeforeAll
@@ -28,7 +29,7 @@ class MovesTestOnBoardTest {
         STARTING_BALL_POSITION = 58;
         POSITION_AFTER_N_MOVE = 49;
         POSITION_AFTER_S_MOVE = 67;
-        POSITION_AFTER_N_N_MOVE = 40;
+        POSITION_AFTER_E_MOVE = 59;
     }
 
     @BeforeEach
@@ -42,7 +43,7 @@ class MovesTestOnBoardTest {
 
         @Test
         @DisplayName("Make a proper full move towards North")
-        void makeAMove() {
+        void makeAMoveN() {
 
             //When:
             BoardInterface2 afterMove = board.executeMove(Direction.N);
@@ -55,7 +56,7 @@ class MovesTestOnBoardTest {
 
         @Test
         @DisplayName("Make a proper full move towards South")
-        void makeAMoveTest() {
+        void makeAMoveS() {
 
             //When:
             BoardInterface2 afterMove = board.executeMove(Direction.S);
@@ -66,7 +67,19 @@ class MovesTestOnBoardTest {
 
         }
 
-        // TODO return to this tests when executeMove returns MutableBoard
+        @Test
+        @DisplayName("Make a proper full move towards East")
+        void makeAMoveE() {
+
+            //When:
+            BoardInterface2 afterMove = board.executeMove(Direction.E);
+
+            //Then:
+            int actualBallPosition = afterMove.getBallPosition();
+            assertEquals(POSITION_AFTER_E_MOVE, actualBallPosition);
+
+        }
+
         @Test
         @DisplayName("Make a one full move and don't allow to move backwards")
         void notAllowToMakeAMove() {
@@ -89,8 +102,8 @@ class MovesTestOnBoardTest {
 
             assertThrows(IllegalMoveException.class,
                     () -> board.executeMove(Direction.N)
-                                .executeMove(Direction.S),
-                    "Move back to previous position is illegal");
+                            .executeMove(Direction.S),
+                    () -> "Move back to previous position is illegal");
         }
 
     }
@@ -101,12 +114,21 @@ class MovesTestOnBoardTest {
 
 
         @Test
+        @DisplayName("Try to undo move when no move has been done yet")
+        void undoMoveWhenGameJustBegun() {
+
+            assertThrows(IllegalUndoMoveException.class,
+                    () -> board.undoMove(),
+                    () -> "Can't undo move when no move has been done");
+        }
+
+        @Test
         @DisplayName("Make a one simple S move and then undo")
         void makeAMoveSAndUndoMove() {
 
             //When:
             BoardInterface2 afterMove = board.executeMove(Direction.S);
-            BoardInterface2 afterUndo = afterMove.undoFullMove();
+            BoardInterface2 afterUndo = afterMove.undoMove();
 
             //Then:
             int actualBallPosition = afterUndo.getBallPosition();
@@ -188,8 +210,6 @@ class MovesTestOnBoardTest {
             assertEquals(Player.SECOND, afterUndoMove.getPlayer());
         }
     }
-
-
 
 
 }

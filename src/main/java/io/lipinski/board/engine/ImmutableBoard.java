@@ -2,6 +2,7 @@ package io.lipinski.board.engine;
 
 import io.lipinski.board.Direction;
 import io.lipinski.board.engine.exceptions.IllegalMoveException;
+import io.lipinski.board.engine.exceptions.IllegalUndoMoveException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +66,7 @@ class ImmutableBoard implements BoardInterface2 {
     public ImmutableBoard undoMove() {
 
         if (this.ballPosition.isOnStartingPoint() && allowToMoveAnywhere()) {
-            return null;
+            throw new IllegalUndoMoveException("You can undo move when no move has been done");
         }
 
         final var direction = moveHistory.getLastMove();
@@ -95,19 +96,9 @@ class ImmutableBoard implements BoardInterface2 {
                 moveHistoryNew);
     }
 
-    // TODO size() == 0 this is workaround if someone undo moves to the starting point
     @Override
-    public ImmutableBoard undoFullMove() {
-        var counter = 0;
-        while (counter < 100) {
-            final var boardAfterUndo = undoMove();
-            if (boardAfterUndo.ballPosition.getUnavailableDirection().size() == 1 ||
-                    boardAfterUndo.ballPosition.getUnavailableDirection().size() == 0) {
-                return boardAfterUndo;
-            }
-            counter++;
-        }
-        return null;
+    public List<Direction> allLegalMoves() {
+        return this.ballPosition.getAllowedDirection();
     }
 
     @Override
