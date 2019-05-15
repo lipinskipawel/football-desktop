@@ -6,6 +6,7 @@ import io.lipinski.board.engine.exceptions.IllegalUndoMoveException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 
 class ImmutableBoard implements BoardInterface2 {
@@ -20,6 +21,7 @@ class ImmutableBoard implements BoardInterface2 {
         this.ballPosition = points.get(58);
         this.playerToMove = Player.FIRST;
         this.moveHistory = new MoveHistory();
+        IntStream.iterate(0, i -> i < 10, i -> i + 1);
     }
 
     private ImmutableBoard(final List<Point2> points,
@@ -96,8 +98,9 @@ class ImmutableBoard implements BoardInterface2 {
     }
 
     @Override
-    public List<Direction> allLegalMoves() {
-        return this.ballPosition.getAllowedDirection();
+    public List<Move> allLegalMoves() {
+
+        return null;
     }
 
     @Override

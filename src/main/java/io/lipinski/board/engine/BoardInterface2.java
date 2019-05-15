@@ -12,7 +12,7 @@ public interface BoardInterface2 {
     BoardInterface2 undoMove() throws IllegalUndoMoveException;
 
     // change those two methods by one getLegalMoves()
-    List<Direction> allLegalMoves();
+    List<Move> allLegalMoves();
     boolean isMoveAllowed(final Direction destination);
     int getBallPosition();
 

@@ -3,11 +3,17 @@ package io.lipinski.board.engine;
 import io.lipinski.board.Direction;
 import io.lipinski.board.engine.exceptions.IllegalMoveException;
 import io.lipinski.board.engine.exceptions.IllegalUndoMoveException;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -15,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("Running new API MutableBoard tests")
-class MovesTestOnBoardTest {
+class ImmutableBoardTest {
 
     private BoardInterface2 board;
     private static int STARTING_BALL_POSITION;
@@ -35,6 +41,66 @@ class MovesTestOnBoardTest {
     @BeforeEach
     void setUp() throws Exception {
         this.board = new ImmutableBoard();
+    }
+
+    @Nested
+    @DisplayName("Test about legal moves")
+    class LegalMoves {
+
+        @Test
+        @DisplayName("List of legal moves with clean board")
+        void allLegalMoves() {
+
+            //When:
+            final var preparedMoves = List.of(
+                    new Move(Collections.singletonList(Direction.S)),
+                    new Move(Collections.singletonList(Direction.N)),
+                    new Move(Collections.singletonList(Direction.NE)),
+                    new Move(Collections.singletonList(Direction.NW)),
+                    new Move(Collections.singletonList(Direction.SW)),
+                    new Move(Collections.singletonList(Direction.SE)),
+                    new Move(Collections.singletonList(Direction.E)),
+                    new Move(Collections.singletonList(Direction.N))
+            );
+
+            //Then:
+            final var allMoves = board.allLegalMoves();
+
+            //Given:
+            Assertions.assertThat(allMoves)
+                    .containsExactlyInAnyOrderElementsOf(preparedMoves);
+        }
+
+        @Test
+        @DisplayName("List of legal moves after N, E")
+        void allLegalMovesAfterSomeMoves() {
+
+            //When:
+            final var preparedMoves = List.of(
+                    new Move(Collections.singletonList(Direction.NW)),
+                    new Move(Collections.singletonList(Direction.N)),
+                    new Move(Collections.singletonList(Direction.NE)),
+                    new Move(Collections.singletonList(Direction.E)),
+                    new Move(Collections.singletonList(Direction.SE)),
+                    new Move(Collections.singletonList(Direction.S)),
+                    new Move(Arrays.asList(Direction.SW, Direction.E)),
+                    new Move(Arrays.asList(Direction.SW, Direction.SE)),
+                    new Move(Arrays.asList(Direction.SW, Direction.S)),
+                    new Move(Arrays.asList(Direction.SW, Direction.SW)),
+                    new Move(Arrays.asList(Direction.SW, Direction.W)),
+                    new Move(Arrays.asList(Direction.SW, Direction.NW))
+            );
+
+            //Then:
+            final var afterTwoMoves = board.executeMove(Direction.N)
+                    .executeMove(Direction.E);
+            final var allMoves = afterTwoMoves.allLegalMoves();
+
+            //Given:
+            Assertions.assertThat(allMoves)
+                    .containsExactlyInAnyOrderElementsOf(preparedMoves);
+        }
+
     }
 
     @Nested
