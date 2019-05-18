@@ -14,6 +14,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.TreeMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -51,22 +52,22 @@ class ImmutableBoardTest {
         @DisplayName("List of legal moves with clean board")
         void allLegalMoves() {
 
-            //When:
+            //Given:
             final var preparedMoves = List.of(
-                    new Move(Collections.singletonList(Direction.S)),
                     new Move(Collections.singletonList(Direction.N)),
                     new Move(Collections.singletonList(Direction.NE)),
-                    new Move(Collections.singletonList(Direction.NW)),
-                    new Move(Collections.singletonList(Direction.SW)),
-                    new Move(Collections.singletonList(Direction.SE)),
                     new Move(Collections.singletonList(Direction.E)),
-                    new Move(Collections.singletonList(Direction.N))
+                    new Move(Collections.singletonList(Direction.SE)),
+                    new Move(Collections.singletonList(Direction.S)),
+                    new Move(Collections.singletonList(Direction.SW)),
+                    new Move(Collections.singletonList(Direction.W)),
+                    new Move(Collections.singletonList(Direction.NW))
             );
 
-            //Then:
+            //When:
             final var allMoves = board.allLegalMoves();
 
-            //Given:
+            //Then:
             Assertions.assertThat(allMoves)
                     .containsExactlyInAnyOrderElementsOf(preparedMoves);
         }
@@ -75,7 +76,7 @@ class ImmutableBoardTest {
         @DisplayName("List of legal moves after N, E")
         void allLegalMovesAfterSomeMoves() {
 
-            //When:
+            //Given:
             final var preparedMoves = List.of(
                     new Move(Collections.singletonList(Direction.NW)),
                     new Move(Collections.singletonList(Direction.N)),
@@ -91,12 +92,12 @@ class ImmutableBoardTest {
                     new Move(Arrays.asList(Direction.SW, Direction.NW))
             );
 
-            //Then:
+            //When:
             final var afterTwoMoves = board.executeMove(Direction.N)
                     .executeMove(Direction.E);
             final var allMoves = afterTwoMoves.allLegalMoves();
 
-            //Given:
+            //Then:
             Assertions.assertThat(allMoves)
                     .containsExactlyInAnyOrderElementsOf(preparedMoves);
         }
