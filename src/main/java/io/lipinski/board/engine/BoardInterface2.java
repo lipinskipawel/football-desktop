@@ -15,6 +15,7 @@ public interface BoardInterface2 {
     List<Move> allLegalMoves();
     boolean isMoveAllowed(final Direction destination);
     int getBallPosition();
+    Point2 getBallAPI();
 
     Player getPlayer();
 

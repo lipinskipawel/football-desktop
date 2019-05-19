@@ -10,13 +10,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.TreeMap;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -135,16 +135,24 @@ class ImmutableBoardTest {
         }
 
         @Test
-        @DisplayName("Make a proper full move towards East")
-        void makeAMoveE() {
+        @DisplayName("Make a proper full move towards East, North and check allowed moves")
+        void makeAMoveEN() {
 
             //When:
-            BoardInterface2 afterMove = board.executeMove(Direction.E);
+            BoardInterface2 afterMove = board.executeMove(Direction.E)
+                    .executeMove(Direction.N);
 
             //Then:
-            int actualBallPosition = afterMove.getBallPosition();
-            assertEquals(POSITION_AFTER_E_MOVE, actualBallPosition);
-
+            assertAll(
+                    () -> assertTrue(afterMove.isMoveAllowed(Direction.N)),
+                    () -> assertTrue(afterMove.isMoveAllowed(Direction.NE)),
+                    () -> assertTrue(afterMove.isMoveAllowed(Direction.E)),
+                    () -> assertTrue(afterMove.isMoveAllowed(Direction.SE)),
+                    () -> assertFalse(afterMove.isMoveAllowed(Direction.S)),
+                    () -> assertTrue(afterMove.isMoveAllowed(Direction.SW)),
+                    () -> assertTrue(afterMove.isMoveAllowed(Direction.W)),
+                    () -> assertTrue(afterMove.isMoveAllowed(Direction.NW))
+            );
         }
 
         @Test
@@ -162,6 +170,52 @@ class ImmutableBoardTest {
             assertNull(afterSecondMove);
         }
 
+        @Test
+        @DisplayName("Can't follow executed moves")
+        void makeTwoMovesAndTryFollowExecutedMoves() {
+
+            //When:
+            final var afterMoves = board.executeMove(Direction.N)
+                    .executeMove(Direction.E)
+                    .executeMove(Direction.SW);
+
+            //Then:
+            assertAll(
+                    () -> assertTrue(afterMoves.isMoveAllowed(Direction.NW)),
+                    () -> assertFalse(afterMoves.isMoveAllowed(Direction.N)),
+                    () -> assertFalse(afterMoves.isMoveAllowed(Direction.NE)),
+                    () -> assertTrue(afterMoves.isMoveAllowed(Direction.E)),
+                    () -> assertTrue(afterMoves.isMoveAllowed(Direction.SE)),
+                    () -> assertTrue(afterMoves.isMoveAllowed(Direction.S)),
+                    () -> assertTrue(afterMoves.isMoveAllowed(Direction.SW)),
+                    () -> assertTrue(afterMoves.isMoveAllowed(Direction.W))
+            );
+        }
+
+        @Test
+        @DisplayName("Can't follow executed moves, move sample")
+        void makeTwoMovesAndTryFollowExecutedMovesMoreSample() {
+
+            //When:
+            final var afterMoves = board.executeMove(Direction.N)
+                    .executeMove(Direction.E)
+                    .executeMove(Direction.SW)
+                    .executeMove(Direction.SW)
+                    .executeMove(Direction.E)
+                    .executeMove(Direction.N);
+
+            //Then:
+            assertAll(
+                    () -> assertTrue(afterMoves.isMoveAllowed(Direction.NW)),
+                    () -> assertFalse(afterMoves.isMoveAllowed(Direction.N)),
+                    () -> assertFalse(afterMoves.isMoveAllowed(Direction.NE)),
+                    () -> assertTrue(afterMoves.isMoveAllowed(Direction.E)),
+                    () -> assertTrue(afterMoves.isMoveAllowed(Direction.SE)),
+                    () -> assertFalse(afterMoves.isMoveAllowed(Direction.S)),
+                    () -> assertFalse(afterMoves.isMoveAllowed(Direction.SW)),
+                    () -> assertTrue(afterMoves.isMoveAllowed(Direction.W))
+            );
+        }
 
         @Test
         @DisplayName("Make a one full move and go back directly to previous position")

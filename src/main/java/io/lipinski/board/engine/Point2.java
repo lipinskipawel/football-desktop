@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toUnmodifiableList;
 
 //TODO refactor this class with PointUtils
@@ -25,11 +26,18 @@ class Point2 {
         this.availableDirections = initAvailableDirections();
     }
 
+    Point2(Point2 point2) {
+        this.position = point2.position;
+        this.availableDirections = point2.availableDirections.entrySet()
+                .stream()
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
     private Point2(int position, Map<Direction, Boolean> availableDirections) {
         this.position = position;
         this.availableDirections = availableDirections.entrySet()
                 .stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
 
