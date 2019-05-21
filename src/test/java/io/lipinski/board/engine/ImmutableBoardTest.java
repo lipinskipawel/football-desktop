@@ -1,7 +1,6 @@
 package io.lipinski.board.engine;
 
 import io.lipinski.board.Direction;
-import io.lipinski.board.engine.exceptions.IllegalMoveException;
 import io.lipinski.board.engine.exceptions.IllegalUndoMoveException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -28,7 +27,6 @@ class ImmutableBoardTest {
     private static int STARTING_BALL_POSITION;
     private static int POSITION_AFTER_N_MOVE;
     private static int POSITION_AFTER_S_MOVE;
-    private static int POSITION_AFTER_E_MOVE;
 
 
     @BeforeAll
@@ -36,11 +34,10 @@ class ImmutableBoardTest {
         STARTING_BALL_POSITION = 58;
         POSITION_AFTER_N_MOVE = 49;
         POSITION_AFTER_S_MOVE = 67;
-        POSITION_AFTER_E_MOVE = 59;
     }
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         this.board = new ImmutableBoard();
     }
 
@@ -216,17 +213,6 @@ class ImmutableBoardTest {
                     () -> assertTrue(afterMoves.isMoveAllowed(Direction.W))
             );
         }
-
-        @Test
-        @DisplayName("Make a one full move and go back directly to previous position")
-        void notAllowIllegalMove() {
-
-            assertThrows(IllegalMoveException.class,
-                    () -> board.executeMove(Direction.N)
-                            .executeMove(Direction.S),
-                    () -> "Move back to previous position is illegal");
-        }
-
     }
 
     @Nested

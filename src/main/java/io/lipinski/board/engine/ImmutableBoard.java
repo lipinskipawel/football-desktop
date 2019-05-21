@@ -7,7 +7,6 @@ import io.lipinski.board.engine.exceptions.IllegalUndoMoveException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
-import java.util.stream.IntStream;
 
 
 class ImmutableBoard implements BoardInterface2 {
@@ -17,15 +16,14 @@ class ImmutableBoard implements BoardInterface2 {
     private final Player playerToMove;
     private final MoveHistory moveHistory;
 
-    private static ThreadLocal<Stack<Direction>> stack = initStack();
-    private static ThreadLocal<List<Move>> allMoves = initListMoves();
+    private static ThreadLocal<Stack<Direction>> stack = new ThreadLocal<>();
+    private static ThreadLocal<List<Move>> allMoves = new ThreadLocal<>();
 
     ImmutableBoard() {
         this.points = PointUtils.initialPoints();
         this.ballPosition = points.get(58);
         this.playerToMove = Player.FIRST;
         this.moveHistory = new MoveHistory();
-        IntStream.iterate(0, i -> i < 10, i -> i + 1);
     }
 
     private ImmutableBoard(final List<Point2> points,
@@ -105,12 +103,12 @@ class ImmutableBoard implements BoardInterface2 {
 
         stack.set(new Stack<>());
         allMoves.set(new ArrayList<>());
-        get3(this);
+        findAllMovesRecursively(this);
 
         return allMoves.get();
     }
 
-    private void get3(final BoardInterface2 boardInterface2) {
+    private void findAllMovesRecursively(final BoardInterface2 boardInterface2) {
 
         for (var move : boardInterface2.getBallAPI().getAllowedDirection()) {
 
@@ -123,7 +121,7 @@ class ImmutableBoard implements BoardInterface2 {
             } else {
 
                 final var afterMove2 = boardInterface2.executeMove(move);
-                get3(afterMove2);
+                findAllMovesRecursively(afterMove2);
             }
 
             stack.get().pop();
@@ -172,24 +170,6 @@ class ImmutableBoard implements BoardInterface2 {
 
     private boolean allowToMoveIn7Directions(Point2 point) {
         return point.getUnavailableDirection().size() == 1;
-    }
-
-    private static ThreadLocal<Stack<Direction>> initStack() {
-
-        final var thread = new ThreadLocal<Stack<Direction>>();
-        final var stackDir = new Stack<Direction>();
-
-        thread.set(stackDir);
-        return thread;
-    }
-
-    private static ThreadLocal<List<Move>> initListMoves() {
-
-        final var thread = new ThreadLocal<List<Move>>();
-        final var stackMoves = new ArrayList<Move>();
-
-        thread.set(stackMoves);
-        return thread;
     }
 
 }
