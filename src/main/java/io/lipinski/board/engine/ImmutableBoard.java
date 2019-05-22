@@ -2,9 +2,11 @@ package io.lipinski.board.engine;
 
 import io.lipinski.board.Direction;
 import io.lipinski.board.engine.exceptions.IllegalMoveException;
+import io.lipinski.board.engine.exceptions.IllegalUndoMoveException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 
 class ImmutableBoard implements BoardInterface2 {
@@ -13,6 +15,9 @@ class ImmutableBoard implements BoardInterface2 {
     private final Point2 ballPosition;
     private final Player playerToMove;
     private final MoveHistory moveHistory;
+
+    private static ThreadLocal<Stack<Direction>> stack = new ThreadLocal<>();
+    private static ThreadLocal<List<Move>> allMoves = new ThreadLocal<>();
 
     ImmutableBoard() {
         this.points = PointUtils.initialPoints();
@@ -60,17 +65,15 @@ class ImmutableBoard implements BoardInterface2 {
         return this.ballPosition.getPosition();
     }
 
-    // TODO make something about return null
     @Override
     public ImmutableBoard undoMove() {
 
         if (this.ballPosition.isOnStartingPoint() && allowToMoveAnywhere()) {
-            return null;
+            throw new IllegalUndoMoveException("You can undo move when no move has been done");
         }
 
         final var direction = moveHistory.getLastMove();
-        final int moveBall = direction.changeToInt();
-        final int afterMovePosition = computePositionAfterMove(-moveBall);
+        final var afterMovePosition = computeBallPosition(direction.opposite());
 
         final var afterMovePoints = new ArrayList<>(points);
 
@@ -95,19 +98,43 @@ class ImmutableBoard implements BoardInterface2 {
                 moveHistoryNew);
     }
 
-    // TODO size() == 0 this is workaround if someone undo moves to the starting point
     @Override
-    public ImmutableBoard undoFullMove() {
-        var counter = 0;
-        while (counter < 100) {
-            final var boardAfterUndo = undoMove();
-            if (boardAfterUndo.ballPosition.getUnavailableDirection().size() == 1 ||
-                    boardAfterUndo.ballPosition.getUnavailableDirection().size() == 0) {
-                return boardAfterUndo;
+    public List<Move> allLegalMoves() {
+
+        stack.set(new Stack<>());
+        allMoves.set(new ArrayList<>());
+        findAllMovesRecursively(this);
+
+        return allMoves.get();
+    }
+
+    private void findAllMovesRecursively(final BoardInterface2 boardInterface2) {
+
+        for (var move : boardInterface2.getBallAPI().getAllowedDirection()) {
+
+            stack.get().push(move);
+            final var afterMove = boardInterface2.executeMove(move);
+
+            if (isItEnd(afterMove.getBallAPI())) {
+                final var moveToSave = new Move(new ArrayList<>(stack.get()));
+                allMoves.get().add(moveToSave);
+            } else {
+
+                final var afterMove2 = boardInterface2.executeMove(move);
+                findAllMovesRecursively(afterMove2);
             }
-            counter++;
+
+            stack.get().pop();
         }
-        return null;
+    }
+
+    @Override
+    public Point2 getBallAPI() {
+        return this.points.get(this.ballPosition.getPosition());
+    }
+
+    private boolean isItEnd(final Point2 ball) {
+        return ball.getAllowedDirection().size() == 7;
     }
 
     @Override
@@ -115,21 +142,16 @@ class ImmutableBoard implements BoardInterface2 {
         return this.playerToMove;
     }
 
-
-    // TODO create list of Points and apply logic here
-    // TODO logic like, change if move can be made
     private List<Point2> makeAMove(final Direction destination) {
 
         if (isMoveAllowed(destination)) {
 
-            int moveBall = destination.changeToInt();
-            Point2 currentBall = new Point2(getBallPosition()).notAvailableDirection(destination);
+            final var newPosition = computeBallPosition(destination);
+            final var currentBall = new Point2(points.get(getBallPosition())).notAvailableDirection(destination);
 
-            List<Point2> afterMove = new ArrayList<>(points);
+            final var afterMove = new ArrayList<>(points);
             afterMove.set(getBallPosition(), currentBall);
 
-
-            int newPosition = computePositionAfterMove(moveBall);
 
             afterMove.set(newPosition, afterMove.get(newPosition).notAvailableDirection(destination.opposite()));
             return afterMove;
@@ -139,10 +161,6 @@ class ImmutableBoard implements BoardInterface2 {
 
     private int computeBallPosition(final Direction destination) {
         int moveBall = destination.changeToInt();
-        return computePositionAfterMove(moveBall);
-    }
-
-    private int computePositionAfterMove(final int moveBall) {
         return this.ballPosition.getPosition() + moveBall;
     }
 
