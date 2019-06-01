@@ -3,6 +3,7 @@ package io.lipinski.board.engine;
 import io.lipinski.board.Direction;
 import io.lipinski.board.engine.exceptions.IllegalUndoMoveException;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @DisplayName("Running new API MutableBoard tests")
 class ImmutableBoardTest {
@@ -27,18 +31,25 @@ class ImmutableBoardTest {
     private static int STARTING_BALL_POSITION;
     private static int POSITION_AFTER_N_MOVE;
     private static int POSITION_AFTER_S_MOVE;
+    private static ExecutorService executor;
 
 
     @BeforeAll
-    static void setUpBall() {
+    static void setUpVariable() {
         STARTING_BALL_POSITION = 58;
         POSITION_AFTER_N_MOVE = 49;
         POSITION_AFTER_S_MOVE = 67;
+        executor = Executors.newFixedThreadPool(3);
     }
 
     @BeforeEach
     void setUp() {
         this.board = new ImmutableBoard();
+    }
+
+    @AfterAll
+    static void cleanUp() {
+        executor.shutdown();
     }
 
     @Nested
@@ -97,6 +108,55 @@ class ImmutableBoardTest {
             //Then:
             Assertions.assertThat(allMoves)
                     .containsExactlyInAnyOrderElementsOf(preparedMoves);
+        }
+
+        @Test
+        @DisplayName("List of legal moves after N, E. MultiThreaded")
+        void allLegalMovesAfterSomeMovesMultiThread() {
+
+            //Given:
+            final var preparedMoves = List.of(
+                    new Move(Collections.singletonList(Direction.NW)),
+                    new Move(Collections.singletonList(Direction.N)),
+                    new Move(Collections.singletonList(Direction.NE)),
+                    new Move(Collections.singletonList(Direction.E)),
+                    new Move(Collections.singletonList(Direction.SE)),
+                    new Move(Collections.singletonList(Direction.S)),
+                    new Move(Arrays.asList(Direction.SW, Direction.E)),
+                    new Move(Arrays.asList(Direction.SW, Direction.SE)),
+                    new Move(Arrays.asList(Direction.SW, Direction.S)),
+                    new Move(Arrays.asList(Direction.SW, Direction.SW)),
+                    new Move(Arrays.asList(Direction.SW, Direction.W)),
+                    new Move(Arrays.asList(Direction.SW, Direction.NW))
+            );
+
+            //When:
+            final var future1 = executor.submit(() ->
+                    board.executeMove(Direction.N).executeMove(Direction.E));
+
+            final var future2 = executor.submit(() ->
+                    board.executeMove(Direction.N).executeMove(Direction.E));
+
+            final var future3 = executor.submit(() ->
+                    board.executeMove(Direction.N).executeMove(Direction.E));
+
+            //Then:
+            try {
+                final var results = List.of(future1.get(),
+                        future2.get(),
+                        future3.get());
+
+                assertAll(
+                        () -> Assertions.assertThat(results.get(0).allLegalMoves())
+                                .containsExactlyInAnyOrderElementsOf(preparedMoves),
+                        () -> Assertions.assertThat(results.get(1).allLegalMoves())
+                                .containsExactlyInAnyOrderElementsOf(preparedMoves),
+                        () -> Assertions.assertThat(results.get(2).allLegalMoves())
+                                .containsExactlyInAnyOrderElementsOf(preparedMoves)
+                );
+            } catch (Exception e) {
+                fail("Can't get result from all 3 threads");
+            }
         }
 
     }
