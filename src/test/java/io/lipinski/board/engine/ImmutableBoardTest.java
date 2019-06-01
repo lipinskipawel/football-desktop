@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -39,7 +40,7 @@ class ImmutableBoardTest {
         STARTING_BALL_POSITION = 58;
         POSITION_AFTER_N_MOVE = 49;
         POSITION_AFTER_S_MOVE = 67;
-        executor = Executors.newFixedThreadPool(3);
+        executor = Executors.newFixedThreadPool(5);
     }
 
     @BeforeEach
@@ -49,7 +50,15 @@ class ImmutableBoardTest {
 
     @AfterAll
     static void cleanUp() {
+
         executor.shutdown();
+        try {
+            if (!executor.awaitTermination(800, TimeUnit.MILLISECONDS)) {
+                executor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+        }
     }
 
     @Nested
@@ -131,31 +140,38 @@ class ImmutableBoardTest {
             );
 
             //When:
-            final var future1 = executor.submit(() ->
-                    board.executeMove(Direction.N).executeMove(Direction.E));
+            final var afterTwoMoves = board.executeMove(Direction.N).executeMove(Direction.E);
 
-            final var future2 = executor.submit(() ->
-                    board.executeMove(Direction.N).executeMove(Direction.E));
-
-            final var future3 = executor.submit(() ->
-                    board.executeMove(Direction.N).executeMove(Direction.E));
+            final var legalMoves1 = executor.submit(afterTwoMoves::allLegalMoves);
+            final var legalMoves2 = executor.submit(afterTwoMoves::allLegalMoves);
+            final var legalMoves3 = executor.submit(afterTwoMoves::allLegalMoves);
+            final var legalMoves4 = executor.submit(afterTwoMoves::allLegalMoves);
+            final var legalMoves5 = executor.submit(afterTwoMoves::allLegalMoves);
 
             //Then:
             try {
-                final var results = List.of(future1.get(),
-                        future2.get(),
-                        future3.get());
+                final var results = List.of(
+                        legalMoves1.get(),
+                        legalMoves2.get(),
+                        legalMoves3.get(),
+                        legalMoves4.get(),
+                        legalMoves5.get()
+                );
 
                 assertAll(
-                        () -> Assertions.assertThat(results.get(0).allLegalMoves())
+                        () -> Assertions.assertThat(results.get(0))
                                 .containsExactlyInAnyOrderElementsOf(preparedMoves),
-                        () -> Assertions.assertThat(results.get(1).allLegalMoves())
+                        () -> Assertions.assertThat(results.get(1))
                                 .containsExactlyInAnyOrderElementsOf(preparedMoves),
-                        () -> Assertions.assertThat(results.get(2).allLegalMoves())
+                        () -> Assertions.assertThat(results.get(2))
+                                .containsExactlyInAnyOrderElementsOf(preparedMoves),
+                        () -> Assertions.assertThat(results.get(3))
+                                .containsExactlyInAnyOrderElementsOf(preparedMoves),
+                        () -> Assertions.assertThat(results.get(4))
                                 .containsExactlyInAnyOrderElementsOf(preparedMoves)
                 );
             } catch (Exception e) {
-                fail("Can't get result from all 3 threads");
+                fail("Can't get result from all 5 threads");
             }
         }
 
