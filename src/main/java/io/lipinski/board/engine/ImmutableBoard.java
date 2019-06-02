@@ -134,7 +134,8 @@ class ImmutableBoard implements BoardInterface2 {
     }
 
     private boolean isItEnd(final Point2 ball) {
-        return ball.getAllowedDirection().size() == 7;
+        return ball.getAllowedDirection().size() == 7 ||
+                ball.getAllowedDirection().size() == 0;
     }
 
     @Override
