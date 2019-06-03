@@ -1,16 +1,13 @@
 package io.lipinski.player.ai;
 
-import io.lipinski.board.Point;
 import io.lipinski.board.engine.BoardInterface2;
+import io.lipinski.board.engine.Move;
+import io.lipinski.board.engine.Player;
 
-import java.util.ArrayList;
-import java.util.List;
-/*
 class MiniMax implements MoveStrategy {
 
 
     private final BoardEvaluator evaluator;
-    private BoardInterface2 board;
 
 
     public MiniMax() {
@@ -27,25 +24,21 @@ class MiniMax implements MoveStrategy {
         int lowestSeenValue = Integer.MAX_VALUE;
         int currentValue;
 
-
-        int numMoves = board.getAvailableDirection().size();
-
-
-        for (final Move move : board.getAvailableDirection()) {
+        for (final Move move : board.allLegalMoves()) {
 
             BoardInterface2 afterMove = board.executeMove(move);
 
-            currentValue = board.isFirstPlayer() ? // here is CURRENT board
+            currentValue = board.getPlayer() == Player.FIRST ? // here is CURRENT board
                     min(afterMove, depth - 1) : // here is AFTER board
                     max(afterMove, depth - 1); // here is AFTER board
 
 
-            if (board.isFirstPlayer() &&
+            if (board.getPlayer() == Player.FIRST &&
                     currentValue >= highestSeenValue) {
 
                 highestSeenValue = currentValue;
                 bestMove = move;
-            } else if (board.isSecondPlayer() &&
+            } else if (board.getPlayer() == Player.SECOND &&
                     currentValue <= lowestSeenValue) {
 
                 lowestSeenValue = currentValue;
@@ -56,15 +49,15 @@ class MiniMax implements MoveStrategy {
     }
 
 
-    int min(final BoardInterface2 board,
-            final int depth) {
+    private int min(final BoardInterface2 board,
+                    final int depth) {
 
         if (depth <= 0)
             return evaluator.evaluate(board);
 
         int lowestSeenValue = Integer.MAX_VALUE;
 
-        for (Move move : allLegalMoves(board.getBallPosition())) {
+        for (Move move : board.allLegalMoves()) {
             BoardInterface2 afterMove = board.executeMove(move);
             int currentValue = max(afterMove, depth - 1);
             if (currentValue <= lowestSeenValue)
@@ -74,15 +67,15 @@ class MiniMax implements MoveStrategy {
     }
 
 
-    int max(final BoardInterface2 board,
-            final int depth) {
+    private int max(final BoardInterface2 board,
+                    final int depth) {
 
         if (depth <= 0)
             return evaluator.evaluate(board);
 
         int highestSeenValue = Integer.MIN_VALUE;
 
-        for (Move move : allLegalMoves(board.getBallPosition())) {
+        for (Move move : board.allLegalMoves()) {
             BoardInterface2 afterMove = board.executeMove(move);
             int currentValue = min(afterMove, depth - 1);
             if (currentValue >= highestSeenValue)
@@ -91,28 +84,8 @@ class MiniMax implements MoveStrategy {
         return highestSeenValue;
     }
 
-    List<Move> allLegalMoves(final int currentPointPosition) {
-
-        List<Move> moves = new ArrayList<>();
-
-        List<MoveQ> shallowMoves = board.getPoint(currentPointPosition).getAllMoves();
-
-
-        for (MoveQ move : shallowMoves) {
-            if (move.done)
-                moves.add(move);
-            else {
-                Point newPoint = move.toPoint();
-                moves.add(allLegalMoves(newPoint.getPosition()));
-            }
-        }
-        return moves;
-    }
-
-
     @Override
     public String toString() {
         return "MiniMax";
     }
 }
-*/

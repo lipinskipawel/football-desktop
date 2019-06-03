@@ -61,6 +61,15 @@ class ImmutableBoard implements BoardInterface2 {
     }
 
     @Override
+    public BoardInterface2 executeMove(final Move move) throws IllegalMoveException {
+        BoardInterface2 afterMove = null;
+        for (var dir : move.getMove()) {
+            afterMove = this.executeMove(dir);
+        }
+        return afterMove;
+    }
+
+    @Override
     public int getBallPosition() {
         return this.ballPosition.getPosition();
     }
