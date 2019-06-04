@@ -8,8 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-
-class ImmutableBoard implements BoardInterface2 {
+public class ImmutableBoard implements BoardInterface2 {
 
     private final List<Point2> points;
     private final Point2 ballPosition;
@@ -19,7 +18,7 @@ class ImmutableBoard implements BoardInterface2 {
     private static ThreadLocal<Stack<Direction>> stack = new ThreadLocal<>();
     private static ThreadLocal<List<Move>> allMoves = new ThreadLocal<>();
 
-    ImmutableBoard() {
+    public ImmutableBoard() {
         this.points = PointUtils.initialPoints();
         this.ballPosition = points.get(58);
         this.playerToMove = Player.FIRST;
@@ -62,9 +61,9 @@ class ImmutableBoard implements BoardInterface2 {
 
     @Override
     public BoardInterface2 executeMove(final Move move) throws IllegalMoveException {
-        BoardInterface2 afterMove = null;
+        BoardInterface2 afterMove = this;
         for (var dir : move.getMove()) {
-            afterMove = this.executeMove(dir);
+            afterMove = afterMove.executeMove(dir);
         }
         return afterMove;
     }
@@ -140,6 +139,18 @@ class ImmutableBoard implements BoardInterface2 {
     @Override
     public Point2 getBallAPI() {
         return this.points.get(this.ballPosition.getPosition());
+    }
+
+    // TODO need a layer of abstraction
+    // TODO some class that will accept BoardInterface2?? and compute the output
+    @Override
+    public boolean isGoal() {
+        return this.ballPosition.getPosition() == 3 ||
+                this.ballPosition.getPosition() == 4 ||
+                this.ballPosition.getPosition() == 5 ||
+                this.ballPosition.getPosition() == 111 ||
+                this.ballPosition.getPosition() == 112 ||
+                this.ballPosition.getPosition() == 113;
     }
 
     private boolean isItEnd(final Point2 ball) {

@@ -10,8 +10,8 @@ class MiniMax implements MoveStrategy {
     private final BoardEvaluator evaluator;
 
 
-    public MiniMax() {
-        this.evaluator = null;
+    MiniMax(final BoardEvaluator evaluator) {
+        this.evaluator = evaluator;
     }
 
     @Override
