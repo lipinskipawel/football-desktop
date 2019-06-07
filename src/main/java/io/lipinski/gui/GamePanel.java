@@ -92,10 +92,7 @@ class GamePanel extends JPanel {
     private static String staticTextWarmUp() {
         return "This is Warmp-up mode.\n" +
                 "You can play here and try new tactics.\n" +
-                "Feel free to have fun of this program.\n\n" +
-                "Created by future Java Developer \n" +
-                "Paweł Lipiński\n" +
-                "All rights reserved by BIG Company.";
+                "Created by Paweł Lipiński\n";
     }
     private static String staticText1vs1() {
         return "In this mode you can play 1 vs 1 in one \n" +
