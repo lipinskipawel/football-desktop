@@ -54,7 +54,7 @@ class ImmutableBoardTest {
 
         executor.shutdown();
         try {
-            if (!executor.awaitTermination(100, TimeUnit.MILLISECONDS)) {
+            if (!executor.awaitTermination(50, TimeUnit.MILLISECONDS)) {
                 executor.shutdownNow();
             }
         } catch (InterruptedException e) {
@@ -436,6 +436,19 @@ class ImmutableBoardTest {
             //Then:
             int actualBallPosition = afterUndo.getBallPosition();
             assertEquals(STARTING_BALL_POSITION, actualBallPosition);
+        }
+
+        @Test
+        @DisplayName("Make a one simple S move and then undo")
+        void makeAMoveSAndUndoMoveAndCheckSanity() {
+
+            //When:
+            BoardInterface2 afterMove = board.executeMove(Direction.S);
+            BoardInterface2 afterUndo = afterMove.undoMove();
+
+            //Then:
+            final var legalMoves = afterUndo.allLegalMoves();
+            Assertions.assertThat(legalMoves.size()).isEqualTo(8);
         }
 
         @Test
