@@ -4,6 +4,7 @@ import io.lipinski.board.Direction;
 import io.lipinski.board.engine.exceptions.IllegalUndoMoveException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,10 +30,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 class ImmutableBoardTest {
 
     private BoardInterface2 board;
+    private ExecutorService executor;
     private static int STARTING_BALL_POSITION;
     private static int POSITION_AFTER_N_MOVE;
     private static int POSITION_AFTER_S_MOVE;
-    private static ExecutorService executor;
 
 
     @BeforeAll
@@ -39,17 +41,25 @@ class ImmutableBoardTest {
         STARTING_BALL_POSITION = 58;
         POSITION_AFTER_N_MOVE = 49;
         POSITION_AFTER_S_MOVE = 67;
-        executor = Executors.newFixedThreadPool(3);
     }
 
     @BeforeEach
     void setUp() {
         this.board = new ImmutableBoard();
+        this.executor = Executors.newFixedThreadPool(5);
     }
 
-    @AfterAll
-    static void cleanUp() {
+    @AfterEach
+    void cleanUp() {
+
         executor.shutdown();
+        try {
+            if (!executor.awaitTermination(50, TimeUnit.MILLISECONDS)) {
+                executor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+        }
     }
 
     @Nested
@@ -111,6 +121,52 @@ class ImmutableBoardTest {
         }
 
         @Test
+        @DisplayName("List of legal moves after NE, NE, N, NE. Ball close to corner")
+        void allLegalMoveCloseToCorner() {
+
+            //Given:
+            final var preparedMoves = List.of(
+                    new Move(Collections.singletonList(Direction.W)),
+                    new Move(Arrays.asList(Direction.NW, Direction.SW)),
+                    new Move(Arrays.asList(Direction.NW, Direction.S)),
+                    new Move(Arrays.asList(Direction.N, Direction.SW)),
+                    new Move(Arrays.asList(Direction.N, Direction.SE, Direction.SW)),
+                    new Move(Arrays.asList(Direction.N, Direction.SE, Direction.W, Direction.NE)),
+                    new Move(Arrays.asList(Direction.N, Direction.SE, Direction.W, Direction.S)),
+                    new Move(Arrays.asList(Direction.N, Direction.SE, Direction.W, Direction.SE, Direction.W)),
+                    new Move(Arrays.asList(Direction.N, Direction.SE, Direction.W, Direction.SE, Direction.SW)),
+                    new Move(Arrays.asList(Direction.N, Direction.SE, Direction.W, Direction.NW, Direction.SW)),
+                    new Move(Arrays.asList(Direction.N, Direction.SE, Direction.W, Direction.NW, Direction.S)),
+                    new Move(Arrays.asList(Direction.N, Direction.SE, Direction.W, Direction.W)),
+                    new Move(Collections.singletonList(Direction.NE)),
+                    new Move(Arrays.asList(Direction.E, Direction.SW)),
+                    new Move(Arrays.asList(Direction.E, Direction.NW, Direction.SW)),
+                    new Move(Arrays.asList(Direction.E, Direction.NW, Direction.S, Direction.W)),
+                    new Move(Arrays.asList(Direction.E, Direction.NW, Direction.S, Direction.NW, Direction.SW)),
+                    new Move(Arrays.asList(Direction.E, Direction.NW, Direction.S, Direction.NW, Direction.S)),
+                    new Move(Arrays.asList(Direction.E, Direction.NW, Direction.S, Direction.NE)),
+                    new Move(Arrays.asList(Direction.E, Direction.NW, Direction.S, Direction.SE, Direction.W)),
+                    new Move(Arrays.asList(Direction.E, Direction.NW, Direction.S, Direction.SE, Direction.SW)),
+                    new Move(Arrays.asList(Direction.E, Direction.NW, Direction.S, Direction.S)),
+                    new Move(Arrays.asList(Direction.SE, Direction.W)),
+                    new Move(Arrays.asList(Direction.SE, Direction.SW)),
+                    new Move(Collections.singletonList(Direction.S))
+            );
+
+            //When:
+            final var afterMoves = board
+                    .executeMove(Direction.NE)
+                    .executeMove(Direction.NE)
+                    .executeMove(Direction.N)
+                    .executeMove(Direction.NE);
+            final var allMoves = afterMoves.allLegalMoves();
+
+            //Then:
+            Assertions.assertThat(allMoves)
+                    .containsExactlyInAnyOrderElementsOf(preparedMoves);
+        }
+
+        @Test
         @DisplayName("List of legal moves after N, E. MultiThreaded")
         void allLegalMovesAfterSomeMovesMultiThread() {
 
@@ -131,31 +187,111 @@ class ImmutableBoardTest {
             );
 
             //When:
-            final var future1 = executor.submit(() ->
-                    board.executeMove(Direction.N).executeMove(Direction.E));
+            final var afterTwoMoves = board.executeMove(Direction.N).executeMove(Direction.E);
 
-            final var future2 = executor.submit(() ->
-                    board.executeMove(Direction.N).executeMove(Direction.E));
-
-            final var future3 = executor.submit(() ->
-                    board.executeMove(Direction.N).executeMove(Direction.E));
+            final var legalMoves1 = executor.submit(afterTwoMoves::allLegalMoves);
+            final var legalMoves2 = executor.submit(afterTwoMoves::allLegalMoves);
+            final var legalMoves3 = executor.submit(afterTwoMoves::allLegalMoves);
+            final var legalMoves4 = executor.submit(afterTwoMoves::allLegalMoves);
+            final var legalMoves5 = executor.submit(afterTwoMoves::allLegalMoves);
 
             //Then:
             try {
-                final var results = List.of(future1.get(),
-                        future2.get(),
-                        future3.get());
+                final var results = List.of(
+                        legalMoves1.get(),
+                        legalMoves2.get(),
+                        legalMoves3.get(),
+                        legalMoves4.get(),
+                        legalMoves5.get()
+                );
 
                 assertAll(
-                        () -> Assertions.assertThat(results.get(0).allLegalMoves())
+                        () -> Assertions.assertThat(results.get(0))
                                 .containsExactlyInAnyOrderElementsOf(preparedMoves),
-                        () -> Assertions.assertThat(results.get(1).allLegalMoves())
+                        () -> Assertions.assertThat(results.get(1))
                                 .containsExactlyInAnyOrderElementsOf(preparedMoves),
-                        () -> Assertions.assertThat(results.get(2).allLegalMoves())
+                        () -> Assertions.assertThat(results.get(2))
+                                .containsExactlyInAnyOrderElementsOf(preparedMoves),
+                        () -> Assertions.assertThat(results.get(3))
+                                .containsExactlyInAnyOrderElementsOf(preparedMoves),
+                        () -> Assertions.assertThat(results.get(4))
                                 .containsExactlyInAnyOrderElementsOf(preparedMoves)
                 );
             } catch (Exception e) {
-                fail("Can't get result from all 3 threads");
+                fail("Can't get result from all 5 threads");
+            }
+        }
+
+        @Test
+        @DisplayName("List of legal moves after NE, NE, N, NE. Ball close to corner. MultiThreaded")
+        void allLegalMoveCloseToCornerMultiThread() {
+
+            //Given:
+            final var preparedMoves = List.of(
+                    new Move(Collections.singletonList(Direction.W)),
+                    new Move(Arrays.asList(Direction.NW, Direction.SW)),
+                    new Move(Arrays.asList(Direction.NW, Direction.S)),
+                    new Move(Arrays.asList(Direction.N, Direction.SW)),
+                    new Move(Arrays.asList(Direction.N, Direction.SE, Direction.SW)),
+                    new Move(Arrays.asList(Direction.N, Direction.SE, Direction.W, Direction.NE)),
+                    new Move(Arrays.asList(Direction.N, Direction.SE, Direction.W, Direction.S)),
+                    new Move(Arrays.asList(Direction.N, Direction.SE, Direction.W, Direction.SE, Direction.W)),
+                    new Move(Arrays.asList(Direction.N, Direction.SE, Direction.W, Direction.SE, Direction.SW)),
+                    new Move(Arrays.asList(Direction.N, Direction.SE, Direction.W, Direction.NW, Direction.SW)),
+                    new Move(Arrays.asList(Direction.N, Direction.SE, Direction.W, Direction.NW, Direction.S)),
+                    new Move(Arrays.asList(Direction.N, Direction.SE, Direction.W, Direction.W)),
+                    new Move(Collections.singletonList(Direction.NE)),
+                    new Move(Arrays.asList(Direction.E, Direction.SW)),
+                    new Move(Arrays.asList(Direction.E, Direction.NW, Direction.SW)),
+                    new Move(Arrays.asList(Direction.E, Direction.NW, Direction.S, Direction.W)),
+                    new Move(Arrays.asList(Direction.E, Direction.NW, Direction.S, Direction.NW, Direction.SW)),
+                    new Move(Arrays.asList(Direction.E, Direction.NW, Direction.S, Direction.NW, Direction.S)),
+                    new Move(Arrays.asList(Direction.E, Direction.NW, Direction.S, Direction.NE)),
+                    new Move(Arrays.asList(Direction.E, Direction.NW, Direction.S, Direction.SE, Direction.W)),
+                    new Move(Arrays.asList(Direction.E, Direction.NW, Direction.S, Direction.SE, Direction.SW)),
+                    new Move(Arrays.asList(Direction.E, Direction.NW, Direction.S, Direction.S)),
+                    new Move(Arrays.asList(Direction.SE, Direction.W)),
+                    new Move(Arrays.asList(Direction.SE, Direction.SW)),
+                    new Move(Collections.singletonList(Direction.S))
+            );
+
+            //When:
+            final var afterMoves = board
+                    .executeMove(Direction.NE)
+                    .executeMove(Direction.NE)
+                    .executeMove(Direction.N)
+                    .executeMove(Direction.NE);
+
+            final var legalMoves1 = executor.submit(afterMoves::allLegalMoves);
+            final var legalMoves2 = executor.submit(afterMoves::allLegalMoves);
+            final var legalMoves3 = executor.submit(afterMoves::allLegalMoves);
+            final var legalMoves4 = executor.submit(afterMoves::allLegalMoves);
+            final var legalMoves5 = executor.submit(afterMoves::allLegalMoves);
+
+            //Then:
+            try {
+                final var results = List.of(
+                        legalMoves1.get(),
+                        legalMoves2.get(),
+                        legalMoves3.get(),
+                        legalMoves4.get(),
+                        legalMoves5.get()
+                );
+
+                assertAll(
+                        () -> Assertions.assertThat(results.get(0))
+                                .containsExactlyInAnyOrderElementsOf(preparedMoves),
+                        () -> Assertions.assertThat(results.get(1))
+                                .containsExactlyInAnyOrderElementsOf(preparedMoves),
+                        () -> Assertions.assertThat(results.get(2))
+                                .containsExactlyInAnyOrderElementsOf(preparedMoves),
+                        () -> Assertions.assertThat(results.get(3))
+                                .containsExactlyInAnyOrderElementsOf(preparedMoves),
+                        () -> Assertions.assertThat(results.get(4))
+                                .containsExactlyInAnyOrderElementsOf(preparedMoves)
+                );
+            } catch (Exception e) {
+                fail("Can't get result from all 5 threads");
             }
         }
 
@@ -300,6 +436,19 @@ class ImmutableBoardTest {
             //Then:
             int actualBallPosition = afterUndo.getBallPosition();
             assertEquals(STARTING_BALL_POSITION, actualBallPosition);
+        }
+
+        @Test
+        @DisplayName("Make a one simple S move and then undo")
+        void makeAMoveSAndUndoMoveAndCheckSanity() {
+
+            //When:
+            BoardInterface2 afterMove = board.executeMove(Direction.S);
+            BoardInterface2 afterUndo = afterMove.undoMove();
+
+            //Then:
+            final var legalMoves = afterUndo.allLegalMoves();
+            Assertions.assertThat(legalMoves.size()).isEqualTo(8);
         }
 
         @Test

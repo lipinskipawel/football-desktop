@@ -1,6 +1,7 @@
 package io.lipinski.board.engine;
 
 import io.lipinski.board.Direction;
+import io.lipinski.board.engine.exceptions.IllegalUndoMoveException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,14 +32,14 @@ class MoveHistory {
         return new MoveHistory(afterMove);
     }
 
-    MoveHistory subtract() {
+    MoveHistory subtract() throws NoSuchElementException {
         checkSize();
         final var afterSubtract = new ArrayList<>(moves);
         afterSubtract.remove(afterSubtract.size() - 1);
         return new MoveHistory(afterSubtract);
     }
 
-    Direction getLastMove() {
+    Direction getLastMove() throws NoSuchElementException {
         checkSize();
         return this.moves.get(this.moves.size() - 1);
     }
@@ -46,7 +47,8 @@ class MoveHistory {
 
     private void checkSize() {
         if (this.moves.size() == 0)
-            throw new NoSuchElementException("There is no move yet");
+            throw new IllegalUndoMoveException("You can undo move when no move has been done");
+
     }
 
 }

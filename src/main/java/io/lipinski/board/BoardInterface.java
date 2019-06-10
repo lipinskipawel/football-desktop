@@ -5,6 +5,10 @@ import io.lipinski.player.Player;
 
 import java.util.List;
 
+/**
+ * Probably change this interface to be use externally
+ * and provide more rich interface above this one for internal use case
+ */
 public interface BoardInterface {
 
 
