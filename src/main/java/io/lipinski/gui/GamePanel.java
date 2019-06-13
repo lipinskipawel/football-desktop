@@ -1,7 +1,7 @@
 package io.lipinski.gui;
 
 
-import io.lipinski.player.Player;
+import io.lipinski.board.Player;
 
 import javax.swing.*;
 import java.awt.*;

@@ -2,7 +2,7 @@ package io.lipinski.gui;
 
 
 import io.lipinski.board.BoardInterface;
-import io.lipinski.player.Player;
+import io.lipinski.board.Player;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,7 +10,8 @@ import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
