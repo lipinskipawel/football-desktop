@@ -1,8 +1,8 @@
 package io.lipinski.network;
 
 
+import io.lipinski.board.Player;
 import io.lipinski.gui.Table;
-import io.lipinski.player.Player;
 
 import java.io.BufferedReader;
 import java.io.IOException;
