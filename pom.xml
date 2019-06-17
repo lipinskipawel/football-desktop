@@ -80,7 +80,7 @@
                     <configuration>
                         <archive>
                             <manifest>
-                                <mainClass>io.lipinski.Pilka</mainClass>
+                                <mainClass>io.lipinski.App</mainClass>
                             </manifest>
                         </archive>
                     </configuration>
