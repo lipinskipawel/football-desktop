@@ -1,7 +1,6 @@
 package io.lipinski.network;
 
-
-import io.lipinski.board.BoardInterface;
+import io.lipinski.board.legacy.BoardInterface;
 import io.lipinski.controller.GameController;
 
 import java.io.EOFException;
@@ -11,7 +10,6 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-
 
 /**
  * how to stopTimer Thread

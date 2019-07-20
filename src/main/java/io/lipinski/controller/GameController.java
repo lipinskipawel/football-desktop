@@ -1,10 +1,10 @@
 package io.lipinski.controller;
 
-import io.lipinski.board.BoardInterface;
-import io.lipinski.board.MutableBoard;
-import io.lipinski.board.Player;
-import io.lipinski.board.Point;
 import io.lipinski.board.engine.Boards;
+import io.lipinski.board.legacy.BoardInterface;
+import io.lipinski.board.legacy.MutableBoard;
+import io.lipinski.board.legacy.Player;
+import io.lipinski.board.legacy.Point;
 import io.lipinski.gui.GameDrawer;
 import io.lipinski.gui.Table;
 import io.lipinski.network.ConnectionChat;
@@ -22,7 +22,6 @@ import java.util.Observer;
 
 import static javax.swing.SwingUtilities.isLeftMouseButton;
 import static javax.swing.SwingUtilities.isRightMouseButton;
-
 
 public class GameController implements MouseListener, Observer, ActionListener {
 

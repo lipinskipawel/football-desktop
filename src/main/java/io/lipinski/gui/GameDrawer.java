@@ -1,8 +1,7 @@
 package io.lipinski.gui;
 
-
-import io.lipinski.board.BoardInterface;
-import io.lipinski.board.Player;
+import io.lipinski.board.legacy.BoardInterface;
+import io.lipinski.board.legacy.Player;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,7 +12,6 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 
 /**
  * This class is public because when I created it I wasn't perfect at

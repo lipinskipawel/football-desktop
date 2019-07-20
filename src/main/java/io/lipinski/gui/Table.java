@@ -1,7 +1,7 @@
 package io.lipinski.gui;
 
-import io.lipinski.board.BoardInterface;
-import io.lipinski.board.Player;
+import io.lipinski.board.legacy.BoardInterface;
+import io.lipinski.board.legacy.Player;
 import io.lipinski.controller.GameController;
 
 import javax.swing.*;
