@@ -1,6 +1,6 @@
 package io.lipinski.network;
 
-import io.lipinski.board.legacy.Player;
+import com.github.lipinskipawel.board.engine.Player;
 import io.lipinski.gui.Table;
 
 import java.io.BufferedReader;

@@ -1,6 +1,6 @@
 package io.lipinski.network;
 
-import io.lipinski.board.legacy.BoardInterface;
+import com.github.lipinskipawel.board.engine.BoardInterface;
 import io.lipinski.controller.GameController;
 
 import java.io.EOFException;

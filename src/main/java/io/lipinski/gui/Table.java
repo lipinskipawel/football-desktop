@@ -1,7 +1,7 @@
 package io.lipinski.gui;
 
-import io.lipinski.board.legacy.BoardInterface;
-import io.lipinski.board.legacy.Player;
+import com.github.lipinskipawel.board.engine.BoardInterface;
+import com.github.lipinskipawel.board.engine.Player;
 import io.lipinski.controller.GameController;
 
 import javax.swing.*;
@@ -151,6 +151,7 @@ public class Table  {
         this.menuItemWarmup = new JMenuItem("Warm-up");
         this.menuItemOneVsOne = new JMenuItem("1 vs 1");
         this.menuItemLAN = new JMenuItem("1 vs LAN");
+        this.menuItemLAN.setEnabled(false);
         this.menuItemAI = new JMenuItem("1 vs AI");
         this.menuItemAI.setEnabled(false);
 

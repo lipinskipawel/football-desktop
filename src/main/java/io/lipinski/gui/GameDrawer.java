@@ -1,7 +1,7 @@
 package io.lipinski.gui;
 
-import io.lipinski.board.legacy.BoardInterface;
-import io.lipinski.board.legacy.Player;
+import com.github.lipinskipawel.board.engine.BoardInterface;
+import com.github.lipinskipawel.board.engine.Player;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,6 +9,7 @@ import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -90,7 +91,6 @@ public class GameDrawer extends JPanel {
      * That's why this method is invoked before all others method in @Override paint.
      */
     private void prepare() {
-
 
             if (this.viewOfPlayer == Player.FIRST) {
                 removeAll();
@@ -179,49 +179,22 @@ public class GameDrawer extends JPanel {
         graphics2D.setStroke(move_stroke);
 
 
-        final List<List<Integer>> tempList = this.board.getMoveList();
-        List<Integer> oneMove;
-        for (int i = 0; i < tempList.size(); i++) {
-
-            oneMove = tempList.get(i);
-            if (i == tempList.size() - 1 && oneMove.size() == 1) {
-                if ((i - 1) < 0)
-                    return;
-                oneMove = tempList.get(i -1);
-                graphics2D.setStroke(last_move);
-                for (int j = 1; j < oneMove.size(); j++) {
-                    PointTracker start = pointTrackers.get(oneMove.get(j - 1));
-                    PointTracker now = pointTrackers.get(oneMove.get(j));
-                    Shape line = new Line2D.Float(start.getXMiddle(), start.getYMiddle(), now.getXMiddle(), now.getYMiddle());
-                    graphics2D.draw(line);
-                }
-                return;
-            }
-            else if (i == tempList.size() - 1 && oneMove.size() > 1) {
-                graphics2D.setStroke(last_move);
-                for (int j = 1; j < oneMove.size(); j++) {
-                    PointTracker start = pointTrackers.get(oneMove.get(j - 1));
-                    PointTracker now = pointTrackers.get(oneMove.get(j));
-                    Shape line = new Line2D.Float(start.getXMiddle(), start.getYMiddle(), now.getXMiddle(), now.getYMiddle());
-                    graphics2D.draw(line);
-                }
-                return;
-            }
-            else if (i != tempList.size() - 1) {
-                graphics2D.setStroke(move_stroke);
-                //oneMove = tempList.get(i);
-                for (int j = 1; j < oneMove.size(); j++) {
-                    PointTracker start = pointTrackers.get(oneMove.get(j - 1));
-                    PointTracker now = pointTrackers.get(oneMove.get(j));
-                    Shape line = new Line2D.Float(start.getXMiddle(), start.getYMiddle(), now.getXMiddle(), now.getYMiddle());
-                    graphics2D.draw(line);
-                }
-            }
-
+//        final List<List<Integer>> tempList = this.board.getMoveList();
+        final var moves = new ArrayDeque<PointTracker>();
+        moves.add(pointTrackers.get(58));
+        final var directions = this.board.allMoves();
+        for (var direction : directions) {
+            final var start = moves.poll();
+            final var ballPosition = this.board.getBallPosition(); // here I have the actual ball position, after the move has been done
+            final var intDirection = direction.changeToInt();
+            final var now = pointTrackers.get(start.position + intDirection);
+            final var line = new Line2D.Float(start.getXMiddle(), start.getYMiddle(), now.getXMiddle(), now.getYMiddle());
+            graphics2D.draw(line);
+            moves.add(now);
         }
-
-
+//        oldMethod(graphics2D, tempList);
     }
+
     private void drawBall(final Graphics2D graphics2D) {
         if (this.board == null)
             return;

@@ -1,6 +1,6 @@
 package io.lipinski.gui;
 
-import io.lipinski.board.legacy.Player;
+import com.github.lipinskipawel.board.engine.Player;
 
 import javax.swing.*;
 import java.awt.*;
