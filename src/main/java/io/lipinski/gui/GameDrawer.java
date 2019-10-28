@@ -1,6 +1,8 @@
 package io.lipinski.gui;
 
 import com.github.lipinskipawel.board.engine.BoardInterface;
+import com.github.lipinskipawel.board.engine.Direction;
+import com.github.lipinskipawel.board.engine.Move;
 import com.github.lipinskipawel.board.engine.Player;
 
 import javax.swing.*;
@@ -13,6 +15,8 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * This class is public because when I created it I wasn't perfect at
@@ -27,7 +31,7 @@ public class GameDrawer extends JPanel {
     private final Color pitch_COLOR = new Color(0, 170, 45);
     private final BasicStroke pitch_stroke = new BasicStroke(3f);
     private final BasicStroke move_stroke = new BasicStroke(2f);
-    private final BasicStroke last_move = new BasicStroke(4f);
+    private final BasicStroke last_move_stroke = new BasicStroke(4f);
 
     private BoardInterface board;
     private Player viewOfPlayer;
@@ -70,16 +74,14 @@ public class GameDrawer extends JPanel {
     }
 
 
-
-
-
     synchronized void drawMove(final BoardInterface board, final Player viewOfPlayer) {
         this.board = board;
         this.viewOfPlayer = viewOfPlayer;
         repaint();
     }
+
     void addMouse(MouseListener mouseListener) {
-        for (PointTracker point: pointTrackers) {
+        for (PointTracker point : pointTrackers) {
             point.addMouseListener(mouseListener);
         }
     }
@@ -92,23 +94,23 @@ public class GameDrawer extends JPanel {
      */
     private void prepare() {
 
-            if (this.viewOfPlayer == Player.FIRST) {
-                removeAll();
+        if (this.viewOfPlayer == Player.FIRST) {
+            removeAll();
 
-                for (final PointTracker pointTracker : pointTrackers) {
-                    add(pointTracker);
-                }
-            } else {
-                removeAll();
-                Collections.reverse(pointTrackers);
-                for (final PointTracker pointTracker : pointTrackers) {
-                    add(pointTracker);
-                }
-                Collections.reverse(pointTrackers);
+            for (final PointTracker pointTracker : pointTrackers) {
+                add(pointTracker);
             }
-            // according to https://docs.oracle.com/javase/7/docs/api/javax/swing/JComponent.html#revalidate()
-            invalidate();
-            revalidate();
+        } else {
+            removeAll();
+            Collections.reverse(pointTrackers);
+            for (final PointTracker pointTracker : pointTrackers) {
+                add(pointTracker);
+            }
+            Collections.reverse(pointTrackers);
+        }
+        // according to https://docs.oracle.com/javase/7/docs/api/javax/swing/JComponent.html#revalidate()
+        invalidate();
+        revalidate();
 
 
 //        if (isNecessaryToSwitchPlayers) {
@@ -130,6 +132,7 @@ public class GameDrawer extends JPanel {
 //            revalidate();
 //        }
     }
+
     private void drawPitch(final Graphics2D graphics2D) {
         graphics2D.setColor(pitch_COLOR);
         graphics2D.fillRect(0, 0, this.getWidth(), this.getHeight());
@@ -171,6 +174,7 @@ public class GameDrawer extends JPanel {
         graphics2D.drawLine(pointTracker111.getXMiddle(), pointTracker111.getYMiddle(), pointTracker102.getXMiddle(), pointTracker102.getYMiddle());
         graphics2D.drawLine(pointTracker102.getXMiddle(), pointTracker102.getYMiddle(), pointTracker99.getXMiddle(), pointTracker99.getYMiddle());
     }
+
     private void drawMove(final Graphics2D graphics2D) {
         if (this.board == null)
             return;
@@ -179,20 +183,45 @@ public class GameDrawer extends JPanel {
         graphics2D.setStroke(move_stroke);
 
 
-//        final List<List<Integer>> tempList = this.board.getMoveList();
-        final var moves = new ArrayDeque<PointTracker>();
-        moves.add(pointTrackers.get(58));
-        final var directions = this.board.allMoves();
-        for (var direction : directions) {
-            final var start = moves.poll();
-            final var ballPosition = this.board.getBallPosition(); // here I have the actual ball position, after the move has been done
-            final var intDirection = direction.changeToInt();
-            final var now = pointTrackers.get(start.position + intDirection);
-            final var line = new Line2D.Float(start.getXMiddle(), start.getYMiddle(), now.getXMiddle(), now.getYMiddle());
-            graphics2D.draw(line);
-            moves.add(now);
+        if (thisAreTheSameMoves(this.board.moveHistory(), this.board.allMoves())) {
+            final var moves = new ArrayDeque<PointTracker>();
+            moves.add(pointTrackers.get(58));
+            final var allMoves = this.board.moveHistory();
+            for (int i = 0; i < allMoves.size(); i++) {
+                if (shouldDrawBold(allMoves, i)) {
+                    graphics2D.setStroke(last_move_stroke);
+                    final var directions = allMoves.get(i).getMove();
+                    for (var direction : directions) {
+                        drawByDirection(graphics2D, moves, direction);
+                    }
+                } else {
+                    graphics2D.setStroke(move_stroke);
+                    final var directions = allMoves.get(i).getMove();
+                    for (var direction : directions) {
+                        drawByDirection(graphics2D, moves, direction);
+                    }
+                }
+            }
+        } else {
+            final var moves = new ArrayDeque<PointTracker>();
+            moves.add(pointTrackers.get(58));
+            final var numberOfMoves = this.board.moveHistory()
+                    .stream()
+                    .map(Move::getMove)
+                    .mapToLong(List::size)
+                    .sum();
+            final var allDirections = this.board.allMoves();
+            for (int i = 0; i < allDirections.size(); i++) {
+                if (i >= numberOfMoves) {
+                    // draw bold
+                    graphics2D.setStroke(last_move_stroke);
+                    drawByDirection(graphics2D, moves, allDirections.get(i));
+                } else {
+                    graphics2D.setStroke(move_stroke);
+                    drawByDirection(graphics2D, moves, allDirections.get(i));
+                }
+            }
         }
-//        oldMethod(graphics2D, tempList);
     }
 
     private void drawBall(final Graphics2D graphics2D) {
@@ -205,7 +234,29 @@ public class GameDrawer extends JPanel {
         graphics2D.fill(oval);
     }
 
+    private boolean thisAreTheSameMoves(final List<Move> allMoves,
+                                        final List<Direction> allDirections) {
+        final var allMoveDirections = allMoves
+                .stream()
+                .map(Move::getMove)
+                .flatMap(List::stream)
+                .collect(toList());
+        return allMoveDirections.size() == allDirections.size();
+    }
 
+    private void drawByDirection(final Graphics2D graphics2D,
+                                 final ArrayDeque<PointTracker> moves,
+                                 final Direction direction) {
+        final var start = moves.poll();
+        final var next = pointTrackers.get(start.position + direction.changeToInt());
+        final var line = new Line2D.Float(start.getXMiddle(), start.getYMiddle(), next.getXMiddle(), next.getYMiddle());
+        graphics2D.draw(line);
+        moves.add(next);
+    }
+
+    private boolean shouldDrawBold(final List<Move> allMoves, final int i) {
+        return i == allMoves.size() - 1;
+    }
 
 
     public class PointTracker extends JPanel {
@@ -219,14 +270,20 @@ public class GameDrawer extends JPanel {
         }
 
 
-        public int getPosition() {return this.position;}
+        public int getPosition() {
+            return this.position;
+        }
+
         @Override
         public String toString() {
             return Integer.toString(this.position);
         }
 
 
-        private int getXMiddle() {return getX() + (this.getWidth() / 2);}
+        private int getXMiddle() {
+            return getX() + (this.getWidth() / 2);
+        }
+
         private int getYMiddle() {
             return getY() + (this.getHeight() / 2);
         }

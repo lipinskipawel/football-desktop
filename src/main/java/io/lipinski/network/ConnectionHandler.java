@@ -56,7 +56,6 @@ public class ConnectionHandler extends Thread {
         }
     }
 
-
     public synchronized void close() {
         this.state = ConnectionState.CLOSED;
         try {
@@ -69,7 +68,6 @@ public class ConnectionHandler extends Thread {
             System.out.println("Something wrong in synchronized close()");
         }
     }
-
 
     private synchronized void received(final BoardInterface board) {
         if (this.state == ConnectionState.CONNECTED)

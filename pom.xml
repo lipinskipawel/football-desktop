@@ -46,9 +46,9 @@
 
 
         <dependency>
-            <groupId>io.lipinski</groupId>
+            <groupId>com.github.lipinskipawel</groupId>
             <artifactId>game-engine</artifactId>
-            <version>3.0.1</version>
+            <version>3.1.0</version>
         </dependency>
 
     </dependencies>
