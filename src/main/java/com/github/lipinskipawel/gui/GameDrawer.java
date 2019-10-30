@@ -1,4 +1,4 @@
-package io.lipinski.gui;
+package com.github.lipinskipawel.gui;
 
 import com.github.lipinskipawel.board.engine.BoardInterface;
 import com.github.lipinskipawel.board.engine.Direction;

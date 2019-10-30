@@ -1,8 +1,8 @@
-package io.lipinski.gui;
+package com.github.lipinskipawel.gui;
 
 import com.github.lipinskipawel.board.engine.BoardInterface;
 import com.github.lipinskipawel.board.engine.Player;
-import io.lipinski.controller.GameController;
+import com.github.lipinskipawel.controller.GameController;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,7 +1,7 @@
-package io.lipinski.controller;
+package com.github.lipinskipawel.controller;
 
 
-import io.lipinski.gui.Table;
+import com.github.lipinskipawel.gui.Table;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

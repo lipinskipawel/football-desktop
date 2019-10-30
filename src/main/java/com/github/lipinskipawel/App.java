@@ -1,6 +1,6 @@
-package io.lipinski;
+package com.github.lipinskipawel;
 
-import io.lipinski.controller.MainController;
+import com.github.lipinskipawel.controller.MainController;
 
 public class App {
 

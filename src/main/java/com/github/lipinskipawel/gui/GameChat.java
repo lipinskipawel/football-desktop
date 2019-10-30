@@ -1,4 +1,4 @@
-package io.lipinski.gui;
+package com.github.lipinskipawel.gui;
 
 
 import javax.swing.*;

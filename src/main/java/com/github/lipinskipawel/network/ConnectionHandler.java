@@ -1,7 +1,7 @@
-package io.lipinski.network;
+package com.github.lipinskipawel.network;
 
 import com.github.lipinskipawel.board.engine.BoardInterface;
-import io.lipinski.controller.GameController;
+import com.github.lipinskipawel.controller.GameController;
 
 import java.io.EOFException;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package io.lipinski.network;
+package com.github.lipinskipawel.network;
 
 
 public enum ConnectionState {

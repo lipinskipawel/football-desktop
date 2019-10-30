@@ -1,13 +1,13 @@
-package io.lipinski.controller;
+package com.github.lipinskipawel.controller;
 
 import com.github.lipinskipawel.board.engine.BoardInterface;
 import com.github.lipinskipawel.board.engine.Boards;
 import com.github.lipinskipawel.board.engine.Player;
-import io.lipinski.gui.GameDrawer;
-import io.lipinski.gui.Table;
-import io.lipinski.network.ConnectionChat;
-import io.lipinski.network.ConnectionHandler;
-import io.lipinski.network.ConnectionState;
+import com.github.lipinskipawel.gui.GameDrawer;
+import com.github.lipinskipawel.gui.Table;
+import com.github.lipinskipawel.network.ConnectionChat;
+import com.github.lipinskipawel.network.ConnectionHandler;
+import com.github.lipinskipawel.network.ConnectionState;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

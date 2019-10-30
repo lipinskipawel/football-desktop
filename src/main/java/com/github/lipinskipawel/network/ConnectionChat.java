@@ -1,7 +1,7 @@
-package io.lipinski.network;
+package com.github.lipinskipawel.network;
 
 import com.github.lipinskipawel.board.engine.Player;
-import io.lipinski.gui.Table;
+import com.github.lipinskipawel.gui.Table;
 
 import java.io.BufferedReader;
 import java.io.IOException;
