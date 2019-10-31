@@ -1,7 +1,11 @@
 # LAN-Game
-Desktop game
+Desktop football 2D game.
+This GUI implementation uses external [engine], were you can contribute.
 
-## Requirements
- - install on your local machine [dependency] using maven
+[engine]: https://github.com/lipinskipawel/game-engine
 
-[dependency]: https://github.com/lipinskipawel/game-engine
+## Building from source
+ - JDK 12
+ - maven at least version `3.6.0`
+ - execute `mvn clean package`
+ - run `java -jar target/football-game.jar` and start playing
