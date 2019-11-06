@@ -153,7 +153,7 @@ public class Table  {
         this.menuItemLAN = new JMenuItem("1 vs LAN");
         this.menuItemLAN.setEnabled(false);
         this.menuItemAI = new JMenuItem("1 vs AI");
-        this.menuItemAI.setEnabled(false);
+//        this.menuItemAI.setEnabled(false);
 
         jMenu.add(menuItemWarmup);
         jMenu.add(menuItemOneVsOne);

@@ -1,5 +1,7 @@
 package com.github.lipinskipawel.controller;
 
+import com.github.lipinskipawel.BruteForceThinking;
+import com.github.lipinskipawel.board.ai.bruteforce.MiniMax;
 import com.github.lipinskipawel.board.engine.BoardInterface;
 import com.github.lipinskipawel.board.engine.Boards;
 import com.github.lipinskipawel.board.engine.Player;
@@ -17,6 +19,7 @@ import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.ExecutionException;
 
 import static javax.swing.SwingUtilities.isLeftMouseButton;
 import static javax.swing.SwingUtilities.isRightMouseButton;
@@ -46,6 +49,8 @@ public class GameController implements MouseListener, Observer, ActionListener {
     private ConnectionHandler connectionHandler;
     private ConnectionChat connectionChat;
 
+    private boolean canHumanMove;
+
 
     GameController(final Table table) {
         this.board = Boards.immutableBoard();
@@ -57,6 +62,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
         this.connectionChat = null;
         this.endGame = false;
         this.playerView = Player.FIRST;
+        this.canHumanMove = true;
     }
 
 
@@ -301,17 +307,49 @@ public class GameController implements MouseListener, Observer, ActionListener {
 
         } else if (isLeftMouseButton(e)) {
 
-//            GameDrawer.PointTracker pointTracker = (GameDrawer.PointTracker) src;
-//            Point point = this.board.getPoint(pointTracker.getPosition());
-//
-//
-//            if (this.board.tryMakeMove(point)) {
-//                this.table.drawBoard(this.board, this.playerView);
-//                if (this.board.isThisGoal(point))
-//                    JOptionPane.showMessageDialog(null, "Player " + this.playerView +
-//                            " won the game.");
-//            } else
-//                JOptionPane.showMessageDialog(null, "You cannot move like that.");
+            if (this.canHumanMove) {
+                GameDrawer.PointTracker pointTracker = (GameDrawer.PointTracker) src;
+                try {
+                    final var move = this.board.getBallAPI().kickBallTo(pointTracker.getPosition());
+
+                    if (this.board.isMoveAllowed(move)) {
+                        this.board = this.board.executeMove(move);
+                        this.table.drawBoard(this.board, this.playerView);
+                        if (this.board.isGoal()) {
+                            JOptionPane.showMessageDialog(null, "Player " + this.playerView +
+                                    " won the game.");
+                        }
+                        if (this.board.getPlayer() == Player.SECOND) {
+                            this.canHumanMove = false;
+                        }
+                    } else
+                        JOptionPane.showMessageDialog(null, "You cannot move like that.");
+                } catch (RuntimeException ee) {
+                    JOptionPane.showMessageDialog(null, "You can't goes on already made moves");
+                    return;
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "There is AI to move");
+            }
+            if (!canHumanMove) {
+                try {
+                    final var bruteForce = new BruteForceThinking(new MiniMax(), this.board, 2);
+                    bruteForce.execute();
+                    final var aiMove = bruteForce.get();
+                    this.board = this.board.executeMove(aiMove);
+                    if (this.board.allLegalMoves().size() == 0) {
+                        this.table.drawBoard(this.board, this.board.getPlayer().opposite());
+                        JOptionPane.showMessageDialog(null, "You won the game!!!");
+                        this.canHumanMove = false;
+                        return;
+                    }
+                    this.table.drawBoard(this.board, this.board.getPlayer());
+                    this.canHumanMove = true;
+                } catch (InterruptedException | ExecutionException ex) {
+                    ex.printStackTrace();
+                }
+            }
+
         }
     }
 
