@@ -48,7 +48,21 @@
         <dependency>
             <groupId>com.github.lipinskipawel</groupId>
             <artifactId>game-engine</artifactId>
-            <version>3.2.0-SNAPSHOT</version>
+            <version>3.2.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.0-alpha1</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.0-alpha1</version>
         </dependency>
 
     </dependencies>

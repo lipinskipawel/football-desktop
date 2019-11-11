@@ -4,12 +4,15 @@ import com.github.lipinskipawel.BruteForceThinking;
 import com.github.lipinskipawel.board.ai.bruteforce.MiniMax;
 import com.github.lipinskipawel.board.engine.BoardInterface;
 import com.github.lipinskipawel.board.engine.Boards;
+import com.github.lipinskipawel.board.engine.Move;
 import com.github.lipinskipawel.board.engine.Player;
 import com.github.lipinskipawel.gui.GameDrawer;
 import com.github.lipinskipawel.gui.Table;
 import com.github.lipinskipawel.network.ConnectionChat;
 import com.github.lipinskipawel.network.ConnectionHandler;
 import com.github.lipinskipawel.network.ConnectionState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -20,6 +23,7 @@ import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static javax.swing.SwingUtilities.isLeftMouseButton;
 import static javax.swing.SwingUtilities.isRightMouseButton;
@@ -49,7 +53,9 @@ public class GameController implements MouseListener, Observer, ActionListener {
     private ConnectionHandler connectionHandler;
     private ConnectionChat connectionChat;
 
-    private boolean canHumanMove;
+    private AtomicBoolean canHumanMove;
+    private BruteForceThinking bruteForce;
+    private final Logger logger = LoggerFactory.getLogger(GameController.class);
 
 
     GameController(final Table table) {
@@ -62,7 +68,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
         this.connectionChat = null;
         this.endGame = false;
         this.playerView = Player.FIRST;
-        this.canHumanMove = true;
+        this.canHumanMove = new AtomicBoolean(true);
     }
 
 
@@ -294,20 +300,42 @@ public class GameController implements MouseListener, Observer, ActionListener {
 
     }
 
-    // TODO this is warmup
     private void OneVsAIMode(final MouseEvent e, final Object src) {
         if (isRightMouseButton(e)) {
 
-//            if (this.board.undoMove())
-//                this.table.drawBoard(this.board, this.playerView);
-//            else {
-//                if (this.board.undoMove(true))
-//                    this.table.drawBoard(this.board, this.playerView);
-//            }
+            if (this.canHumanMove.get() && this.board.getPlayer() == Player.FIRST) {
+                this.board = this.board.undoPlayerMove();
+                this.table.drawBoard(this.board, this.board.getPlayer());
+            }
+            // if you decided to implement undo when ai thinks, watch out on
+            // this.canHumanMove
+            // this.bruteForce -- managing the state by operations on null
+
+            // use this.bruteForce.cancel(true);
 
         } else if (isLeftMouseButton(e)) {
+            logger.info("canHumanMove : " + this.canHumanMove + ", player : " + this.board.getPlayer());
 
-            if (this.canHumanMove) {
+            if (this.canHumanMove.get()) {
+                // here it is save to get move from worker and update board and draw it one more time
+                try {
+                    if (bruteForce != null) {
+                        var aiMove = bruteForce.get();
+                        this.board = this.board.executeMove(aiMove);
+                        if (this.board.allLegalMoves().size() == 0) {
+                            this.table.drawBoard(this.board, this.board.getPlayer().opposite());
+                            JOptionPane.showMessageDialog(null, "You won the game!!!");
+                            this.canHumanMove.set(false);
+                            return;
+                        }
+                        this.table.drawBoard(this.board, this.board.getPlayer());
+                        this.bruteForce = null;
+                        logger.info("redundant update board");
+                    }
+                } catch (InterruptedException | ExecutionException ex) {
+                    ex.printStackTrace();
+                }
+
                 GameDrawer.PointTracker pointTracker = (GameDrawer.PointTracker) src;
                 try {
                     final var move = this.board.getBallAPI().kickBallTo(pointTracker.getPosition());
@@ -320,7 +348,8 @@ public class GameController implements MouseListener, Observer, ActionListener {
                                     " won the game.");
                         }
                         if (this.board.getPlayer() == Player.SECOND) {
-                            this.canHumanMove = false;
+                            this.canHumanMove.set(false);
+                            logger.info("canHumanMove : " + this.canHumanMove);
                         }
                     } else
                         JOptionPane.showMessageDialog(null, "You cannot move like that.");
@@ -331,22 +360,17 @@ public class GameController implements MouseListener, Observer, ActionListener {
             } else {
                 JOptionPane.showMessageDialog(null, "There is AI to move");
             }
-            if (!canHumanMove) {
-                try {
-                    final var bruteForce = new BruteForceThinking(new MiniMax(), this.board, 2);
+            if (!canHumanMove.get()) {
+                // need to check that null because ai can think long, and the human could click and trigger another thead
+                if (this.bruteForce == null) {
+                    this.bruteForce = new BruteForceThinking(
+                            new MiniMax(),
+                            this.board,
+                            2,
+                            this.table.gameDrawer(),
+                            this.canHumanMove
+                    );
                     bruteForce.execute();
-                    final var aiMove = bruteForce.get();
-                    this.board = this.board.executeMove(aiMove);
-                    if (this.board.allLegalMoves().size() == 0) {
-                        this.table.drawBoard(this.board, this.board.getPlayer().opposite());
-                        JOptionPane.showMessageDialog(null, "You won the game!!!");
-                        this.canHumanMove = false;
-                        return;
-                    }
-                    this.table.drawBoard(this.board, this.board.getPlayer());
-                    this.canHumanMove = true;
-                } catch (InterruptedException | ExecutionException ex) {
-                    ex.printStackTrace();
                 }
             }
 

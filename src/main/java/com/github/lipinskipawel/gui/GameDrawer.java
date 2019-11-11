@@ -74,7 +74,7 @@ public class GameDrawer extends JPanel {
     }
 
 
-    synchronized void drawMove(final BoardInterface board, final Player viewOfPlayer) {
+    public void drawMove(final BoardInterface board, final Player viewOfPlayer) {
         this.board = board;
         this.viewOfPlayer = viewOfPlayer;
         repaint();

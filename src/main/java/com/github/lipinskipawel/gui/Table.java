@@ -181,6 +181,8 @@ public class Table  {
     }
     public void activePlayer(final Player playerActive) {this.gamePanel.activePlayer(playerActive);}
 
-
+    public GameDrawer gameDrawer() {
+        return this.gameDrawer;
+    }
 
 }
