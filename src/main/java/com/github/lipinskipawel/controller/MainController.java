@@ -1,6 +1,5 @@
 package com.github.lipinskipawel.controller;
 
-
 import com.github.lipinskipawel.gui.Table;
 
 import javax.swing.*;
@@ -19,9 +18,7 @@ public class MainController extends Observable implements ActionListener {
 
     private final Table table;
 
-
     private InetAddress ipLocalhost;
-
 
     private GameController actionGameController;
     static final String[] notifyStates = createNotifyStates();
@@ -45,7 +42,6 @@ public class MainController extends Observable implements ActionListener {
 
         this.table.addActionClassToTable(this);
         this.table.addConnectListener(this);
-
     }
 
 
@@ -61,7 +57,7 @@ public class MainController extends Observable implements ActionListener {
             this.table.setButtonEnabled(true);
             nnotifyObesrvers();
 
-        } else if ( src == table.getMenuLAN()) {
+        } else if (src == table.getMenuLAN()) {
 
             if (this.ipLocalhost == null || ipLocalhost.getHostAddress().equals("127.0.0.1")) {
                 JOptionPane.showMessageDialog(null, "You don't have connection to internet");
@@ -92,7 +88,6 @@ public class MainController extends Observable implements ActionListener {
             }
 
 
-
         } else if (src == this.table.getConnectButton()) {
             if (isValidIPEnemy(this.table.IPEnemy())) {
                 this.table.setButtonEnabled(false);
@@ -105,7 +100,7 @@ public class MainController extends Observable implements ActionListener {
                 JOptionPane.showMessageDialog(null, "You have written wrong ip address!");
             }
 
-        } else if ( src == this.table.getMenuAI()) {
+        } else if (src == this.table.getMenuAI()) {
             this.table.setOneVsAI();
             this.table.setButtonEnabled(true);
             nnotifyObesrvers();
@@ -116,6 +111,7 @@ public class MainController extends Observable implements ActionListener {
     private static boolean isValidIPEnemy(final String ipSubnet) {
         return isGoodFormat(ipSubnet) && isSubnetIsInOurSubnet(ipSubnet) && isMineIP(ipSubnet);
     }
+
     private static boolean isGoodFormat(final String ipSubnet) {
         Pattern pattern = Pattern.compile("\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}");
         Matcher matcher = pattern.matcher(ipSubnet);
@@ -127,6 +123,7 @@ public class MainController extends Observable implements ActionListener {
         }
         return false;
     }
+
     private static boolean isSubnetIsInOurSubnet(final String ipSubnet) {
         try {
             InetAddress ip = InetAddress.getLocalHost();
@@ -150,6 +147,7 @@ public class MainController extends Observable implements ActionListener {
 
         return true;
     }
+
     private static boolean isMineIP(String ipSubnet) {
         try {
             return !ipSubnet.equals(InetAddress.getLocalHost().getHostAddress());
@@ -164,6 +162,7 @@ public class MainController extends Observable implements ActionListener {
         setChanged();
         notifyObservers(notifyStates[0]);
     }
+
     private static String[] createNotifyStates() {
         String[] states = new String[3];
         states[0] = "kill";

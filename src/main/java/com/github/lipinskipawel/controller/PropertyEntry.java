@@ -27,16 +27,19 @@ final class PropertyEntry {
         final var trimmedValue = value.trim();
         if (trimmedValue.startsWith("${") && trimmedValue.endsWith("}")) {
             final var env = trimmedValue.replaceAll("\\$\\{|}", "");
-            return System.getenv(env);
+            final var envVariable = System.getenv(env);
+            if (envVariable != null)
+                return envVariable;
+            throw new RuntimeException("There is no environment variable with name : " + env);
         }
         return trimmedValue;
     }
 
-    public String getName() {
+    String getName() {
         return name;
     }
 
-    public String getValue() {
+    String getValue() {
         return value;
     }
 }

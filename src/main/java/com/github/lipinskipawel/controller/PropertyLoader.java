@@ -1,8 +1,7 @@
 package com.github.lipinskipawel.controller;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -18,12 +17,11 @@ final class PropertyLoader {
         return map.get(name);
     }
 
-    static PropertyLoader load() throws IOException {
-        final var file = PropertyLoader.class
-                .getResource("/application.properties")
-                .getFile();
-        final var map = Files.readAllLines(Paths.get(file))
-                .stream()
+    static PropertyLoader load() {
+        final var inStream = PropertyLoader.class
+                .getResourceAsStream("/application.properties");
+        final var map = new BufferedReader(new InputStreamReader(inStream))
+                .lines()
                 .map(PropertyEntry::new)
                 .collect(Collectors.toMap(PropertyEntry::getName, PropertyEntry::getValue));
         return new PropertyLoader(map);

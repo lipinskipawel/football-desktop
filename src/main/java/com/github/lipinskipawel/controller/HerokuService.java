@@ -2,17 +2,15 @@ package com.github.lipinskipawel.controller;
 
 import com.google.gson.Gson;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.concurrent.CompletableFuture;
 
 public final class HerokuService {
 
-    void send(final DataObject dataObject) throws IOException {
+    void send(final DataObject dataObject) {
         final var loader = PropertyLoader.load();
         final var client = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_1_1)
@@ -30,7 +28,7 @@ public final class HerokuService {
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    public static CompletableFuture<HttpResponse<Void>> wakeUpHeroku() throws IOException {
+    public static HttpResponse<Void> wakeUpHeroku() {
         final var loader = PropertyLoader.load();
         final var ping = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_1_1)
@@ -42,6 +40,6 @@ public final class HerokuService {
                 .header(loader.get("token.name"), loader.get("token.value"))
                 .GET()
                 .build();
-        return ping.sendAsync(pong, HttpResponse.BodyHandlers.discarding());
+        return ping.sendAsync(pong, HttpResponse.BodyHandlers.discarding()).join();
     }
 }
