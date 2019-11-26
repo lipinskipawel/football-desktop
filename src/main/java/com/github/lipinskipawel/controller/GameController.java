@@ -4,7 +4,6 @@ import com.github.lipinskipawel.BruteForceThinking;
 import com.github.lipinskipawel.board.ai.bruteforce.MiniMax;
 import com.github.lipinskipawel.board.engine.BoardInterface;
 import com.github.lipinskipawel.board.engine.Boards;
-import com.github.lipinskipawel.board.engine.Move;
 import com.github.lipinskipawel.board.engine.Player;
 import com.github.lipinskipawel.gui.GameDrawer;
 import com.github.lipinskipawel.gui.Table;
@@ -76,14 +75,12 @@ public class GameController implements MouseListener, Observer, ActionListener {
     public void mouseClicked(MouseEvent e) {
         Object src = e.getSource();
         switch (this.gameState) {
-            case "warm-up":
-                warmUpMode(e, src);
-                break;
-            case "1vs1":
+            case "warm-up" -> warmUpMode(e, src);
+            case "1vs1" -> {
                 OneVsOneMode(e, src);
                 this.table.activePlayer(this.board.getPlayer());
-                break;
-            case "1vsLAN":
+            }
+            case "1vsLAN" -> {
                 try {
                     OneVsLANMode(e, src);
                     this.table.activePlayer(this.board.getPlayer());
@@ -92,15 +89,10 @@ public class GameController implements MouseListener, Observer, ActionListener {
                     this.connectionChat.close();
                     //e1.printStackTrace();
                 }
-                break;
-            case "1vsAI":
-                OneVsAIMode(e, src);
-                break;
-            default:
-                System.out.println("Something goes wrong!");
-                break;
+            }
+            case "1vsAI" -> OneVsAIMode(e, src);
+            default -> System.out.println("Something goes wrong!");
         }
-
     }
 
     @Override
@@ -117,16 +109,14 @@ public class GameController implements MouseListener, Observer, ActionListener {
     public void update(Observable o, Object arg) {
         this.gameState = table.getSTATE_OF_GAME();
         switch ((String) arg) {
-
-            case "kill":
+            case "kill" -> {
                 restartBoard();
                 if (this.connectionHandler != null)
                     this.connectionHandler.close();
                 if (this.connectionChat != null)
                     this.connectionChat.close();
-                break;
-
-            case "createServer":
+            }
+            case "createServer" -> {
                 restartBoard();
                 if (this.connectionHandler == null ||
                         this.connectionHandler.getConnectionState() == ConnectionState.CLOSED) {
@@ -134,12 +124,9 @@ public class GameController implements MouseListener, Observer, ActionListener {
                     this.playerView = this.board.getPlayer().opposite();
                     this.connectionHandler = new ConnectionHandler(this);
                     this.connectionChat = new ConnectionChat(this.table);
-
                 }
-
-                break;
-
-            case "createSocket":
+            }
+            case "createSocket" -> {
                 restartBoard();
                 if (this.connectionHandler == null ||
                         this.connectionHandler.getConnectionState() == ConnectionState.CLOSED) {
@@ -149,12 +136,8 @@ public class GameController implements MouseListener, Observer, ActionListener {
                     this.connectionChat = new ConnectionChat(this.table, this.ipEnemy);
 
                 }
-
-                break;
-            default:
-                break;
+            }
         }
-
     }
 
     private void warmUpMode(final MouseEvent e, final Object src) {

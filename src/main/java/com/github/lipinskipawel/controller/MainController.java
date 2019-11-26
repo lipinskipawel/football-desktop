@@ -47,7 +47,7 @@ public class MainController extends Observable implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        Object src = e.getSource();
+        final var src = e.getSource();
         if (src == table.getMenuItemWarmup()) {
             this.table.setWarmUp();
             this.table.setButtonEnabled(true);
