@@ -38,7 +38,6 @@ class GamePanel extends JPanel {
         creatingNORTH();
         creatingCENTER();
         creatingSOUTH();
-
     }
 
     /**
@@ -154,7 +153,6 @@ class GamePanel extends JPanel {
 
         this.southPanel.add(labelSouth, BorderLayout.NORTH);
         this.southPanel.add(littleBox, BorderLayout.CENTER);
-
     }
 
 
@@ -191,10 +189,7 @@ class GamePanel extends JPanel {
         this.buttonSouth.addActionListener(listener);
     }
 
-
     JTextArea getTextArea() {
         return this.textArea;
     }
-
-
 }

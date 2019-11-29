@@ -184,5 +184,4 @@ public class Table  {
     public GameDrawer gameDrawer() {
         return this.gameDrawer;
     }
-
 }

@@ -165,8 +165,6 @@ public class GameController implements MouseListener, Observer, ActionListener {
                 JOptionPane.showMessageDialog(null, "You can't goes on already made moves");
                 return;
             }
-
-
         }
     }
 
@@ -240,7 +238,6 @@ public class GameController implements MouseListener, Observer, ActionListener {
 
                 GameDrawer.PointTracker pointTracker = (GameDrawer.PointTracker) src;
                 final var move = this.board.getBallAPI().kickBallTo(pointTracker.getPosition());
-
 
                 if (!endGame) {
                     try {
@@ -356,29 +353,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
                     bruteForce.execute();
                 }
             }
-
         }
-    }
-
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-
     }
 
     void setIPEnemy(final String IPEnemy) {
@@ -420,6 +395,25 @@ public class GameController implements MouseListener, Observer, ActionListener {
 
     public void postMessage(final String message) {
         this.table.appendChat(message + "\n");
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
 
     }
 }

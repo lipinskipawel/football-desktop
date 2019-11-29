@@ -279,7 +279,6 @@ public class GameDrawer extends JPanel {
             return Integer.toString(this.position);
         }
 
-
         private int getXMiddle() {
             return getX() + (this.getWidth() / 2);
         }
@@ -288,7 +287,6 @@ public class GameDrawer extends JPanel {
             return getY() + (this.getHeight() / 2);
         }
     }
-
 }
 
 
