@@ -77,8 +77,12 @@ public class GameController implements MouseListener, Observer, ActionListener {
         switch (this.gameState) {
             case "warm-up" -> warmUpMode(e, src);
             case "1vs1" -> {
-                OneVsOneMode(e, src);
-                this.table.activePlayer(this.board.getPlayer());
+                try {
+                    OneVsOneMode(e, src);
+                    this.table.activePlayer(this.board.getPlayer());
+                } catch (IOException | InterruptedException ex) {
+                    ex.printStackTrace();
+                }
             }
             case "1vsLAN" -> {
                 try {
@@ -168,7 +172,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
         }
     }
 
-    private void OneVsOneMode(final MouseEvent e, final Object src) {
+    private void OneVsOneMode(final MouseEvent e, final Object src) throws IOException, InterruptedException {
         if (isRightMouseButton(e)) {
 
             final var afterUndo = this.board.undo();
@@ -176,15 +180,16 @@ public class GameController implements MouseListener, Observer, ActionListener {
                 this.board = afterUndo;
                 this.table.drawBoard(this.board, this.board.getPlayer());
             } else {
-                JOptionPane.showMessageDialog(null, "To be implemented");
-                return;
+
+                final var dataObject = new QuestionService(new InMemoryQuestions())
+                        .displayYesNoCancel();
+                this.board = this.board.undo();
+                this.table.drawBoard(this.board, this.board.getPlayer());
             }
 
         } else if (isLeftMouseButton(e)) {
-
             GameDrawer.PointTracker pointTracker = (GameDrawer.PointTracker) src;
             final var move = this.board.getBallAPI().kickBallTo(pointTracker.getPosition());
-
 
             if (!endGame) {
                 if (this.board.isMoveAllowed(move)) {

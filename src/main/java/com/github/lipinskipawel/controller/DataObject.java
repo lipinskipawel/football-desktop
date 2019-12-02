@@ -1,17 +1,22 @@
 package com.github.lipinskipawel.controller;
 
+import java.util.Arrays;
+
 final class DataObject {
 
     private String question;
-    private int questionOption;
-    private int answer;
+    private String[] choices;
+    private String[] answers;
     private long time;
 
 
-    DataObject(final String question, final int questionOption, final int answer, final long time) {
+    DataObject(final String question,
+               final String[] choices,
+               final String[] answers,
+               final long time) {
         this.question = question;
-        this.questionOption = questionOption;
-        this.answer = answer;
+        this.choices = Arrays.copyOf(choices, choices.length);
+        this.answers = answers;
         this.time = time;
     }
 
@@ -22,12 +27,12 @@ final class DataObject {
         return question;
     }
 
-    public int getQuestionOption() {
-        return questionOption;
+    public String[] getChoices() {
+        return Arrays.copyOf(choices, choices.length);
     }
 
-    public int getAnswer() {
-        return answer;
+    public String[] getAnswer() {
+        return Arrays.copyOf(answers, answers.length);
     }
 
     public long getTime() {

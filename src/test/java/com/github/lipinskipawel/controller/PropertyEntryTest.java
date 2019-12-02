@@ -1,15 +1,18 @@
 package com.github.lipinskipawel.controller;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+@DisplayName("Internal -- PropertyEntry")
 class PropertyEntryTest {
 
     @Test
+    @DisplayName("passing name and value")
     void twoArgsNoEnvVariable() {
         final var entry = new PropertyEntry("token", "value");
 
@@ -20,6 +23,7 @@ class PropertyEntryTest {
     }
 
     @Test
+    @DisplayName("passing one-liner")
     void oneLineNoEnvVariable() {
         final var oneLine = "nice.token.name=value.token";
         final var entry = new PropertyEntry(oneLine);
@@ -31,6 +35,7 @@ class PropertyEntryTest {
     }
 
     @Test
+    @DisplayName("passing name and (value - sys env)")
     @EnabledIf("'token' == systemEnvironment.get('token')")
     void twoArgsWithEnvVariable() {
         final var entry = new PropertyEntry("random", "${token}");
@@ -42,6 +47,7 @@ class PropertyEntryTest {
     }
 
     @Test
+    @DisplayName("passing one-liner sys env")
     void oneLinerWithEnvVariable() {
         assumeTrue("token".equals(System.getenv("token")));
 
