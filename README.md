@@ -6,6 +6,6 @@ This GUI implementation uses external [engine], were you can contribute.
 
 ## Building from source
  - JDK 13
- - fill `application.properties` with token.name and token.value or provide environment variable
+ - fill `application.properties` with `token.name`, `token.value` and `storage.service` or provide environment variables
  - execute `mvn clean package`
  - run `java -jar --enable-preview target/football-game.jar` and start playing

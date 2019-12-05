@@ -17,7 +17,7 @@ public final class HerokuService {
                 .build();
 
         final var request = HttpRequest.newBuilder()
-                .uri(URI.create("https://game-collector-service.herokuapp.com/"))
+                .uri(URI.create(loader.get("storage.service") + "question/save"))
                 .timeout(Duration.ofMinutes(1))
                 .header(loader.get("token.name"), loader.get("token.value"))
                 .POST(HttpRequest.BodyPublishers
@@ -35,7 +35,7 @@ public final class HerokuService {
                 .build();
 
         final var pong = HttpRequest.newBuilder()
-                .uri(URI.create("https://game-collector-service.herokuapp.com/actuator/health"))
+                .uri(URI.create(loader.get("storage.service") + "actuator/health"))
                 .timeout(Duration.ofMinutes(2))
                 .header(loader.get("token.name"), loader.get("token.value"))
                 .GET()
