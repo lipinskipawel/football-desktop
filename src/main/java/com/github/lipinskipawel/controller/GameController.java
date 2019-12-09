@@ -178,14 +178,12 @@ public class GameController implements MouseListener, Observer, ActionListener {
             final var afterUndo = this.board.undo();
             if (afterUndo.getPlayer() == this.board.getPlayer()) {
                 this.board = afterUndo;
-                this.table.drawBoard(this.board, this.board.getPlayer());
             } else {
-
                 final var dataObject = new QuestionService(new InMemoryQuestions())
                         .displayYesNoCancel();
                 this.board = this.board.undo();
-                this.table.drawBoard(this.board, this.board.getPlayer());
             }
+            this.table.drawBoard(this.board, Player.FIRST);
 
         } else if (isLeftMouseButton(e)) {
             GameDrawer.PointTracker pointTracker = (GameDrawer.PointTracker) src;
@@ -194,7 +192,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
             if (!endGame) {
                 if (this.board.isMoveAllowed(move)) {
                     this.board = this.board.executeMove(move);
-                    this.table.drawBoard(this.board, this.board.getPlayer());
+                    this.table.drawBoard(this.board, Player.FIRST);
                     if (this.board.isGoal()) {
                         endGame = true;
                         this.playerView = this.board.getPlayer();
