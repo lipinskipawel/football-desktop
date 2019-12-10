@@ -176,12 +176,17 @@ public class GameController implements MouseListener, Observer, ActionListener {
         if (isRightMouseButton(e)) {
 
             final var afterUndo = this.board.undo();
-            if (afterUndo.getPlayer() == this.board.getPlayer()) {
+            if (isSmallMoveUndo(afterUndo)) {
                 this.board = afterUndo;
             } else {
                 final var dataObject = new QuestionService(new InMemoryQuestions())
                         .displayYesNoCancel();
-                this.board = this.board.undo();
+                try {
+                    this.board = undoAllPlayerMove(this.board);
+                    this.board = undoAllPlayerMove(this.board);
+                } catch (RuntimeException ee) {
+                    this.board = Boards.immutableBoard();
+                }
             }
             this.table.drawBoard(this.board, Player.FIRST);
 
@@ -191,7 +196,9 @@ public class GameController implements MouseListener, Observer, ActionListener {
 
             if (!endGame) {
                 if (this.board.isMoveAllowed(move)) {
+                    logger.info("trying to make a move");
                     this.board = this.board.executeMove(move);
+                    logger.info("move has been made");
                     this.table.drawBoard(this.board, Player.FIRST);
                     if (this.board.isGoal()) {
                         endGame = true;
@@ -216,6 +223,27 @@ public class GameController implements MouseListener, Observer, ActionListener {
                 JOptionPane.showMessageDialog(null, "Player " + this.playerView +
                         " won the game.\nPlease start game again.");
         }
+    }
+
+    private BoardInterface undoAllPlayerMove(final BoardInterface board) {
+        var beforeUndoBoard = board;
+        do {
+            beforeUndoBoard = beforeUndoBoard.undo();
+        } while (beforeUndoBoard.getPlayer() == board.getPlayer());
+        return beforeUndoBoard
+                .undoPlayerMove()
+                .undoPlayerMove()
+                .undoPlayerMove()
+                .undoPlayerMove()
+                .undoPlayerMove()
+                .undoPlayerMove()
+                .undoPlayerMove()
+                .undoPlayerMove()
+                .undoPlayerMove();
+    }
+
+    private boolean isSmallMoveUndo(final BoardInterface afterUndo) {
+        return afterUndo.getPlayer() == this.board.getPlayer();
     }
 
     private void OneVsLANMode(final MouseEvent e, final Object src) throws InterruptedException {
