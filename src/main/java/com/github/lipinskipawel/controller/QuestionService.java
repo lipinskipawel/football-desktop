@@ -10,7 +10,7 @@ final class QuestionService {
         this.questionLoader = questionLoader;
     }
 
-    DataObject displayYesNoCancel() {
+    DataObject displayYesNoCancel(final String module) {
         final var question = this.questionLoader.takeYesNoQuestion();
 
         final var start = System.currentTimeMillis();
@@ -23,10 +23,17 @@ final class QuestionService {
         );
 
         final var wordAnswer = translateToWord(answer);
-        return new DataObject(question.getQuestion(), question.getOptions(), wordAnswer, System.currentTimeMillis() - start);
+        return new DataObject(
+                "temp",
+                module,
+                question.getQuestion(),
+                question.getOptions(),
+                wordAnswer,
+                System.currentTimeMillis() - start
+        );
     }
 
-    DataObject displayMultipleAnswers() {
+    DataObject displayMultipleAnswers(final String module) {
         final var question = this.questionLoader.takeMultipleChoiceQuestion();
 
         final var options = new JList<>(question.getOptions());
@@ -41,7 +48,14 @@ final class QuestionService {
         );
 
         final var wordAnswers = options.getSelectedValuesList();
-        return new DataObject(question.getQuestion(), question.getOptions(), wordAnswers.toArray(String[]::new), System.currentTimeMillis() - start);
+        return new DataObject(
+                "temp",
+                module,
+                question.getQuestion(),
+                question.getOptions(),
+                wordAnswers.toArray(String[]::new),
+                System.currentTimeMillis() - start
+        );
     }
 
     private String[] translateToWord(final int answer) {

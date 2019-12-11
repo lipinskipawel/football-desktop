@@ -180,7 +180,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
                 this.board = afterUndo;
             } else {
                 final var dataObject = new QuestionService(new InMemoryQuestions())
-                        .displayYesNoCancel();
+                        .displayYesNoCancel("1v1");
                 try {
                     this.board = undoAllPlayerMove(this.board);
                     this.board = undoAllPlayerMove(this.board);

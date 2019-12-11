@@ -20,6 +20,7 @@ public final class HerokuService {
                 .uri(URI.create(loader.get("storage.service") + "question/save"))
                 .timeout(Duration.ofMinutes(1))
                 .header(loader.get("token.name"), loader.get("token.value"))
+                .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers
                         .ofString(
                                 new Gson().toJson(dataObject))
