@@ -19,11 +19,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.github.lipinskipawel.board.engine.Player.FIRST;
+import static com.github.lipinskipawel.board.engine.Player.SECOND;
 import static javax.swing.SwingUtilities.isLeftMouseButton;
 import static javax.swing.SwingUtilities.isRightMouseButton;
 
@@ -55,6 +59,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
     private AtomicBoolean canHumanMove;
     private BruteForceThinking bruteForce;
     private final Logger logger = LoggerFactory.getLogger(GameController.class);
+    private final Map<Player, Integer> tokenForPlayer;
 
 
     GameController(final Table table) {
@@ -66,8 +71,11 @@ public class GameController implements MouseListener, Observer, ActionListener {
         this.connectionHandler = null;
         this.connectionChat = null;
         this.endGame = false;
-        this.playerView = Player.FIRST;
+        this.playerView = FIRST;
         this.canHumanMove = new AtomicBoolean(true);
+        this.tokenForPlayer = new HashMap<>();
+        this.tokenForPlayer.put(FIRST, 2);
+        this.tokenForPlayer.put(SECOND, 2);
     }
 
 
@@ -83,6 +91,10 @@ public class GameController implements MouseListener, Observer, ActionListener {
                 } catch (IOException | InterruptedException ex) {
                     ex.printStackTrace();
                 }
+            }
+            case "hell mode" -> {
+                hellMode(e);
+                this.table.activePlayer(this.board.getPlayer());
             }
             case "1vsLAN" -> {
                 try {
@@ -188,7 +200,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
                     this.board = Boards.immutableBoard();
                 }
             }
-            this.table.drawBoard(this.board, Player.FIRST);
+            this.table.drawBoard(this.board, FIRST);
 
         } else if (isLeftMouseButton(e)) {
             GameDrawer.PointTracker pointTracker = (GameDrawer.PointTracker) src;
@@ -199,7 +211,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
                     logger.info("trying to make a move");
                     this.board = this.board.executeMove(move);
                     logger.info("move has been made");
-                    this.table.drawBoard(this.board, Player.FIRST);
+                    this.table.drawBoard(this.board, FIRST);
                     if (this.board.isGoal()) {
                         endGame = true;
                         this.playerView = this.board.getPlayer();
@@ -223,6 +235,73 @@ public class GameController implements MouseListener, Observer, ActionListener {
                 JOptionPane.showMessageDialog(null, "Player " + this.playerView +
                         " won the game.\nPlease start game again.");
         }
+    }
+
+    private void hellMode(final MouseEvent e) {
+        if (isRightMouseButton(e)) {
+
+            if (playerAllowedToUndo(this.board)) {
+                final var afterUndo = this.board.undo();
+                if (isSmallMoveUndo(afterUndo)) {
+                    this.board = afterUndo;
+                } else {
+                    final var dataObject = new QuestionService(new InMemoryQuestions())
+                            .displayYesNoCancel("hell mode");
+                    try {
+                        this.board = undoAllPlayerMove(this.board);
+                        this.board = undoAllPlayerMove(this.board);
+                    } catch (RuntimeException ee) {
+                        this.board = Boards.immutableBoard();
+                    }
+                    this.tokenForPlayer.compute(this.board.getPlayer(), (key, val) -> val - 1);
+                    this.tokenForPlayer.compute(this.board.getPlayer().opposite(), (key, val) -> val + 1);
+                    final var message =
+                            "Player " + this.board.getPlayer() +
+                                    " tokens : " + this.tokenForPlayer.get(this.board.getPlayer()) + "\n" +
+                                    "Player " + this.board.getPlayer().opposite() +
+                                    " tokens : " + this.tokenForPlayer.get(this.board.getPlayer().opposite());
+                    JOptionPane.showMessageDialog(null, message);
+                }
+                this.table.drawBoard(this.board, FIRST);
+            }
+
+        } else if (isLeftMouseButton(e)) {
+            GameDrawer.PointTracker pointTracker = (GameDrawer.PointTracker) e.getSource();
+            final var move = this.board.getBallAPI().kickBallTo(pointTracker.getPosition());
+
+            if (!endGame) {
+                if (this.board.isMoveAllowed(move)) {
+                    logger.info("trying to make a move");
+                    this.board = this.board.executeMove(move);
+                    logger.info("move has been made");
+                    this.table.drawBoard(this.board, FIRST);
+                    if (this.board.isGoal()) {
+                        endGame = true;
+                        this.playerView = this.board.getPlayer();
+                        JOptionPane.showMessageDialog(null, "Player " + this.playerView +
+                                " won the game.");
+                        this.table.appendRight("Player " + this.playerView + " won the game.");
+                    }
+
+                } else
+                    JOptionPane.showMessageDialog(null, "You cannot move like that.");
+
+                if (this.board.allLegalMoves().size() == 0 && !this.board.isGoal()) {
+                    this.endGame = true;
+                    this.playerView = this.board.getPlayer().opposite();
+                    JOptionPane.showMessageDialog(null, "Player " + this.playerView +
+                            " won the game.");
+                    this.table.appendRight("Player " + this.playerView + " won the game.");
+                }
+
+            } else
+                JOptionPane.showMessageDialog(null, "Player " + this.playerView +
+                        " won the game.\nPlease start game again.");
+        }
+    }
+
+    private boolean playerAllowedToUndo(final BoardInterface board) {
+        return this.tokenForPlayer.get(board.getPlayer()) > 0;
     }
 
     private BoardInterface undoAllPlayerMove(final BoardInterface board) {
@@ -314,7 +393,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
     private void OneVsAIMode(final MouseEvent e, final Object src) {
         if (isRightMouseButton(e)) {
 
-            if (this.canHumanMove.get() && this.board.getPlayer() == Player.FIRST) {
+            if (this.canHumanMove.get() && this.board.getPlayer() == FIRST) {
                 this.board = this.board.undoPlayerMove();
                 this.table.drawBoard(this.board, this.board.getPlayer());
             }
@@ -396,7 +475,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
         this.table.drawBoard(this.board, this.playerView);
         this.table.activePlayer(this.board.getPlayer());
         this.endGame = false;
-        this.playerView = Player.FIRST;
+        this.playerView = FIRST;
     }
 
     public void postBoard(final BoardInterface board) {

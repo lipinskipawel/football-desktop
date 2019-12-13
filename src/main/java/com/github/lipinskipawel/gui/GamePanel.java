@@ -20,6 +20,7 @@ class GamePanel extends JPanel {
     private JScrollPane scrollPaneText;
     private final static String textWarUp = staticTextWarmUp();
     private final static String text1vs1 = staticText1vs1();
+    private final static String textHellMode = staticTextHellMode();
     private final static String text1vsLAN = staticText1vsLAN();
     private final static String text1vsAI = staticText1vsAI();
 
@@ -64,6 +65,19 @@ class GamePanel extends JPanel {
         repaint();
     }
 
+    void setHellMode() {
+        removeAll();
+        this.playerPanel.removeAll();
+        this.playerPanel.add(playerONE);
+        this.playerPanel.add(playerTWO);
+        this.textArea.setText(textHellMode);
+
+        add(playerPanel, BorderLayout.NORTH);
+        add(scrollPaneText, BorderLayout.CENTER);
+        SwingUtilities.invokeLater(this::revalidate);
+        repaint();
+    }
+
     void setONEvsLAN() {
         removeAll();
         this.playerPanel.removeAll();
@@ -93,38 +107,50 @@ class GamePanel extends JPanel {
 
     private static String staticTextWarmUp() {
         return """
-        This is Warmp-up mode.
-        You can play here and try new tactics
-        Created by Paweł Lipiński
+                This is Warmp-up mode.
+                You can play here and try new tactics
+                Created by Paweł Lipiński
                 """;
     }
 
     private static String staticText1vs1() {
         return """
-        In this mode you can play 1 vs 1 in
-        one computer. Invite your friend
-        and try to win a game. Rules are
-        really simple, try to score a goal
-        by putting ball into enemy goal area.
+                In this mode you can play 1 vs 1 in
+                one computer. Invite your friend
+                and try to win a game. Rules are
+                really simple, try to score a goal
+                by putting ball into enemy goal area.
+                """;
+    }
+
+    private static String staticTextHellMode() {
+        return """
+                Each player have 2 tokens.
+                Each undo move costs one token
+                and gave this token to enemy
+                If player have no tokens left undo
+                is NOT allowed anymore.
                 """;
     }
 
     private static String staticText1vsLAN() {
         return """
-        In this mode try to win with your friend
-        connected by LAN. Rules are really
-        simple, try to score a goal by putting
-        ball into enemy goal area.
-        Good luck.""";
+                In this mode try to win with your friend
+                connected by LAN. Rules are really
+                simple, try to score a goal by putting
+                ball into enemy goal area.
+                Good luck.
+                """;
     }
 
     private static String staticText1vsAI() {
         return """
-        In this mode you will be faced of AI.
-        This is powerful tool which can beat
-        you. Try to win with it. In future
-        this AI will be working as Neural
-        Network. Good luck""";
+                In this mode you will be faced of AI.
+                This is powerful tool which can beat
+                you. Try to win with it. In future
+                this AI will be working as Neural
+                Network. Good luck
+                """;
     }
 
     private void creatingNORTH() {

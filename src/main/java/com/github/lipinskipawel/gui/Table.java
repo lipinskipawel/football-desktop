@@ -17,6 +17,7 @@ public class Table  {
 
     private JMenuItem menuItemWarmup;
     private JMenuItem menuItemOneVsOne;
+    private JMenuItem menuItemHellMove;
     private JMenuItem menuItemLAN;
     private JMenuItem menuItemAI;
     //private JMenuItem zapisz;
@@ -27,7 +28,7 @@ public class Table  {
 
 
     private String STATE_OF_GAME;
-    private final static String[] possibility = {"warm-up", "1vs1", "1vsLAN", "1vsAI"};
+    private final static String[] possibility = {"warm-up", "1vs1", "1vsLAN", "1vsAI", "hell mode"};
     private final static String TITLE = "Piłka";
 
 
@@ -62,6 +63,7 @@ public class Table  {
     public void addActionClassToTable(final ActionListener actionListener) {
         this.menuItemWarmup.addActionListener(actionListener);
         this.menuItemOneVsOne.addActionListener(actionListener);
+        this.menuItemHellMove.addActionListener(actionListener);
         this.menuItemLAN.addActionListener(actionListener);
         this.menuItemAI.addActionListener(actionListener);
         //this.zapisz.addActionListener(actionListener);
@@ -80,6 +82,7 @@ public class Table  {
     // --------------------------------- GETer to ActionTable --------------------------------
     public JMenuItem getMenuItemWarmup() {return this.menuItemWarmup;}
     public JMenuItem getMenuOneVsOne() {return this.menuItemOneVsOne;}
+    public JMenuItem getMenuItemHellMove() {return this.menuItemHellMove;}
     public JMenuItem getMenuLAN() {return this.menuItemLAN;}
     public JMenuItem getMenuAI() {return this.menuItemAI;}
     //public JMenuItem getZapisz() {return this.zapisz;}
@@ -111,6 +114,11 @@ public class Table  {
         STATE_OF_GAME = possibility[1];
         this.gameFrame.setTitle(TITLE);
         this.gamePanel.setONEvsONE();
+    }
+    public synchronized void setHellMode() {
+        STATE_OF_GAME = possibility[4];
+        this.gameFrame.setTitle(TITLE);
+        this.gamePanel.setHellMode();
     }
     public synchronized void setOneVsLAN(final String ipLocalhost) {
         STATE_OF_GAME = possibility[2];
@@ -150,6 +158,7 @@ public class Table  {
         final JMenu jMenu = new JMenu("Play");
         this.menuItemWarmup = new JMenuItem("Warm-up");
         this.menuItemOneVsOne = new JMenuItem("1 vs 1");
+        this.menuItemHellMove = new JMenuItem("Hell mode");
         this.menuItemLAN = new JMenuItem("1 vs LAN");
         this.menuItemLAN.setEnabled(false);
         this.menuItemAI = new JMenuItem("1 vs AI");
@@ -157,6 +166,7 @@ public class Table  {
 
         jMenu.add(menuItemWarmup);
         jMenu.add(menuItemOneVsOne);
+        jMenu.add(menuItemHellMove);
         jMenu.add(menuItemLAN);
         jMenu.add(menuItemAI);
         return jMenu;

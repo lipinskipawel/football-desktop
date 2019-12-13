@@ -57,6 +57,10 @@ public class MainController extends Observable implements ActionListener {
             this.table.setButtonEnabled(true);
             nnotifyObesrvers();
 
+        } else if (src == table.getMenuItemHellMove()) {
+            this.table.setHellMode();
+            this.table.setButtonEnabled(true);
+            nnotifyObesrvers();
         } else if (src == table.getMenuLAN()) {
 
             if (this.ipLocalhost == null || ipLocalhost.getHostAddress().equals("127.0.0.1")) {
