@@ -192,7 +192,9 @@ public class GameController implements MouseListener, Observer, ActionListener {
                 this.board = afterUndo;
             } else {
                 final var dataObject = new QuestionService(new InMemoryQuestions())
-                        .displayYesNoCancel("1v1");
+                        .displayYesNoCancel("1-1");
+                new HerokuService()
+                        .send(dataObject);
                 try {
                     this.board = undoAllPlayerMove(this.board);
                     this.board = undoAllPlayerMove(this.board);
@@ -246,7 +248,9 @@ public class GameController implements MouseListener, Observer, ActionListener {
                     this.board = afterUndo;
                 } else {
                     final var dataObject = new QuestionService(new InMemoryQuestions())
-                            .displayYesNoCancel("hell mode");
+                            .displayYesNoCancel("hell-mode");
+                    new HerokuService()
+                            .send(dataObject);
                     try {
                         this.board = undoAllPlayerMove(this.board);
                         this.board = undoAllPlayerMove(this.board);
