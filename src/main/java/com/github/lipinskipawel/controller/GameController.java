@@ -397,9 +397,25 @@ public class GameController implements MouseListener, Observer, ActionListener {
     private void OneVsAIMode(final MouseEvent e, final Object src) {
         if (isRightMouseButton(e)) {
 
-            if (this.canHumanMove.get() && this.board.getPlayer() == FIRST) {
-                this.board = this.board.undoPlayerMove();
-                this.table.drawBoard(this.board, this.board.getPlayer());
+            if (this.canHumanMove.get()) {
+                final var afterUndo = this.board.undo();
+                if (afterUndo.getPlayer() == this.board.getPlayer()) {
+                    this.board = this.board.undo();
+                    this.table.drawBoard(this.board, this.board.getPlayer());
+                } else {
+                    if (this.bruteForce != null) {
+                        this.bruteForce.cancel(true);
+                    }
+                    this.bruteForce = null;
+                    try {
+                        this.board = undoAllPlayerMove(this.board);
+                        this.board = undoAllPlayerMove(this.board);
+                    } catch (RuntimeException ee) {
+                        this.board = Boards.immutableBoard();
+                    }
+                    this.canHumanMove = new AtomicBoolean(false);
+                    this.table.drawBoard(this.board, FIRST);
+                }
             }
             // if you decided to implement undo when ai thinks, watch out on
             // this.canHumanMove
@@ -454,18 +470,18 @@ public class GameController implements MouseListener, Observer, ActionListener {
             } else {
                 JOptionPane.showMessageDialog(null, "There is AI to move");
             }
-            if (!canHumanMove.get()) {
-                // need to check that null because ai can think long, and the human could click and trigger another thead
-                if (this.bruteForce == null) {
-                    this.bruteForce = new BruteForceThinking(
-                            new MiniMax(),
-                            this.board,
-                            2,
-                            this.table.gameDrawer(),
-                            this.canHumanMove
-                    );
-                    bruteForce.execute();
-                }
+        }
+        if (!canHumanMove.get()) {
+            // need to check that null because ai can think long, and the human could click and trigger another thead
+            if (this.bruteForce == null) {
+                this.bruteForce = new BruteForceThinking(
+                        new MiniMax(),
+                        this.board,
+                        2,
+                        this.table.gameDrawer(),
+                        this.canHumanMove
+                );
+                bruteForce.execute();
             }
         }
     }
