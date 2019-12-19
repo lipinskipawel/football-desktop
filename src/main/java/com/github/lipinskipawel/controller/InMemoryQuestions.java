@@ -20,6 +20,11 @@ final class InMemoryQuestions implements QuestionLoader {
                 .get(new Random().nextInt(size));
     }
 
+    @Override
+    public Question takeAiQuestion() {
+        return new MultipleAnswerQuestion("Ai", "How good was ai", new String[]{"0", "1", "2", "3", "4", "5"});
+    }
+
     private List<Question> loadQuestions() {
         final var title = "Yes, No";
         return List.of(

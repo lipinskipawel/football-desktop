@@ -436,6 +436,10 @@ public class GameController implements MouseListener, Observer, ActionListener {
                             this.table.drawBoard(this.board, this.board.getPlayer().opposite());
                             JOptionPane.showMessageDialog(null, "You won the game!!!");
                             this.canHumanMove.set(false);
+                            final var dataObject = new QuestionService(new InMemoryQuestions())
+                                    .displayAiQuestion();
+                            new HerokuService()
+                                    .send(dataObject);
                             return;
                         }
                         this.table.drawBoard(this.board, this.board.getPlayer());

@@ -1,6 +1,9 @@
 package com.github.lipinskipawel.controller;
 
 import javax.swing.*;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 final class QuestionService {
 
@@ -54,6 +57,43 @@ final class QuestionService {
                 question.getQuestion(),
                 question.getOptions(),
                 wordAnswers.toArray(String[]::new),
+                System.currentTimeMillis() - start
+        );
+    }
+
+    DataObject displayAiQuestion() {
+        final var question = this.questionLoader.takeAiQuestion();
+
+        final var jRadioButtons = Stream.of(question.getOptions())
+                .map(JRadioButton::new)
+                .collect(toList());
+
+        final var start = System.currentTimeMillis();
+
+        final var panel = new JPanel();
+        final var group = new ButtonGroup();
+        for (var radio : jRadioButtons) {
+            group.add(radio);
+            group.add(radio);
+
+            panel.add(radio);
+            panel.add(radio);
+        }
+
+        JOptionPane.showMessageDialog(null, panel);
+
+        final var selected = jRadioButtons
+                .stream()
+                .filter(AbstractButton::isSelected)
+                .map(AbstractButton::getText)
+                .collect(toList());
+
+        return new DataObject(
+                "temp",
+                "1-ai",
+                question.getQuestion(),
+                question.getOptions(),
+                selected.toArray(String[]::new),
                 System.currentTimeMillis() - start
         );
     }
