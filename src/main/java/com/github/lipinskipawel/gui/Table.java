@@ -22,7 +22,7 @@ public class Table  {
     private JMenuItem menuItemAI;
     //private JMenuItem zapisz;
 
-    private static final Dimension WINDOW_SIZE = new Dimension(700, 800);
+    private static final Dimension WINDOW_SIZE = new Dimension(700, 600);
     private static final Font globalMenuFont = new Font("sans-serif", Font.PLAIN, 20);
     private static final Font textAreaFont = new Font("sans-serif", Font.PLAIN, 15);
 
@@ -53,7 +53,7 @@ public class Table  {
 
 
         this.gameFrame.add(gameDrawer, BorderLayout.CENTER);
-        this.gameFrame.add(gameChat, BorderLayout.SOUTH);
+//        this.gameFrame.add(gameChat, BorderLayout.SOUTH);
         this.gameFrame.add(gamePanel, BorderLayout.EAST);
 
         setWarmUp();
@@ -167,7 +167,7 @@ public class Table  {
         jMenu.add(menuItemWarmup);
         jMenu.add(menuItemOneVsOne);
         jMenu.add(menuItemHellMove);
-        jMenu.add(menuItemLAN);
+//        jMenu.add(menuItemLAN);
         jMenu.add(menuItemAI);
         return jMenu;
     }

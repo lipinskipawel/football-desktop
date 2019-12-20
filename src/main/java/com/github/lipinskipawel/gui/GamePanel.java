@@ -115,11 +115,14 @@ class GamePanel extends JPanel {
 
     private static String staticText1vs1() {
         return """
-                In this mode you can play 1 vs 1 in
+                In this mode you can play 1 vs 1 on
                 one computer. Invite your friend
                 and try to win a game. Rules are
                 really simple, try to score a goal
                 by putting ball into enemy goal area.
+                The first player has to score a goal
+                into the enemy goal. Each goal is
+                signed.
                 """;
     }
 
@@ -145,11 +148,11 @@ class GamePanel extends JPanel {
 
     private static String staticText1vsAI() {
         return """
-                In this mode you will be faced of AI.
-                This is powerful tool which can beat
-                you. Try to win with it. In future
-                this AI will be working as Neural
-                Network. Good luck
+                In this mode you will be playing
+                against of AI. This is powerful
+                engine which can beat you. Try
+                to win with it.
+                Good luck
                 """;
     }
 

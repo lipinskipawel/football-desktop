@@ -185,6 +185,9 @@ public class GameController implements MouseListener, Observer, ActionListener {
     }
 
     private void OneVsOneMode(final MouseEvent e, final Object src) throws IOException, InterruptedException {
+        if (this.board.isGoal()) {
+            return;
+        }
         if (isRightMouseButton(e)) {
 
             final var afterUndo = this.board.undo();
@@ -215,9 +218,13 @@ public class GameController implements MouseListener, Observer, ActionListener {
                     logger.info("move has been made");
                     this.table.drawBoard(this.board, FIRST);
                     if (this.board.isGoal()) {
+                        var winner = FIRST;
+                        if (this.board.getBallPosition() > 10) {
+                            winner = SECOND;
+                        }
                         endGame = true;
                         this.playerView = this.board.getPlayer();
-                        JOptionPane.showMessageDialog(null, "Player " + this.playerView +
+                        JOptionPane.showMessageDialog(null, "Player " + winner +
                                 " won the game.");
                         this.table.appendRight("Player " + this.playerView + " won the game.");
                     }
@@ -240,6 +247,9 @@ public class GameController implements MouseListener, Observer, ActionListener {
     }
 
     private void hellMode(final MouseEvent e) {
+        if (this.board.isGoal()) {
+            return;
+        }
         if (isRightMouseButton(e)) {
 
             if (playerAllowedToUndo(this.board)) {
