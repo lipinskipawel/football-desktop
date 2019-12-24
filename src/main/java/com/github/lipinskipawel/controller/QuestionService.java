@@ -1,6 +1,12 @@
 package com.github.lipinskipawel.controller;
 
 import javax.swing.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -8,9 +14,11 @@ import static java.util.stream.Collectors.toList;
 final class QuestionService {
 
     private final QuestionLoader questionLoader;
+    private final Optional<UUID> uuid;
 
     public QuestionService(final QuestionLoader questionLoader) {
         this.questionLoader = questionLoader;
+        this.uuid = loadUUID(Paths.get("uuid.txt").toFile());
     }
 
     DataObject displayYesNoCancel(final String module) {
@@ -26,8 +34,15 @@ final class QuestionService {
         );
 
         final var wordAnswer = translateToWord(answer);
+        String uniqIdentifier;
+        try {
+            uniqIdentifier = getUUID().toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            uniqIdentifier = "temp";
+        }
         return new DataObject(
-                "temp",
+                uniqIdentifier,
                 module,
                 question.getQuestion(),
                 question.getOptions(),
@@ -51,8 +66,15 @@ final class QuestionService {
         );
 
         final var wordAnswers = options.getSelectedValuesList();
+        String uniqIdentifier;
+        try {
+            uniqIdentifier = getUUID().toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            uniqIdentifier = "temp";
+        }
         return new DataObject(
-                "temp",
+                uniqIdentifier,
                 module,
                 question.getQuestion(),
                 question.getOptions(),
@@ -96,6 +118,42 @@ final class QuestionService {
                 selected.toArray(String[]::new),
                 System.currentTimeMillis() - start
         );
+    }
+
+    Optional<UUID> loadUUID(final File file) {
+        if (file == null) {
+            return Optional.empty();
+        }
+        if (file.isDirectory()) {
+            return Optional.empty();
+        }
+        if (file.isFile()) {
+            try {
+                return Files.readAllLines(file.toPath())
+                        .stream()
+                        .limit(1)
+                        .map(UUID::fromString)
+                        .findFirst()
+                        .or(Optional::empty);
+            } catch (IOException e) {
+                file.delete();
+                return Optional.empty();
+            }
+        }
+        return Optional.empty();
+    }
+
+    private UUID getUUID() throws IOException {
+        if (uuid.isPresent()) {
+            return this.uuid.get();
+        }
+        return store(UUID.randomUUID());
+    }
+
+    private UUID store(final UUID uuid) throws IOException {
+        final var path = Paths.get("uuid.txt");
+        Files.writeString(path, uuid.toString());
+        return uuid;
     }
 
     private String[] translateToWord(final int answer) {
