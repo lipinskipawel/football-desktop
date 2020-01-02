@@ -33,7 +33,6 @@ import static javax.swing.SwingUtilities.isRightMouseButton;
 
 public class GameController implements MouseListener, Observer, ActionListener {
 
-    private BoardInterface board;
     private String gameState;
     private final Table table;
 
@@ -43,7 +42,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
      * These fields are used for steering flow of the game, so this is important
      * to set up these flags/values to default whenever restartBoard() is invoked.
      */
-    private boolean endGame;
+    private BoardInterface board;
     /**
      * This is to handle proper drawing board to the user. In one vs one and
      * one vs lan mode is also used to display proper winner of the game.
@@ -61,6 +60,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
     private final Logger logger = LoggerFactory.getLogger(GameController.class);
     private final Map<Player, Integer> tokenForPlayer;
 
+    private GameFlowController gameFlowController;
 
     GameController(final Table table) {
         this.board = Boards.immutableBoard();
@@ -70,12 +70,12 @@ public class GameController implements MouseListener, Observer, ActionListener {
         this.gameState = table.getSTATE_OF_GAME();
         this.connectionHandler = null;
         this.connectionChat = null;
-        this.endGame = false;
         this.playerView = FIRST;
         this.canHumanMove = new AtomicBoolean(true);
         this.tokenForPlayer = new HashMap<>();
         this.tokenForPlayer.put(FIRST, 2);
         this.tokenForPlayer.put(SECOND, 2);
+        this.gameFlowController = new GameFlowController(Boards.immutableBoard(), false);
     }
 
 
@@ -87,19 +87,19 @@ public class GameController implements MouseListener, Observer, ActionListener {
             case "1vs1" -> {
                 try {
                     OneVsOneMode(e, src);
-                    this.table.activePlayer(this.board.getPlayer());
+                    this.table.activePlayer(this.gameFlowController.player());
                 } catch (IOException | InterruptedException ex) {
                     ex.printStackTrace();
                 }
             }
             case "hell mode" -> {
                 hellMode(e);
-                this.table.activePlayer(this.board.getPlayer());
+                this.table.activePlayer(this.gameFlowController.player());
             }
             case "1vsLAN" -> {
                 try {
                     OneVsLANMode(e, src);
-                    this.table.activePlayer(this.board.getPlayer());
+                    this.table.activePlayer(this.gameFlowController.player());
                 } catch (InterruptedException e1) {
                     this.connectionHandler.close();
                     this.connectionChat.close();
@@ -159,90 +159,54 @@ public class GameController implements MouseListener, Observer, ActionListener {
     private void warmUpMode(final MouseEvent e, final Object src) {
         if (isRightMouseButton(e)) {
 
-            this.board = this.board.undo();
-            this.table.drawBoard(this.board, this.playerView);
+            this.gameFlowController = this.gameFlowController.undo();
+            this.table.drawBoard(this.gameFlowController.board(), FIRST);
 
         } else if (isLeftMouseButton(e)) {
 
             GameDrawer.PointTracker pointTracker = (GameDrawer.PointTracker) src;
             try {
-                final var move = this.board.getBallAPI().kickBallTo(pointTracker.getPosition());
-
-
-                if (this.board.isMoveAllowed(move)) {
-                    this.board = this.board.executeMove(move);
-                    this.table.drawBoard(this.board, this.playerView);
-                    if (this.board.isGoal())
-                        JOptionPane.showMessageDialog(null, "Player " + this.playerView +
-                                " won the game.");
-                } else
-                    JOptionPane.showMessageDialog(null, "You cannot move like that.");
+                this.gameFlowController = this.gameFlowController.makeAMove(pointTracker.getPosition());
+                this.table.drawBoard(this.gameFlowController.board(), FIRST);
+                ifGameOverThenCommunicate(this.gameFlowController);
             } catch (RuntimeException ee) {
-                JOptionPane.showMessageDialog(null, "You can't goes on already made moves");
+                JOptionPane.showMessageDialog(null, "You cannot move like that.");
                 return;
             }
         }
     }
 
     private void OneVsOneMode(final MouseEvent e, final Object src) throws IOException, InterruptedException {
-        if (this.board.isGoal()) {
+        if (this.gameFlowController.isGameOver()) {
             return;
         }
         if (isRightMouseButton(e)) {
 
-            final var afterUndo = this.board.undo();
-            if (isSmallMoveUndo(afterUndo)) {
-                this.board = afterUndo;
-            } else {
-                final var dataObject = new QuestionService(new InMemoryQuestions())
-                        .displayYesNoCancel("1-1");
-                new HerokuService()
-                        .send(dataObject);
-                try {
-                    this.board = undoAllPlayerMove(this.board);
-                    this.board = undoAllPlayerMove(this.board);
-                } catch (RuntimeException ee) {
-                    this.board = Boards.immutableBoard();
-                }
-            }
-            this.table.drawBoard(this.board, FIRST);
+            this.gameFlowController = this.gameFlowController.undoPlayerMove(
+                    () -> {
+                        final var dataObject = new QuestionService(new InMemoryQuestions())
+                                .displayYesNoCancel("1-1");
+                        new HerokuService().send(dataObject);
+                        return null;
+                    }
+            );
+            this.table.drawBoard(this.gameFlowController.board(), FIRST);
 
         } else if (isLeftMouseButton(e)) {
             GameDrawer.PointTracker pointTracker = (GameDrawer.PointTracker) src;
-            final var move = this.board.getBallAPI().kickBallTo(pointTracker.getPosition());
 
-            if (!endGame) {
-                if (this.board.isMoveAllowed(move)) {
-                    logger.info("trying to make a move");
-                    this.board = this.board.executeMove(move);
-                    logger.info("move has been made");
-                    this.table.drawBoard(this.board, FIRST);
-                    if (this.board.isGoal()) {
-                        var winner = FIRST;
-                        if (this.board.getBallPosition() > 10) {
-                            winner = SECOND;
-                        }
-                        endGame = true;
-                        this.playerView = this.board.getPlayer();
-                        JOptionPane.showMessageDialog(null, "Player " + winner +
-                                " won the game.");
-                        this.table.appendRight("Player " + this.playerView + " won the game.");
-                    }
+            this.gameFlowController = this.gameFlowController.makeAMove(pointTracker.getPosition());
+            this.table.drawBoard(this.gameFlowController.board(), FIRST);
+            ifGameOverThenCommunicate(this.gameFlowController);
 
-                } else
-                    JOptionPane.showMessageDialog(null, "You cannot move like that.");
-
-                if (this.board.allLegalMoves().size() == 0 && !this.board.isGoal()) {
-                    this.endGame = true;
-                    this.playerView = this.board.getPlayer().opposite();
-                    JOptionPane.showMessageDialog(null, "Player " + this.playerView +
-                            " won the game.");
-                    this.table.appendRight("Player " + this.playerView + " won the game.");
-                }
-
-            } else
-                JOptionPane.showMessageDialog(null, "Player " + this.playerView +
-                        " won the game.\nPlease start game again.");
+            // TODO when player hit the corner
+//            if (this.board.allLegalMoves().size() == 0 && !this.board.isGoal()) {
+//                this.gameFlowController = this.gameFlowController.gameOver(this.board, true);
+//                final var currentPlayer = this.board.getPlayer().opposite();
+//                JOptionPane.showMessageDialog(null, "Player " + currentPlayer +
+//                        " won the game.");
+//                this.table.appendRight("Player " + this.playerView + " won the game.");
+//            }
         }
     }
 
@@ -252,65 +216,35 @@ public class GameController implements MouseListener, Observer, ActionListener {
         }
         if (isRightMouseButton(e)) {
 
-            if (playerAllowedToUndo(this.board)) {
-                final var afterUndo = this.board.undo();
-                if (isSmallMoveUndo(afterUndo)) {
-                    this.board = afterUndo;
-                } else {
-                    final var dataObject = new QuestionService(new InMemoryQuestions())
-                            .displayYesNoCancel("hell-mode");
-                    new HerokuService()
-                            .send(dataObject);
-                    try {
-                        this.board = undoAllPlayerMove(this.board);
-                        this.board = undoAllPlayerMove(this.board);
-                    } catch (RuntimeException ee) {
-                        this.board = Boards.immutableBoard();
-                    }
-                    this.tokenForPlayer.compute(this.board.getPlayer(), (key, val) -> val - 1);
-                    this.tokenForPlayer.compute(this.board.getPlayer().opposite(), (key, val) -> val + 1);
-                    final var message =
-                            "Player " + this.board.getPlayer() +
-                                    " tokens : " + this.tokenForPlayer.get(this.board.getPlayer()) + "\n" +
-                                    "Player " + this.board.getPlayer().opposite() +
-                                    " tokens : " + this.tokenForPlayer.get(this.board.getPlayer().opposite());
-                    JOptionPane.showMessageDialog(null, message);
-                }
-                this.table.drawBoard(this.board, FIRST);
+            if (playerAllowedToUndo(this.gameFlowController.board())) {
+                this.gameFlowController = this.gameFlowController.undoPlayerMove(
+                        () -> {
+                            final var dataObject = new QuestionService(new InMemoryQuestions())
+                                    .displayYesNoCancel("hell-mode");
+                            new HerokuService().send(dataObject);
+                            return null;
+                        }
+                );
+                this.table.drawBoard(this.gameFlowController.board(), FIRST);
+
+                this.tokenForPlayer.compute(this.gameFlowController.player(), (key, val) -> val - 1);
+                this.tokenForPlayer.compute(this.gameFlowController.player().opposite(), (key, val) -> val + 1);
+                final var message =
+                        "Player " + this.gameFlowController.player() +
+                                " tokens : " + this.tokenForPlayer.get(this.gameFlowController.player()) + "\n" +
+                                "Player " + this.gameFlowController.player().opposite() +
+                                " tokens : " + this.tokenForPlayer.get(this.gameFlowController.player().opposite());
+                JOptionPane.showMessageDialog(null, message);
             }
 
         } else if (isLeftMouseButton(e)) {
             GameDrawer.PointTracker pointTracker = (GameDrawer.PointTracker) e.getSource();
-            final var move = this.board.getBallAPI().kickBallTo(pointTracker.getPosition());
 
-            if (!endGame) {
-                if (this.board.isMoveAllowed(move)) {
-                    logger.info("trying to make a move");
-                    this.board = this.board.executeMove(move);
-                    logger.info("move has been made");
-                    this.table.drawBoard(this.board, FIRST);
-                    if (this.board.isGoal()) {
-                        endGame = true;
-                        this.playerView = this.board.getPlayer();
-                        JOptionPane.showMessageDialog(null, "Player " + this.playerView +
-                                " won the game.");
-                        this.table.appendRight("Player " + this.playerView + " won the game.");
-                    }
+            this.gameFlowController = this.gameFlowController.makeAMove(pointTracker.getPosition());
+            this.table.drawBoard(this.gameFlowController.board(), FIRST);
+            ifGameOverThenCommunicate(this.gameFlowController);
 
-                } else
-                    JOptionPane.showMessageDialog(null, "You cannot move like that.");
-
-                if (this.board.allLegalMoves().size() == 0 && !this.board.isGoal()) {
-                    this.endGame = true;
-                    this.playerView = this.board.getPlayer().opposite();
-                    JOptionPane.showMessageDialog(null, "Player " + this.playerView +
-                            " won the game.");
-                    this.table.appendRight("Player " + this.playerView + " won the game.");
-                }
-
-            } else
-                JOptionPane.showMessageDialog(null, "Player " + this.playerView +
-                        " won the game.\nPlease start game again.");
+            // TODO when player hit the corner
         }
     }
 
@@ -363,14 +297,14 @@ public class GameController implements MouseListener, Observer, ActionListener {
                 GameDrawer.PointTracker pointTracker = (GameDrawer.PointTracker) src;
                 final var move = this.board.getBallAPI().kickBallTo(pointTracker.getPosition());
 
-                if (!endGame) {
+                if (!this.gameFlowController.isGameOver()) {
                     try {
 
                         if (this.board.isMoveAllowed(move)) {
                             this.board = this.board.executeMove(move);
                             this.table.drawBoard(this.board, this.playerView);
                             if (this.board.isGoal()) {
-                                endGame = true;
+                                this.gameFlowController = this.gameFlowController.gameOver(this.board, true);
                                 this.playerView = this.board.getPlayer();
                                 JOptionPane.showMessageDialog(null, "Player " + this.playerView +
                                         " won the game.");
@@ -385,12 +319,12 @@ public class GameController implements MouseListener, Observer, ActionListener {
                             JOptionPane.showMessageDialog(null, "You cannot move like that.");
 
                         if (this.board.allLegalMoves().size() == 0 && !this.board.isGoal()) {
-                            this.endGame = true;
+                            this.gameFlowController = this.gameFlowController.gameOver(this.board, true);
                             this.playerView = this.board.getPlayer().opposite();
                             JOptionPane.showMessageDialog(null, "Player " + this.playerView +
                                     " won the game.");
                             this.table.appendChat("Player " + this.playerView + " won the game.");
-                            this.connectionHandler.send(this.board);
+                            this.connectionHandler.send(this.gameFlowController.board());
                         }
 
                     } catch (IOException ee) {
@@ -401,31 +335,23 @@ public class GameController implements MouseListener, Observer, ActionListener {
                             " won the game.\nPlease start game again.");
             }
         }
-
     }
 
     private void OneVsAIMode(final MouseEvent e, final Object src) {
         if (isRightMouseButton(e)) {
 
             if (this.canHumanMove.get()) {
-                final var afterUndo = this.board.undo();
-                if (afterUndo.getPlayer() == this.board.getPlayer()) {
-                    this.board = this.board.undo();
-                    this.table.drawBoard(this.board, this.board.getPlayer());
-                } else {
-                    if (this.bruteForce != null) {
-                        this.bruteForce.cancel(true);
-                    }
-                    this.bruteForce = null;
-                    try {
-                        this.board = undoAllPlayerMove(this.board);
-                        this.board = undoAllPlayerMove(this.board);
-                    } catch (RuntimeException ee) {
-                        this.board = Boards.immutableBoard();
-                    }
-                    this.canHumanMove = new AtomicBoolean(false);
-                    this.table.drawBoard(this.board, FIRST);
-                }
+                this.gameFlowController = this.gameFlowController.undoPlayerMove(
+                        () -> {
+                            if (this.bruteForce != null) {
+                                this.bruteForce.cancel(true);
+                            }
+                            this.bruteForce = null;
+                            this.canHumanMove = new AtomicBoolean(false);
+                            return null;
+                        }
+                );
+                this.table.drawBoard(this.gameFlowController.board(), FIRST);
             }
             // if you decided to implement undo when ai thinks, watch out on
             // this.canHumanMove
@@ -434,25 +360,26 @@ public class GameController implements MouseListener, Observer, ActionListener {
             // use this.bruteForce.cancel(true);
 
         } else if (isLeftMouseButton(e)) {
-            logger.info("canHumanMove : " + this.canHumanMove + ", player : " + this.board.getPlayer());
+            logger.info("canHumanMove : " + this.canHumanMove + ", player : " + this.gameFlowController.player());
 
             if (this.canHumanMove.get()) {
                 // here it is save to get move from worker and update board and draw it one more time
                 try {
                     if (bruteForce != null) {
                         var aiMove = bruteForce.get();
-                        this.board = this.board.executeMove(aiMove);
+//                        this.board = this.board.executeMove(aiMove);
+                        this.gameFlowController = this.gameFlowController.makeAMove(aiMove);
+//                        if (this.gameFlowController.isGameOver()) {
                         if (this.board.allLegalMoves().size() == 0) {
-                            this.table.drawBoard(this.board, this.board.getPlayer().opposite());
+                            this.table.drawBoard(this.gameFlowController.board(), this.gameFlowController.player().opposite());
                             JOptionPane.showMessageDialog(null, "You won the game!!!");
                             this.canHumanMove.set(false);
                             final var dataObject = new QuestionService(new InMemoryQuestions())
                                     .displayAiQuestion();
-                            new HerokuService()
-                                    .send(dataObject);
+                            new HerokuService().send(dataObject);
                             return;
                         }
-                        this.table.drawBoard(this.board, this.board.getPlayer());
+                        this.table.drawBoard(this.gameFlowController.board(), this.gameFlowController.player());
                         this.bruteForce = null;
                         logger.info("redundant update board");
                     }
@@ -460,27 +387,24 @@ public class GameController implements MouseListener, Observer, ActionListener {
                     ex.printStackTrace();
                 }
 
-                GameDrawer.PointTracker pointTracker = (GameDrawer.PointTracker) src;
-                try {
-                    final var move = this.board.getBallAPI().kickBallTo(pointTracker.getPosition());
+                GameDrawer.PointTracker pointTracker = (GameDrawer.PointTracker) e.getSource();
 
-                    if (this.board.isMoveAllowed(move)) {
-                        this.board = this.board.executeMove(move);
-                        this.table.drawBoard(this.board, this.playerView);
-                        if (this.board.isGoal()) {
-                            JOptionPane.showMessageDialog(null, "Player " + this.playerView +
-                                    " won the game.");
-                        }
-                        if (this.board.getPlayer() == Player.SECOND) {
-                            this.canHumanMove.set(false);
-                            logger.info("canHumanMove : " + this.canHumanMove);
-                        }
-                    } else
-                        JOptionPane.showMessageDialog(null, "You cannot move like that.");
-                } catch (RuntimeException ee) {
-                    JOptionPane.showMessageDialog(null, "You can't goes on already made moves");
+                try {
+                    this.gameFlowController = this.gameFlowController.makeAMove(
+                            pointTracker.getPosition(),
+                            () -> {
+                                this.canHumanMove.set(false);
+                                return null;
+                            }
+                    );
+                    this.table.drawBoard(this.gameFlowController.board(), FIRST);
+                    ifGameOverThenCommunicate(this.gameFlowController);
+
+                    // TODO when player hit the corner
+                } catch (CantMakeAMove ee) {
                     return;
                 }
+
             } else {
                 JOptionPane.showMessageDialog(null, "There is AI to move");
             }
@@ -490,13 +414,20 @@ public class GameController implements MouseListener, Observer, ActionListener {
             if (this.bruteForce == null) {
                 this.bruteForce = new BruteForceThinking(
                         new MiniMax(),
-                        this.board,
+                        this.gameFlowController.board(),
                         2,
                         this.table.gameDrawer(),
                         this.canHumanMove
                 );
                 bruteForce.execute();
             }
+        }
+    }
+
+    private void ifGameOverThenCommunicate(final GameFlowController afterMove) {
+        if (afterMove.isGameOver()) {
+            JOptionPane.showMessageDialog(null, "Player " + afterMove.player() +
+                    " won the game.");
         }
     }
 
@@ -508,7 +439,12 @@ public class GameController implements MouseListener, Observer, ActionListener {
         this.board = Boards.immutableBoard();
         this.table.drawBoard(this.board, this.playerView);
         this.table.activePlayer(this.board.getPlayer());
-        this.endGame = false;
+        this.gameFlowController = new GameFlowController(Boards.immutableBoard(), false);
+        if (this.bruteForce != null) {
+            this.bruteForce.cancel(true);
+            this.bruteForce = null;
+        }
+        this.canHumanMove = new AtomicBoolean(true);
         this.playerView = FIRST;
     }
 
@@ -518,7 +454,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
         this.table.activePlayer(this.board.getPlayer());
 
         if (this.board.isGoal()) {
-            endGame = true;
+            this.gameFlowController = this.gameFlowController.gameOver(this.board, true);
             this.playerView = this.board.getPlayer();
             JOptionPane.showMessageDialog(null, "Player " + this.playerView +
                     " won the game.");
