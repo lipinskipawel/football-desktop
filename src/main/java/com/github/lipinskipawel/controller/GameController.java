@@ -367,18 +367,15 @@ public class GameController implements MouseListener, Observer, ActionListener {
                 try {
                     if (bruteForce != null) {
                         var aiMove = bruteForce.get();
-//                        this.board = this.board.executeMove(aiMove);
                         this.gameFlowController = this.gameFlowController.makeAMove(aiMove);
-//                        if (this.gameFlowController.isGameOver()) {
-                        if (this.board.allLegalMoves().size() == 0) {
+                        this.gameFlowController.onPlayerHitTheCorner(() -> {
                             this.table.drawBoard(this.gameFlowController.board(), this.gameFlowController.player().opposite());
                             JOptionPane.showMessageDialog(null, "You won the game!!!");
                             this.canHumanMove.set(false);
-                            final var dataObject = new QuestionService(new InMemoryQuestions())
-                                    .displayAiQuestion();
+                            final var dataObject = new QuestionService(new InMemoryQuestions()).displayAiQuestion();
                             new HerokuService().send(dataObject);
-                            return;
-                        }
+                            return null;
+                        });
                         this.table.drawBoard(this.gameFlowController.board(), this.gameFlowController.player());
                         this.bruteForce = null;
                         logger.info("redundant update board");
@@ -400,11 +397,9 @@ public class GameController implements MouseListener, Observer, ActionListener {
                     this.table.drawBoard(this.gameFlowController.board(), FIRST);
                     ifGameOverThenCommunicate(this.gameFlowController);
 
-                    // TODO when player hit the corner
                 } catch (CantMakeAMove ee) {
                     return;
                 }
-
             } else {
                 JOptionPane.showMessageDialog(null, "There is AI to move");
             }

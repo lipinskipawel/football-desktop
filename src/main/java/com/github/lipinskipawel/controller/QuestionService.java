@@ -110,8 +110,15 @@ final class QuestionService {
                 .map(AbstractButton::getText)
                 .collect(toList());
 
+        String uniqIdentifier;
+        try {
+            uniqIdentifier = getUUID().toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            uniqIdentifier = "temp";
+        }
         return new DataObject(
-                "temp",
+                uniqIdentifier,
                 "1-ai",
                 question.getQuestion(),
                 question.getOptions(),

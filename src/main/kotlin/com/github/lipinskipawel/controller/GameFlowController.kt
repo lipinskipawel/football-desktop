@@ -71,7 +71,8 @@ class GameFlowController(
     }
 
     fun onPlayerHitTheCorner(runOnHitCorner: () -> Unit) {
-        runOnHitCorner()
+        if (isHitTheCorner())
+            runOnHitCorner()
     }
 
     fun undo(): GameFlowController = GameFlowController(board.undo())
@@ -101,4 +102,6 @@ class GameFlowController(
     }
 
     private fun isSmallMoveUndo(afterUndo: BoardInterface): Boolean = afterUndo.player == this.board.player
+
+    private fun isHitTheCorner() = this.board.allLegalMoves().isEmpty()
 }
