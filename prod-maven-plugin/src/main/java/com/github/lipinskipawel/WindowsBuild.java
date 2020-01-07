@@ -12,5 +12,6 @@ public class WindowsBuild extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         getLog().info("Windows build");
         getLog().info("TODO");
+        getLog().info("start jdk-13.0.1+9-jre/bin/javaw -jar --enable-preview football-game.jar");
     }
 }

@@ -1,6 +1,7 @@
 # Maven
 target/
 
+jdks/
 uuid.txt
 
 # Compiled class file
