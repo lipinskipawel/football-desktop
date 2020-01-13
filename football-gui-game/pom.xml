@@ -98,9 +98,9 @@
                 <artifactId>prod-maven-plugin</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
                 <configuration>
-                    <builtFinalNameOfJar>${build.finalName}</builtFinalNameOfJar>
+                    <builtFinalNameOfJar>${project.build.finalName}</builtFinalNameOfJar>
                     <directory>football-game</directory>
-                    <jdkOfNeed>jdks/jdk</jdkOfNeed>
+                    <jdkOfNeed>jdks/jdk-13-windows</jdkOfNeed>
                 </configuration>
             </plugin>
             <plugin>
