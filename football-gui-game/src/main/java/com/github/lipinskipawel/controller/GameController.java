@@ -363,26 +363,6 @@ public class GameController implements MouseListener, Observer, ActionListener {
             logger.info("canHumanMove : " + this.canHumanMove + ", player : " + this.gameFlowController.player());
 
             if (this.canHumanMove.get()) {
-                // here it is save to get move from worker and update board and draw it one more time
-                try {
-                    if (bruteForce != null) {
-                        var aiMove = bruteForce.get();
-                        this.gameFlowController = this.gameFlowController.makeAMove(aiMove);
-                        this.gameFlowController.onPlayerHitTheCorner(() -> {
-                            this.table.drawBoard(this.gameFlowController.board(), this.gameFlowController.player().opposite());
-                            JOptionPane.showMessageDialog(null, "You won the game!!!");
-                            this.canHumanMove.set(false);
-                            final var dataObject = new QuestionService(new InMemoryQuestions()).displayAiQuestion();
-                            new HerokuService().send(dataObject);
-                            return null;
-                        });
-                        this.table.drawBoard(this.gameFlowController.board(), this.gameFlowController.player());
-                        this.bruteForce = null;
-                        logger.info("redundant update board");
-                    }
-                } catch (InterruptedException | ExecutionException ex) {
-                    ex.printStackTrace();
-                }
 
                 GameDrawer.PointTracker pointTracker = (GameDrawer.PointTracker) e.getSource();
 
@@ -394,12 +374,44 @@ public class GameController implements MouseListener, Observer, ActionListener {
                                 return null;
                             }
                     );
-                    this.table.drawBoard(this.gameFlowController.board(), FIRST);
-                    ifGameOverThenCommunicate(this.gameFlowController);
 
+                    this.gameFlowController.onPlayerHitTheCorner(() -> {
+//                            this.table.drawBoard(this.gameFlowController.board(), this.gameFlowController.player().opposite());
+                        JOptionPane.showMessageDialog(null, "You won the game!!!");
+                        this.canHumanMove.set(false);
+                        final var dataObject = new QuestionService(new InMemoryQuestions()).displayAiQuestion();
+                        new HerokuService().send(dataObject);
+                        return null;
+                    });
+//
+                    this.bruteForce = null;
+                    ifGameOverThenCommunicate(this.gameFlowController);
                 } catch (CantMakeAMove ee) {
                     return;
                 }
+
+                // here it is save to get move from worker and update board and draw it one more time
+//                try {
+//                    if (bruteForce != null) {
+//                        var aiMove = bruteForce.get();
+//                        this.gameFlowController = this.gameFlowController.makeAMove(aiMove);
+//                        this.table.drawBoard(this.gameFlowController.board(), this.gameFlowController.player());
+//                        this.gameFlowController.onPlayerHitTheCorner(() -> {
+////                            this.table.drawBoard(this.gameFlowController.board(), this.gameFlowController.player().opposite());
+//                            JOptionPane.showMessageDialog(null, "You won the game!!!");
+//                            this.canHumanMove.set(false);
+//                            final var dataObject = new QuestionService(new InMemoryQuestions()).displayAiQuestion();
+//                            new HerokuService().send(dataObject);
+//                            return null;
+//                        });
+//                        this.bruteForce = null;
+//                        logger.info("redundant update board");
+//                    }
+//                } catch (InterruptedException | ExecutionException ex) {
+//                    ex.printStackTrace();
+//                }
+                this.table.drawBoard(this.gameFlowController.board(), FIRST);
+
             } else {
                 JOptionPane.showMessageDialog(null, "There is AI to move");
             }
@@ -412,7 +424,13 @@ public class GameController implements MouseListener, Observer, ActionListener {
                         this.gameFlowController.board(),
                         2,
                         this.table.gameDrawer(),
-                        this.canHumanMove
+                        (bestMove) -> {
+                            this.gameFlowController = this.gameFlowController.makeAMove(bestMove);
+                            this.table.drawBoard(this.gameFlowController.board(), FIRST);
+                            this.canHumanMove.set(true);
+                            logger.info("set canHumanMove to : true");
+                            ifGameOverThenCommunicate(this.gameFlowController);
+                        }
                 );
                 bruteForce.execute();
             }
@@ -431,6 +449,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
     }
 
     private void restartBoard() {
+        logger.info("Reset board adsfasd");
         this.board = Boards.immutableBoard();
         this.table.drawBoard(this.board, this.playerView);
         this.table.activePlayer(this.board.getPlayer());
