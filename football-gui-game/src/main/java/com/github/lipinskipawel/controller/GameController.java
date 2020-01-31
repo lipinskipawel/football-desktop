@@ -10,6 +10,7 @@ import com.github.lipinskipawel.gui.Table;
 import com.github.lipinskipawel.network.ConnectionChat;
 import com.github.lipinskipawel.network.ConnectionHandler;
 import com.github.lipinskipawel.network.ConnectionState;
+import kotlin.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -168,7 +169,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
             try {
                 this.gameFlowController = this.gameFlowController.makeAMove(pointTracker.getPosition());
                 this.table.drawBoard(this.gameFlowController.board(), FIRST);
-                ifGameOverThenCommunicate(this.gameFlowController);
+                this.gameFlowController.onWinner(this::winningMessage);
             } catch (RuntimeException ee) {
                 JOptionPane.showMessageDialog(null, "You cannot move like that.");
                 return;
@@ -197,16 +198,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
 
             this.gameFlowController = this.gameFlowController.makeAMove(pointTracker.getPosition());
             this.table.drawBoard(this.gameFlowController.board(), FIRST);
-            ifGameOverThenCommunicate(this.gameFlowController);
-
-            // TODO when player hit the corner
-//            if (this.board.allLegalMoves().size() == 0 && !this.board.isGoal()) {
-//                this.gameFlowController = this.gameFlowController.gameOver(this.board, true);
-//                final var currentPlayer = this.board.getPlayer().opposite();
-//                JOptionPane.showMessageDialog(null, "Player " + currentPlayer +
-//                        " won the game.");
-//                this.table.appendRight("Player " + this.playerView + " won the game.");
-//            }
+            this.gameFlowController.onWinner(this::winningMessage);
         }
     }
 
@@ -242,35 +234,12 @@ public class GameController implements MouseListener, Observer, ActionListener {
 
             this.gameFlowController = this.gameFlowController.makeAMove(pointTracker.getPosition());
             this.table.drawBoard(this.gameFlowController.board(), FIRST);
-            ifGameOverThenCommunicate(this.gameFlowController);
-
-            // TODO when player hit the corner
+            this.gameFlowController.onWinner(this::winningMessage);
         }
     }
 
     private boolean playerAllowedToUndo(final BoardInterface board) {
         return this.tokenForPlayer.get(board.getPlayer()) > 0;
-    }
-
-    private BoardInterface undoAllPlayerMove(final BoardInterface board) {
-        var beforeUndoBoard = board;
-        do {
-            beforeUndoBoard = beforeUndoBoard.undo();
-        } while (beforeUndoBoard.getPlayer() == board.getPlayer());
-        return beforeUndoBoard
-                .undoPlayerMove()
-                .undoPlayerMove()
-                .undoPlayerMove()
-                .undoPlayerMove()
-                .undoPlayerMove()
-                .undoPlayerMove()
-                .undoPlayerMove()
-                .undoPlayerMove()
-                .undoPlayerMove();
-    }
-
-    private boolean isSmallMoveUndo(final BoardInterface afterUndo) {
-        return afterUndo.getPlayer() == this.board.getPlayer();
     }
 
     private void OneVsLANMode(final MouseEvent e, final Object src) throws InterruptedException {
@@ -395,7 +364,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
                             }
                     );
                     this.table.drawBoard(this.gameFlowController.board(), FIRST);
-                    ifGameOverThenCommunicate(this.gameFlowController);
+                    this.gameFlowController.onWinner(this::winningMessage);
 
                 } catch (CantMakeAMove ee) {
                     return;
@@ -419,11 +388,9 @@ public class GameController implements MouseListener, Observer, ActionListener {
         }
     }
 
-    private void ifGameOverThenCommunicate(final GameFlowController afterMove) {
-        if (afterMove.isGameOver()) {
-            JOptionPane.showMessageDialog(null, "Player " + afterMove.player() +
-                    " won the game.");
-        }
+    private Unit winningMessage(final Player winner) {
+        JOptionPane.showMessageDialog(null, "Player " + winner + " won he game.");
+        return null;
     }
 
     void setIPEnemy(final String IPEnemy) {

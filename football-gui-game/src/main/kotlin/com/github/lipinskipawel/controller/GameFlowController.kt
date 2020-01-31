@@ -70,6 +70,12 @@ class GameFlowController(
         return GameFlowController(two)
     }
 
+    fun onWinner(callback: (Player) -> Unit) {
+        this.board
+                .takeTheWinner()
+                .ifPresent { callback(it) }
+    }
+
     fun onPlayerHitTheCorner(runOnHitCorner: () -> Unit) {
         if (isHitTheCorner())
             runOnHitCorner()
