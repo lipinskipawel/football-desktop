@@ -310,16 +310,17 @@ public class GameController implements MouseListener, Observer, ActionListener {
         if (isRightMouseButton(e)) {
 
             if (this.canHumanMove.get()) {
-                this.gameFlowController = this.gameFlowController.undoPlayerMove(
-                        () -> {
-                            if (this.bruteForce != null) {
-                                this.bruteForce.cancel(true);
-                            }
-                            this.bruteForce = null;
-                            this.canHumanMove = new AtomicBoolean(false);
-                            return null;
-                        }
-                );
+                this.gameFlowController = this.gameFlowController.undoOnlyCurrentPlayerMove();
+//                this.gameFlowController = this.gameFlowController.undoPlayerMove(
+//                        () -> {
+//                            if (this.bruteForce != null) {
+//                                this.bruteForce.cancel(true);
+//                            }
+//                            this.bruteForce = null;
+//                            this.canHumanMove = new AtomicBoolean(false);
+//                            return null;
+//                        }
+//                );
                 this.table.drawBoard(this.gameFlowController.board(), FIRST);
             }
             // if you decided to implement undo when ai thinks, watch out on

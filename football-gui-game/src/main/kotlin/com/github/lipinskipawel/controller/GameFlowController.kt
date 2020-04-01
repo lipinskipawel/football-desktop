@@ -70,6 +70,10 @@ class GameFlowController(
         return GameFlowController(two)
     }
 
+    fun undoOnlyCurrentPlayerMove(): GameFlowController {
+        return GameFlowController(this.board.undoPlayerMove())
+    }
+
     fun onWinner(callback: (Player) -> Unit) {
         this.board
                 .takeTheWinner()
