@@ -109,6 +109,17 @@ class GamePanel extends JPanel {
         return """
                 This is Warmp-up mode.
                 You can play here and try new tactics
+                You can make a move by click on the
+                empty point. You can undo the move by right-clicking.
+
+                Rules:
+                - move can be done into empty point
+                - you can bounce of from the
+                    existing lines
+                - you can not move further than one
+                    point
+                - game ends when ball is in the goal
+                    area or ball hits the corner
                 Created by Paweł Lipiński
                 """;
     }
@@ -120,9 +131,6 @@ class GamePanel extends JPanel {
                 and try to win a game. Rules are
                 really simple, try to score a goal
                 by putting ball into enemy goal area.
-                The first player has to score a goal
-                into the enemy goal. Each goal is
-                signed.
                 """;
     }
 
@@ -130,7 +138,7 @@ class GamePanel extends JPanel {
         return """
                 Each player have 2 tokens.
                 Each undo move costs one token
-                and gave this token to enemy
+                and gave this token to enemy.
                 If player have no tokens left undo
                 is NOT allowed anymore.
                 """;
