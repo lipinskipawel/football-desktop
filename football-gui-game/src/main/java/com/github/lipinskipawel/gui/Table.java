@@ -29,7 +29,7 @@ public class Table  {
 
     private String STATE_OF_GAME;
     private final static String[] possibility = {"warm-up", "1vs1", "1vsLAN", "1vsAI", "hell mode"};
-    private final static String TITLE = "Piłka";
+    private final static String TITLE = "Football game";
 
 
     /**
