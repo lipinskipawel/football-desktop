@@ -1,7 +1,8 @@
 package com.github.lipinskipawel.controller;
 
 import com.github.lipinskipawel.BruteForceThinking;
-import com.github.lipinskipawel.board.ai.bruteforce.MiniMax;
+import com.github.lipinskipawel.board.ai.bruteforce.MiniMaxAlphaBeta;
+import com.github.lipinskipawel.board.ai.bruteforce.SmartBoardEvaluator;
 import com.github.lipinskipawel.board.engine.BoardInterface;
 import com.github.lipinskipawel.board.engine.Boards;
 import com.github.lipinskipawel.board.engine.Player;
@@ -378,9 +379,9 @@ public class GameController implements MouseListener, Observer, ActionListener {
             // need to check that null because ai can think long, and the human could click and trigger another thead
             if (this.bruteForce == null) {
                 this.bruteForce = new BruteForceThinking(
-                        new MiniMax(),
+                        new MiniMaxAlphaBeta(new SmartBoardEvaluator()),
                         this.gameFlowController.board(),
-                        2,
+                        3,
                         this.table.gameDrawer(),
                         this.canHumanMove
                 );
