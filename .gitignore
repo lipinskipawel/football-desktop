@@ -32,3 +32,8 @@ hs_err_pid*
 # IntelliJ IDEA
 .idea/
 *.iml
+
+# python
+venv/
+*.pyc
+
