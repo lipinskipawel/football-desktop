@@ -1,11 +1,12 @@
 import pandas as pd
 from matplotlib import pyplot as plt
-import util
 
 filename_of_gather_data = "../test2.txt"
 delimiter = ", "
 
 data = pd.read_csv(filename_of_gather_data, delimiter)
+
+
 # print(data)
 
 # print(sample_data.answers) # all "answers"
@@ -17,8 +18,7 @@ data = pd.read_csv(filename_of_gather_data, delimiter)
 # print(data.uniqIdentifier)
 # util.column_chart_per_peron(data, plt)
 # util.number_of_canceled(data)
-
-print(data.question)
+# util.bar_questions_yes_no_cancel_options(data, plt)
 
 
 def basic_to_8_48():
