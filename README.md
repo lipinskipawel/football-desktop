@@ -7,5 +7,8 @@ This GUI implementation uses external [engine], were you can contribute.
 ## Building from source
  - JDK 13
  - fill `application.properties` with `token.name`, `token.value` and `storage.service` or provide environment variables
+ - execute `cd prod-maven-plugin`
+ - execute `mvn clean install`
+ - execute `cd ../football-gui-game`
  - execute `mvn clean package`
  - run `java -jar --enable-preview football-gui-game/target/football-game.jar` and start playing
