@@ -3,13 +3,6 @@ import string
 import numpy as np
 
 
-def sanitizer_file(filename, destination_filename):
-    with open(filename, 'r') as f:
-        for line in f:
-            line
-            print(line, end="")
-
-
 def average_time_response(time_column):
     sum = 0
     for time in time_column:
@@ -17,13 +10,45 @@ def average_time_response(time_column):
     return sum / len(time_column)
 
 
-def column_chart_per_peron(read_data_from_csv, plt):
+def average_time_for_hard_question(data):
+    sum = 0
+    number = 0
+    for index, row in data.iterrows():
+        question = row.question
+        if question.startswith('czy pomógłbyś') or \
+                question.startswith('czy zgłosiłbyś') or \
+                question.startswith('czy korzystasz'):
+            sum += row.time
+            number += 1
+    return sum / number
+
+
+def average_time_for_easy_question(data):
+    sum = 0
+    number = 0
+    for index, row in data.iterrows():
+        question = row.question
+        if question.startswith('czy lubisz') or \
+                question.startswith('czy trzymasz') or \
+                question.startswith('czy przeczytałeś/aś') or \
+                question.startswith('czy spędzasz'):
+            sum += row.time
+            number += 1
+    return sum / number
+
+
+def number_of_uniq_id(data):
+    return len(set(data.uniqIdentifier))
+
+
+def bar_number_of_questions(read_data_from_csv, plt):
     map_person_by_number = dict.fromkeys(read_data_from_csv.uniqIdentifier, 0)
     for id in read_data_from_csv.uniqIdentifier:
         map_person_by_number[id] += 1
-    reduce_size_of_person = lambda person: person[0:5]
+    reduce_size_of_person = lambda person: person[0:3]
     people = list(map(reduce_size_of_person, map_person_by_number.keys()))
     number = map_person_by_number.values()
+    plt.title("Ilość wyświetlonych pytań\ndla danego gracza")
     plt.bar(people, number)
     plt.show()
 
@@ -74,7 +99,7 @@ def bar_questions_yes_no_cancel_options(data, plt):
     plt.legend()
     plt.title("Wszystkie odpowiedzi")
     plt.xlabel("Pytania")
-    plt.ylabel("Zagregowana liczba odpowiedzi")
+    plt.ylabel("Liczba odpowiedzi")
     plt.tight_layout()
     plt.show()
 
@@ -103,3 +128,20 @@ def number_of_canceled(data):
     """
     number_of_sample_data = len(data.module)
     return number_of_sample_data, len(list(filter(lambda cancel: cancel == "Cancel", data.answers)))
+
+
+def pie_ai(data, plt):
+    great_map = {'0': 0, '1': 0, '2': 0, '3': 0, '4': 0, '5': 0}
+    for index, row in data.iterrows():
+        if row.question == "Jak oceniasz ai?":
+            great_map[row.answers] += 1
+
+    explode = [0.05] * len(great_map.keys())
+    plt.pie(great_map.values(), labels=great_map.keys(),
+            explode=explode,
+            autopct='%1.1f%%',
+            wedgeprops={'edgecolor': 'black'})
+
+    plt.title("Jak gracze ocenili AI\nw skali od 0 do 5")
+    plt.tight_layout()
+    plt.show()
