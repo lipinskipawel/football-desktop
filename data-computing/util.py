@@ -50,6 +50,8 @@ def bar_number_of_questions(read_data_from_csv, plt):
     number = map_person_by_number.values()
     plt.title("Ilość wyświetlonych pytań\ndla danego gracza")
     plt.bar(people, number)
+    plt.xlabel("Identyfikator użytkownika")
+    plt.ylabel("Ilość pytań")
     plt.show()
 
 
