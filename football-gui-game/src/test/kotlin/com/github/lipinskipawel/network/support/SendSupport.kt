@@ -6,8 +6,8 @@ internal class SendSupport(host: String, port: Int) {
 
     private val socket: Socket = Socket(host, port)
 
-    fun send(data: String) {
-        socket.getOutputStream().write(data.toByteArray())
+    fun send(data: ByteArray) {
+        socket.getOutputStream().write(data)
         socket.getOutputStream().flush()
         socket.close()
     }

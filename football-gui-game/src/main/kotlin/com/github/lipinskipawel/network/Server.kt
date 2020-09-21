@@ -11,7 +11,7 @@ class Server private constructor(port: Int) : Closeable {
     private val server: ServerSocket = ServerSocket(port, 1, InetAddress.getLocalHost())
     private val pool: ExecutorService = Executors.newFixedThreadPool(1)
 
-    private val callbacks = mutableListOf<(String) -> Unit>()
+    private var callback: (ByteArray) -> Unit = { }
 
     companion object {
         fun createServer(port: Int): Server {
@@ -21,8 +21,8 @@ class Server private constructor(port: Int) : Closeable {
         }
     }
 
-    fun onReceived(block: (String) -> Unit): Server {
-        callbacks.add(block)
+    fun onReceived(block: (ByteArray) -> Unit): Server {
+        callback = block
         return this
     }
 
@@ -35,12 +35,8 @@ class Server private constructor(port: Int) : Closeable {
     inner class BackgroundListener : Runnable {
         override fun run() {
             while (!Thread.currentThread().isInterrupted) {
-                val line = server.accept().getInputStream().bufferedReader().readLine()
-                if (line != null) {
-                    callbacks.forEach { it(line) }
-                } else {
-                    Thread.currentThread().interrupt()
-                }
+                val bytes = server.accept().getInputStream().readNBytes(1024)
+                callback(bytes)
             }
         }
     }

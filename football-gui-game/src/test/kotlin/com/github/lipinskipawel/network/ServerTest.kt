@@ -10,16 +10,19 @@ internal class ServerTest {
     }
 
     @Test
-    fun shouldExecuteCallbackOnNewLine() {
-        var holder = ""
-        val message = "Hello world"
-        val x = Server.createServer(PORT)
+    fun shouldUseByteArrayAsAPI() {
+        var holder = ByteArray(1)
+        val message = "Hello world!"
+        val protocolClient = ProtocolClient.createClient()
+        val convertedMessage = protocolClient.convert(message)
+
+        val server = Server.createServer(PORT)
                 .onReceived { data -> holder = data }
 
         val sender = SendSupport("127.0.0.1", PORT)
-        sender.send(message)
-        x.close()
+        sender.send(convertedMessage)
+        server.close()
 
-        Assertions.assertThat(holder).isEqualTo(message)
+        Assertions.assertThat(holder).isEqualTo(convertedMessage)
     }
 }
