@@ -66,8 +66,13 @@ class GameFlowController(
         } catch (ee: Exception) {
             Boards.immutableBoard()
         }
-        callback()
-        return GameFlowController(two)
+        try {
+            callback()
+        } catch (ex: Exception) {
+            logger.error("Given callback exception:\n$ex}")
+        } finally {
+            return GameFlowController(two)
+        }
     }
 
     fun undoOnlyCurrentPlayerMove(): GameFlowController {

@@ -21,15 +21,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.github.lipinskipawel.board.engine.Player.FIRST;
-import static com.github.lipinskipawel.board.engine.Player.SECOND;
 import static javax.swing.SwingUtilities.isLeftMouseButton;
 import static javax.swing.SwingUtilities.isRightMouseButton;
 
@@ -60,11 +57,11 @@ public class GameController implements MouseListener, Observer, ActionListener {
     private AtomicBoolean canHumanMove;
     private BruteForceThinking bruteForce;
     private final Logger logger = LoggerFactory.getLogger(GameController.class);
-    private final Map<Player, Integer> tokenForPlayer;
 
     private GameFlowController gameFlowController;
     private final WarmupController warmupController;
     private final OneVsOneController oneVsOneController;
+    private final HellController hellController;
 
     GameController(final Table table) {
         this.board = Boards.immutableBoard();
@@ -76,12 +73,10 @@ public class GameController implements MouseListener, Observer, ActionListener {
         this.connectionChat = null;
         this.playerView = FIRST;
         this.canHumanMove = new AtomicBoolean(true);
-        this.tokenForPlayer = new HashMap<>();
-        this.tokenForPlayer.put(FIRST, 2);
-        this.tokenForPlayer.put(SECOND, 2);
         this.gameFlowController = new GameFlowController(Boards.immutableBoard(), false);
         this.warmupController = new WarmupController(table);
         this.oneVsOneController = new OneVsOneController(table);
+        this.hellController = new HellController(table);
     }
 
 
@@ -91,10 +86,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
         switch (this.gameState) {
             case "warm-up" -> this.warmupController.onClick(e, src);
             case "1vs1" -> this.oneVsOneController.onClick(e, src);
-            case "hell mode" -> {
-                hellMode(e);
-                this.table.activePlayer(this.gameFlowController.player());
-            }
+            case "hell mode" -> this.hellController.onClick(e, src);
             case "1vsLAN" -> {
                 try {
                     OneVsLANMode(e, src);
@@ -125,8 +117,6 @@ public class GameController implements MouseListener, Observer, ActionListener {
         switch ((String) arg) {
             case "kill" -> {
                 restartBoard();
-                this.warmupController.reset();
-                this.oneVsOneController.reset();
                 if (this.connectionHandler != null)
                     this.connectionHandler.close();
                 if (this.connectionChat != null)
@@ -154,46 +144,6 @@ public class GameController implements MouseListener, Observer, ActionListener {
                 }
             }
         }
-    }
-
-    private void hellMode(final MouseEvent e) {
-        if (this.board.isGoal()) {
-            return;
-        }
-        if (isRightMouseButton(e)) {
-
-            if (playerAllowedToUndo(this.gameFlowController.board())) {
-                this.gameFlowController = this.gameFlowController.undoPlayerMove(
-                        () -> {
-                            final var dataObject = new QuestionService(new InMemoryQuestions())
-                                    .displayYesNoCancel("hell-mode");
-                            new HerokuService().send(dataObject);
-                            return null;
-                        }
-                );
-                this.table.drawBoard(this.gameFlowController.board(), FIRST);
-
-                this.tokenForPlayer.compute(this.gameFlowController.player(), (key, val) -> val - 1);
-                this.tokenForPlayer.compute(this.gameFlowController.player().opposite(), (key, val) -> val + 1);
-                final var message =
-                        "Player " + this.gameFlowController.player() +
-                                " tokens : " + this.tokenForPlayer.get(this.gameFlowController.player()) + "\n" +
-                                "Player " + this.gameFlowController.player().opposite() +
-                                " tokens : " + this.tokenForPlayer.get(this.gameFlowController.player().opposite());
-                JOptionPane.showMessageDialog(null, message);
-            }
-
-        } else if (isLeftMouseButton(e)) {
-            GameDrawer.PointTracker pointTracker = (GameDrawer.PointTracker) e.getSource();
-
-            this.gameFlowController = this.gameFlowController.makeAMove(pointTracker.getPosition());
-            this.table.drawBoard(this.gameFlowController.board(), FIRST);
-            this.gameFlowController.onWinner(this::winningMessage);
-        }
-    }
-
-    private boolean playerAllowedToUndo(final BoardInterface board) {
-        return this.tokenForPlayer.get(board.getPlayer()) > 0;
     }
 
     private void OneVsLANMode(final MouseEvent e, final Object src) throws InterruptedException {
@@ -363,6 +313,9 @@ public class GameController implements MouseListener, Observer, ActionListener {
         }
         this.canHumanMove = new AtomicBoolean(true);
         this.playerView = FIRST;
+        this.warmupController.reset();
+        this.oneVsOneController.reset();
+        this.hellController.reset();
     }
 
     public void postBoard(final BoardInterface board) {
