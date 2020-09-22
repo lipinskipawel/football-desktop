@@ -63,7 +63,8 @@ public class GameController implements MouseListener, Observer, ActionListener {
     private final Map<Player, Integer> tokenForPlayer;
 
     private GameFlowController gameFlowController;
-    private WarmupController warmupController;
+    private final WarmupController warmupController;
+    private final OneVsOneController oneVsOneController;
 
     GameController(final Table table) {
         this.board = Boards.immutableBoard();
@@ -80,6 +81,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
         this.tokenForPlayer.put(SECOND, 2);
         this.gameFlowController = new GameFlowController(Boards.immutableBoard(), false);
         this.warmupController = new WarmupController(table);
+        this.oneVsOneController = new OneVsOneController(table);
     }
 
 
@@ -87,15 +89,8 @@ public class GameController implements MouseListener, Observer, ActionListener {
     public void mouseClicked(MouseEvent e) {
         Object src = e.getSource();
         switch (this.gameState) {
-            case "warm-up" -> warmupController.onClick(e, src);
-            case "1vs1" -> {
-                try {
-                    OneVsOneMode(e, src);
-                    this.table.activePlayer(this.gameFlowController.player());
-                } catch (IOException | InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-            }
+            case "warm-up" -> this.warmupController.onClick(e, src);
+            case "1vs1" -> this.oneVsOneController.onClick(e, src);
             case "hell mode" -> {
                 hellMode(e);
                 this.table.activePlayer(this.gameFlowController.player());
@@ -131,6 +126,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
             case "kill" -> {
                 restartBoard();
                 this.warmupController.reset();
+                this.oneVsOneController.reset();
                 if (this.connectionHandler != null)
                     this.connectionHandler.close();
                 if (this.connectionChat != null)
@@ -157,51 +153,6 @@ public class GameController implements MouseListener, Observer, ActionListener {
 
                 }
             }
-        }
-    }
-
-    private void warmUpMode(final MouseEvent e, final Object src) {
-        if (isRightMouseButton(e)) {
-
-            this.gameFlowController = this.gameFlowController.undo();
-            this.table.drawBoard(this.gameFlowController.board(), FIRST);
-
-        } else if (isLeftMouseButton(e)) {
-
-            GameDrawer.PointTracker pointTracker = (GameDrawer.PointTracker) src;
-            try {
-                this.gameFlowController = this.gameFlowController.makeAMove(pointTracker.getPosition());
-                this.table.drawBoard(this.gameFlowController.board(), FIRST);
-                this.gameFlowController.onWinner(this::winningMessage);
-            } catch (RuntimeException ee) {
-                JOptionPane.showMessageDialog(null, "You cannot move like that.");
-                return;
-            }
-        }
-    }
-
-    private void OneVsOneMode(final MouseEvent e, final Object src) throws IOException, InterruptedException {
-        if (this.gameFlowController.isGameOver()) {
-            return;
-        }
-        if (isRightMouseButton(e)) {
-
-            this.gameFlowController = this.gameFlowController.undoPlayerMove(
-                    () -> {
-                        final var dataObject = new QuestionService(new InMemoryQuestions())
-                                .displayYesNoCancel("1-1");
-                        new HerokuService().send(dataObject);
-                        return null;
-                    }
-            );
-            this.table.drawBoard(this.gameFlowController.board(), FIRST);
-
-        } else if (isLeftMouseButton(e)) {
-            GameDrawer.PointTracker pointTracker = (GameDrawer.PointTracker) src;
-
-            this.gameFlowController = this.gameFlowController.makeAMove(pointTracker.getPosition());
-            this.table.drawBoard(this.gameFlowController.board(), FIRST);
-            this.gameFlowController.onWinner(this::winningMessage);
         }
     }
 
