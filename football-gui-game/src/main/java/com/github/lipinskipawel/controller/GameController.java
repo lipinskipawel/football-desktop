@@ -63,6 +63,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
     private final Map<Player, Integer> tokenForPlayer;
 
     private GameFlowController gameFlowController;
+    private WarmupController warmupController;
 
     GameController(final Table table) {
         this.board = Boards.immutableBoard();
@@ -78,6 +79,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
         this.tokenForPlayer.put(FIRST, 2);
         this.tokenForPlayer.put(SECOND, 2);
         this.gameFlowController = new GameFlowController(Boards.immutableBoard(), false);
+        this.warmupController = new WarmupController(table);
     }
 
 
@@ -85,7 +87,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
     public void mouseClicked(MouseEvent e) {
         Object src = e.getSource();
         switch (this.gameState) {
-            case "warm-up" -> warmUpMode(e, src);
+            case "warm-up" -> warmupController.onClick(e, src);
             case "1vs1" -> {
                 try {
                     OneVsOneMode(e, src);
@@ -109,7 +111,6 @@ public class GameController implements MouseListener, Observer, ActionListener {
                 }
             }
             case "1vsAI" -> OneVsAIMode(e, src);
-            default -> System.out.println("Something goes wrong!");
         }
     }
 
@@ -129,6 +130,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
         switch ((String) arg) {
             case "kill" -> {
                 restartBoard();
+                this.warmupController.reset();
                 if (this.connectionHandler != null)
                     this.connectionHandler.close();
                 if (this.connectionChat != null)
