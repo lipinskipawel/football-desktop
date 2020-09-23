@@ -1,8 +1,5 @@
 package com.github.lipinskipawel.controller;
 
-import com.github.lipinskipawel.BruteForceThinking;
-import com.github.lipinskipawel.board.ai.bruteforce.MiniMaxAlphaBeta;
-import com.github.lipinskipawel.board.ai.bruteforce.SmartBoardEvaluator;
 import com.github.lipinskipawel.board.engine.BoardInterface;
 import com.github.lipinskipawel.board.engine.Boards;
 import com.github.lipinskipawel.board.engine.Player;
@@ -11,9 +8,6 @@ import com.github.lipinskipawel.gui.Table;
 import com.github.lipinskipawel.network.ConnectionChat;
 import com.github.lipinskipawel.network.ConnectionHandler;
 import com.github.lipinskipawel.network.ConnectionState;
-import kotlin.Unit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -23,8 +17,6 @@ import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.github.lipinskipawel.board.engine.Player.FIRST;
 import static javax.swing.SwingUtilities.isLeftMouseButton;
@@ -54,14 +46,11 @@ public class GameController implements MouseListener, Observer, ActionListener {
     private ConnectionHandler connectionHandler;
     private ConnectionChat connectionChat;
 
-    private AtomicBoolean canHumanMove;
-    private BruteForceThinking bruteForce;
-    private final Logger logger = LoggerFactory.getLogger(GameController.class);
-
     private GameFlowController gameFlowController;
     private final WarmupController warmupController;
     private final OneVsOneController oneVsOneController;
     private final HellController hellController;
+    private final OneVsAiController oneVsAiController;
 
     GameController(final Table table) {
         this.board = Boards.immutableBoard();
@@ -72,11 +61,11 @@ public class GameController implements MouseListener, Observer, ActionListener {
         this.connectionHandler = null;
         this.connectionChat = null;
         this.playerView = FIRST;
-        this.canHumanMove = new AtomicBoolean(true);
         this.gameFlowController = new GameFlowController(Boards.immutableBoard(), false);
         this.warmupController = new WarmupController(table);
         this.oneVsOneController = new OneVsOneController(table);
         this.hellController = new HellController(table);
+        this.oneVsAiController = new OneVsAiController(table);
     }
 
 
@@ -97,7 +86,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
                     //e1.printStackTrace();
                 }
             }
-            case "1vsAI" -> OneVsAIMode(e, src);
+            case "1vsAI" -> this.oneVsAiController.onClick(e, src);
         }
     }
 
@@ -210,94 +199,6 @@ public class GameController implements MouseListener, Observer, ActionListener {
         }
     }
 
-    private void OneVsAIMode(final MouseEvent e, final Object src) {
-        if (isRightMouseButton(e)) {
-
-            if (this.canHumanMove.get()) {
-                this.gameFlowController = this.gameFlowController.undoOnlyCurrentPlayerMove();
-//                this.gameFlowController = this.gameFlowController.undoPlayerMove(
-//                        () -> {
-//                            if (this.bruteForce != null) {
-//                                this.bruteForce.cancel(true);
-//                            }
-//                            this.bruteForce = null;
-//                            this.canHumanMove = new AtomicBoolean(false);
-//                            return null;
-//                        }
-//                );
-                this.table.drawBoard(this.gameFlowController.board(), FIRST);
-            }
-            // if you decided to implement undo when ai thinks, watch out on
-            // this.canHumanMove
-            // this.bruteForce -- managing the state by operations on null
-
-            // use this.bruteForce.cancel(true);
-
-        } else if (isLeftMouseButton(e)) {
-            logger.info("canHumanMove : " + this.canHumanMove + ", player : " + this.gameFlowController.player());
-
-            if (this.canHumanMove.get()) {
-                // here it is save to get move from worker and update board and draw it one more time
-                try {
-                    if (bruteForce != null) {
-                        var aiMove = bruteForce.get();
-                        this.gameFlowController = this.gameFlowController.makeAMove(aiMove);
-                        this.gameFlowController.onPlayerHitTheCorner(() -> {
-                            this.table.drawBoard(this.gameFlowController.board(), this.gameFlowController.player().opposite());
-                            JOptionPane.showMessageDialog(null, "You won the game!!!");
-                            this.canHumanMove.set(false);
-                            final var dataObject = new QuestionService(new InMemoryQuestions()).displayAiQuestion();
-                            new HerokuService().send(dataObject);
-                            return null;
-                        });
-                        this.table.drawBoard(this.gameFlowController.board(), this.gameFlowController.player());
-                        this.bruteForce = null;
-                        logger.info("redundant update board");
-                    }
-                } catch (InterruptedException | ExecutionException ex) {
-                    ex.printStackTrace();
-                }
-
-                GameDrawer.PointTracker pointTracker = (GameDrawer.PointTracker) e.getSource();
-
-                try {
-                    this.gameFlowController = this.gameFlowController.makeAMove(
-                            pointTracker.getPosition(),
-                            () -> {
-                                this.canHumanMove.set(false);
-                                return null;
-                            }
-                    );
-                    this.table.drawBoard(this.gameFlowController.board(), FIRST);
-                    this.gameFlowController.onWinner(this::winningMessage);
-
-                } catch (CantMakeAMove ee) {
-                    return;
-                }
-            } else {
-                JOptionPane.showMessageDialog(null, "There is AI to move");
-            }
-        }
-        if (!canHumanMove.get()) {
-            // need to check that null because ai can think long, and the human could click and trigger another thead
-            if (this.bruteForce == null) {
-                this.bruteForce = new BruteForceThinking(
-                        new MiniMaxAlphaBeta(new SmartBoardEvaluator()),
-                        this.gameFlowController.board(),
-                        3,
-                        this.table.gameDrawer(),
-                        this.canHumanMove
-                );
-                bruteForce.execute();
-            }
-        }
-    }
-
-    private Unit winningMessage(final Player winner) {
-        JOptionPane.showMessageDialog(null, "Player " + winner + " won he game.");
-        return null;
-    }
-
     void setIPEnemy(final String IPEnemy) {
         this.ipEnemy = IPEnemy;
     }
@@ -307,15 +208,11 @@ public class GameController implements MouseListener, Observer, ActionListener {
         this.table.drawBoard(this.board, this.playerView);
         this.table.activePlayer(this.board.getPlayer());
         this.gameFlowController = new GameFlowController(Boards.immutableBoard(), false);
-        if (this.bruteForce != null) {
-            this.bruteForce.cancel(true);
-            this.bruteForce = null;
-        }
-        this.canHumanMove = new AtomicBoolean(true);
         this.playerView = FIRST;
         this.warmupController.reset();
         this.oneVsOneController.reset();
         this.hellController.reset();
+        this.oneVsAiController.reset();
     }
 
     public void postBoard(final BoardInterface board) {
