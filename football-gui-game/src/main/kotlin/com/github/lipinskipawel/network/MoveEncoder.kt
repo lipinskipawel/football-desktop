@@ -28,6 +28,26 @@ class MoveEncoder {
                     .toByteArray()
         }
 
+        fun decode(byteArray: ByteArray): Move {
+            val directions: List<Direction> = byteArray
+                    .mapTo(mutableListOf()) { decodeOneByte(it) }
+            return Move(directions)
+        }
+
+        private fun decodeOneByte(byte: Byte): Direction {
+            return when (byte.toInt()) {
+                0x01 -> N
+                0x02 -> NE
+                0x03 -> E
+                0x04 -> SE
+                0x05 -> S
+                0x06 -> SW
+                0x07 -> W
+                0x08 -> NW
+                else -> throw Exception("Can not decode: ${byte.toInt()}")
+            }
+        }
+
         private fun encode(direction: Direction): Byte {
             return when (direction) {
                 N -> 0x01
@@ -38,7 +58,7 @@ class MoveEncoder {
                 SW -> 0x06
                 W -> 0x07
                 NW -> 0x08
-                else -> 0x15
+                else -> throw Exception("Can not encode: $direction")
             }
         }
     }
