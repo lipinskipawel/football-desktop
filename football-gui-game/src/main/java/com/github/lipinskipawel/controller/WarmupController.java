@@ -2,18 +2,15 @@ package com.github.lipinskipawel.controller;
 
 import com.github.lipinskipawel.board.engine.Boards;
 import com.github.lipinskipawel.board.engine.Player;
-import com.github.lipinskipawel.gui.GameDrawer;
+import com.github.lipinskipawel.gui.RenderablePoint;
 import com.github.lipinskipawel.gui.Table;
 import kotlin.Unit;
 
 import javax.swing.*;
-import java.awt.event.MouseEvent;
 
 import static com.github.lipinskipawel.board.engine.Player.FIRST;
-import static javax.swing.SwingUtilities.isLeftMouseButton;
-import static javax.swing.SwingUtilities.isRightMouseButton;
 
-final class WarmupController {
+final class WarmupController implements PitchController {
 
     private GameFlowController gameFlowController;
     private final Table table;
@@ -23,23 +20,21 @@ final class WarmupController {
         this.table = table;
     }
 
-    void onClick(final MouseEvent e, final Object src) {
-        if (isRightMouseButton(e)) {
-
-            this.gameFlowController = this.gameFlowController.undo();
+    @Override
+    public void leftClick(final RenderablePoint renderablePoint) {
+        try {
+            this.gameFlowController = this.gameFlowController.makeAMove(renderablePoint.getPosition());
             this.table.drawBoard(this.gameFlowController.board(), FIRST);
-
-        } else if (isLeftMouseButton(e)) {
-
-            GameDrawer.PointTracker pointTracker = (GameDrawer.PointTracker) src;
-            try {
-                this.gameFlowController = this.gameFlowController.makeAMove(pointTracker.getPosition());
-                this.table.drawBoard(this.gameFlowController.board(), FIRST);
-                this.gameFlowController.onWinner(this::winningMessage);
-            } catch (RuntimeException ee) {
-                JOptionPane.showMessageDialog(null, "You cannot move like that.");
-            }
+            this.gameFlowController.onWinner(this::winningMessage);
+        } catch (RuntimeException ee) {
+            JOptionPane.showMessageDialog(null, "You cannot move like that.");
         }
+    }
+
+    @Override
+    public void rightClick(final RenderablePoint renderablePoint) {
+        this.gameFlowController = this.gameFlowController.undo();
+        this.table.drawBoard(this.gameFlowController.board(), FIRST);
     }
 
     private Unit winningMessage(final Player winner) {

@@ -259,7 +259,7 @@ public class GameDrawer extends JPanel {
     }
 
 
-    public class PointTracker extends JPanel {
+    public class PointTracker extends JPanel implements RenderablePoint {
 
         final int position;
 

@@ -4,6 +4,7 @@ import com.github.lipinskipawel.board.engine.BoardInterface;
 import com.github.lipinskipawel.board.engine.Boards;
 import com.github.lipinskipawel.board.engine.Player;
 import com.github.lipinskipawel.gui.GameDrawer;
+import com.github.lipinskipawel.gui.RenderablePoint;
 import com.github.lipinskipawel.gui.Table;
 import com.github.lipinskipawel.network.ConnectionChat;
 import com.github.lipinskipawel.network.ConnectionHandler;
@@ -72,21 +73,17 @@ public class GameController implements MouseListener, Observer, ActionListener {
     @Override
     public void mouseClicked(MouseEvent e) {
         Object src = e.getSource();
-        switch (this.gameState) {
-            case "warm-up" -> this.warmupController.onClick(e, src);
-            case "1vs1" -> this.oneVsOneController.onClick(e, src);
-            case "hell mode" -> this.hellController.onClick(e, src);
-            case "1vsLAN" -> {
-                try {
-                    OneVsLANMode(e, src);
-                    this.table.activePlayer(this.gameFlowController.player());
-                } catch (InterruptedException e1) {
-                    this.connectionHandler.close();
-                    this.connectionChat.close();
-                    //e1.printStackTrace();
-                }
-            }
-            case "1vsAI" -> this.oneVsAiController.onClick(e, src);
+        final var controller = switch (this.gameState) {
+            case "warm-up" -> this.warmupController;
+            case "1vs1" -> this.oneVsOneController;
+            case "hell mode" -> this.hellController;
+            case "1vsAI" -> this.oneVsAiController;
+            default -> throw new IllegalStateException("Unexpected value: " + this.gameState);
+        };
+        if (isRightMouseButton(e)) {
+            controller.rightClick((RenderablePoint) src);
+        } else if (isLeftMouseButton(e)) {
+            controller.leftClick((RenderablePoint) src);
         }
     }
 

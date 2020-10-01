@@ -2,18 +2,15 @@ package com.github.lipinskipawel.controller;
 
 import com.github.lipinskipawel.board.engine.Boards;
 import com.github.lipinskipawel.board.engine.Player;
-import com.github.lipinskipawel.gui.GameDrawer;
+import com.github.lipinskipawel.gui.RenderablePoint;
 import com.github.lipinskipawel.gui.Table;
 import kotlin.Unit;
 
 import javax.swing.*;
-import java.awt.event.MouseEvent;
 
 import static com.github.lipinskipawel.board.engine.Player.FIRST;
-import static javax.swing.SwingUtilities.isLeftMouseButton;
-import static javax.swing.SwingUtilities.isRightMouseButton;
 
-final class OneVsOneController {
+final class OneVsOneController implements PitchController {
 
     private GameFlowController gameFlowController;
     private final Table table;
@@ -23,29 +20,32 @@ final class OneVsOneController {
         this.gameFlowController = new GameFlowController(Boards.immutableBoard(), false);
     }
 
-    void onClick(final MouseEvent e, final Object src) {
+    @Override
+    public void leftClick(final RenderablePoint renderablePoint) {
         if (this.gameFlowController.isGameOver()) {
             return;
         }
-        if (isRightMouseButton(e)) {
+        this.gameFlowController = this.gameFlowController.makeAMove(renderablePoint.getPosition());
+        this.table.drawBoard(this.gameFlowController.board(), FIRST);
+        this.gameFlowController.onWinner(this::winningMessage);
 
-            this.gameFlowController = this.gameFlowController.undoPlayerMove(
-                    () -> {
-                        final var dataObject = new QuestionService(new InMemoryQuestions())
-                                .displayYesNoCancel("1-1");
-                        new HerokuService().send(dataObject);
-                        return null;
-                    }
-            );
-            this.table.drawBoard(this.gameFlowController.board(), FIRST);
+        this.table.activePlayer(this.gameFlowController.player());
+    }
 
-        } else if (isLeftMouseButton(e)) {
-            GameDrawer.PointTracker pointTracker = (GameDrawer.PointTracker) src;
-
-            this.gameFlowController = this.gameFlowController.makeAMove(pointTracker.getPosition());
-            this.table.drawBoard(this.gameFlowController.board(), FIRST);
-            this.gameFlowController.onWinner(this::winningMessage);
+    @Override
+    public void rightClick(final RenderablePoint renderablePoint) {
+        if (this.gameFlowController.isGameOver()) {
+            return;
         }
+        this.gameFlowController = this.gameFlowController.undoPlayerMove(
+                () -> {
+                    final var dataObject = new QuestionService(new InMemoryQuestions())
+                            .displayYesNoCancel("1-1");
+                    new HerokuService().send(dataObject);
+                    return null;
+                }
+        );
+        this.table.drawBoard(this.gameFlowController.board(), FIRST);
         this.table.activePlayer(this.gameFlowController.player());
     }
 
