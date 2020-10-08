@@ -8,15 +8,13 @@ package com.github.lipinskipawel.network
  *
  * Size of each field:
  * version of protocol - 1 byte
- * number of segments  - 1 byte
- * data                - 2048 bytes
+ * length of data      - 1 byte
+ * data                - 255 bytes
  */
 internal class ProtocolClient {
 
     companion object {
-        private val PROTOCOL_VERSION: ByteArray = ByteArray(1) { 0x01 }
-        private val SEGMENT_SIZE: Int = 2048
-        private val NUMBER_OF_SEGMENT: Int = 100
+        private val PROTOCOL_VERSION: Byte = 0x01
 
         fun createClient(): ProtocolClient {
             return ProtocolClient()
@@ -29,23 +27,9 @@ internal class ProtocolClient {
 
     private fun createHeader(data: String): ByteArray {
         val sizeOfData = data.toByteArray().size
-        val divided = sizeOfData / SEGMENT_SIZE
-        val isTheNumberIsNatural = sizeOfData % SEGMENT_SIZE == 0
-        return if (isTheNumberIsNatural) {
-            PROTOCOL_VERSION + computeNumberOfSegmentsNeeded(divided)
-        } else {
-            PROTOCOL_VERSION + computeNumberOfSegmentsNeeded(divided + 1)
+        if (sizeOfData > 255) {
+            throw Exception("The size of data [$sizeOfData] is more that 255")
         }
-    }
-
-    private fun computeNumberOfSegmentsNeeded(divided: Int): ByteArray {
-        return if (isMoreThatAllowed(divided))
-            ByteArray(1) { NUMBER_OF_SEGMENT.toByte() }
-        else
-            ByteArray(1) { divided.toByte() }
-    }
-
-    private fun isMoreThatAllowed(divided: Int): Boolean {
-        return divided > NUMBER_OF_SEGMENT
+        return byteArrayOf(PROTOCOL_VERSION, sizeOfData.toByte())
     }
 }
