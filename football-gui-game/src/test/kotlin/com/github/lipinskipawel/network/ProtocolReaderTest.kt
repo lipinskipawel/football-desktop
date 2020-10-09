@@ -14,7 +14,7 @@ internal class ProtocolReaderTest {
         val header = reader.header()
         val data = reader.data()
 
-        Assertions.assertThat(header).isEqualTo(ByteArray(1) { 0x01 } + ByteArray(1) { 1 })
+        Assertions.assertThat(header).isEqualTo(byteArrayOf(0x01) + byteArrayOf(message.toByteArray().size.toByte()))
         Assertions.assertThat(data).isEqualTo(message.toByteArray())
     }
 }

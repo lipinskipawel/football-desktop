@@ -1,8 +1,8 @@
 package com.github.lipinskipawel.network
 
-import com.github.lipinskipawel.network.support.SendSupport
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
+import java.net.InetAddress
 
 internal class ServerTest {
     companion object {
@@ -13,16 +13,15 @@ internal class ServerTest {
     fun shouldUseByteArrayAsAPI() {
         var holder = ByteArray(1)
         val message = "Hello world!"
-        val protocolClient = ProtocolClient.createClient()
-        val convertedMessage = protocolClient.convert(message)
+        val converted = ProtocolClient.createClient().convert(message)
 
         val server = Server.createServer(PORT)
-                .onReceived { data -> holder = data }
-
-        val sender = SendSupport("127.0.0.1", PORT)
-        sender.send(convertedMessage)
+                .onReceived { holder = it }
+        val connection = ConnectionManager.connectTo(InetAddress.getByName("127.0.0.1"), PORT)
+        connection.send(Envelope(message))
         server.close()
+        connection.close()
 
-        Assertions.assertThat(holder).isEqualTo(convertedMessage)
+        Assertions.assertThat(holder).isEqualTo(converted)
     }
 }
