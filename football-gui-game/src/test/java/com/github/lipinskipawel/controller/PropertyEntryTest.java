@@ -1,9 +1,11 @@
 package com.github.lipinskipawel.controller;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
+import org.junit.jupiter.api.parallel.Execution;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -34,6 +36,7 @@ class PropertyEntryTest {
         );
     }
 
+    @Disabled
     @Test
     @DisplayName("passing name and (value - sys env)")
     @EnabledIf("'token' == systemEnvironment.get('token')")
