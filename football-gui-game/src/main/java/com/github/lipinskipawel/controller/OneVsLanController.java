@@ -5,7 +5,6 @@ import com.github.lipinskipawel.board.engine.Boards;
 import com.github.lipinskipawel.board.engine.Player;
 import com.github.lipinskipawel.gui.RenderablePoint;
 import com.github.lipinskipawel.gui.Table;
-import com.github.lipinskipawel.network.MoveEncoder;
 import com.github.lipinskipawel.network.Server;
 
 import java.io.IOException;
@@ -39,8 +38,7 @@ final class OneVsLanController implements PitchController {
      */
     void startServer() {
         server = Server.Companion.createServer(SERVER_PORT)
-                .onReceived(data -> {
-                    final var move = MoveEncoder.Companion.decode(data);
+                .onReceived(move -> {
                     move.getMove().forEach(System.out::println);
                     this.gameFlowController = this.gameFlowController.makeAMove(move);
                     this.table.drawBoard(this.gameFlowController.board(), this.gameFlowController.player());
@@ -60,7 +58,9 @@ final class OneVsLanController implements PitchController {
         this.gameFlowController = new GameFlowController(Boards.immutableBoard(), false);
         this.table.drawBoard(this.gameFlowController.board(), this.gameFlowController.player());
         this.table.activePlayer(this.gameFlowController.player());
-        this.server.close();
+        if (this.server != null) {
+            this.server.close();
+        }
         try {
             this.socket.close();
         } catch (IOException e) {

@@ -1,5 +1,6 @@
 package com.github.lipinskipawel.network
 
+import com.github.lipinskipawel.board.engine.Move
 import java.io.Closeable
 import java.net.InetAddress
 import java.net.ServerSocket
@@ -11,7 +12,7 @@ class Server private constructor(port: Int) : Closeable {
     private val server: ServerSocket = ServerSocket(port, 1, InetAddress.getLocalHost())
     private val pool: ExecutorService = Executors.newFixedThreadPool(1)
 
-    private var callback: (ByteArray) -> Unit = { }
+    private var callback: (Move) -> Unit = { }
 
     companion object {
         fun createServer(port: Int): Server {
@@ -21,7 +22,7 @@ class Server private constructor(port: Int) : Closeable {
         }
     }
 
-    fun onReceived(block: (ByteArray) -> Unit): Server {
+    fun onReceived(block: (Move) -> Unit): Server {
         callback = block
         return this
     }
@@ -42,8 +43,7 @@ class Server private constructor(port: Int) : Closeable {
                     val length = headData[1]
                     val dataBuffer = ByteArray(length.toInt())
                     socket.getInputStream().read(dataBuffer)
-                    val bytes = headData + dataBuffer
-                    callback(bytes)
+                    callback(Envelope.toMove(dataBuffer))
                 }
             }
         }

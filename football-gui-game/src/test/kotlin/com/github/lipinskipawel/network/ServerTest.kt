@@ -1,5 +1,7 @@
 package com.github.lipinskipawel.network
 
+import com.github.lipinskipawel.board.engine.Direction
+import com.github.lipinskipawel.board.engine.Move
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import java.net.InetAddress
@@ -10,18 +12,18 @@ internal class ServerTest {
     }
 
     @Test
-    fun shouldUseByteArrayAsAPI() {
-        var holder = ByteArray(1)
-        val message = "Hello world!"
-        val converted = ProtocolClient.createClient().convert(message)
+    fun shouldUseMoveAsAPI() {
+        var holder = Move(emptyList())
+        val message = Move(listOf(Direction.E))
 
         val server = Server.createServer(PORT)
                 .onReceived { holder = it }
         val connection = ConnectionManager.connectTo(InetAddress.getByName("127.0.0.1"), PORT)
-        connection.send(Envelope(message))
+        connection.send(message)
         server.close()
         connection.close()
 
-        Assertions.assertThat(holder).isEqualTo(converted)
+        Assertions.assertThat(holder.move.size).isEqualTo(1)
+        Assertions.assertThat(holder.move[0]).isEqualTo(Direction.E)
     }
 }

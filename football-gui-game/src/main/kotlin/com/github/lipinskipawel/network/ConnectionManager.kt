@@ -1,5 +1,6 @@
 package com.github.lipinskipawel.network
 
+import com.github.lipinskipawel.board.engine.Move
 import java.net.InetAddress
 import java.net.Socket
 
@@ -16,8 +17,8 @@ class Connection(private val socket: Socket) : AutoCloseable {
 
     private val sendingStream = socket.getOutputStream()
 
-    fun <T : Envelope> send(data: T) {
-        sendingStream.write(data.toByteArray())
+    fun send(move: Move) {
+        sendingStream.write(Envelope.of(move).toByteArray())
         sendingStream.flush()
     }
 
