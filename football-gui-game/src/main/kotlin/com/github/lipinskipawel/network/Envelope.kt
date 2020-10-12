@@ -7,21 +7,26 @@ class Envelope private constructor(private val encodedData: ByteArray) {
 
     companion object {
         /**
-         * This method take encoded ByteArray and returns Envelope.
+         * This method take Move and converts it into Envelope.
          */
         fun of(move: Move): Envelope {
             val data = move
                     .move
                     .map { java.lang.String.valueOf(it) }
                     .stream()
-                    .collect(java.util.stream.Collectors.joining(""))
+                    .collect(java.util.stream.Collectors.joining(","))
             return Envelope(ProtocolClient.createClient().convert(data))
         }
 
+        /**
+         * This method converts ByteArray to Move.
+         */
         fun toMove(bytes: ByteArray): Move {
             val directions = bytes
                     .map { it.toChar() }
                     .map { java.lang.String.valueOf(it) }
+                    .reduceRight { s, acc -> s.plus(acc) }
+                    .split(",")
                     .map { Direction.valueOf(it) }
                     .toMutableList()
             return Move(directions)
@@ -33,8 +38,9 @@ class Envelope private constructor(private val encodedData: ByteArray) {
                 .data()
                 .map { it.toChar() }
                 .map { java.lang.String.valueOf(it) }
+                .reduceRight { s, acc -> s.plus(acc) }
+                .split(",")
                 .map { Direction.valueOf(it) }
-                .toMutableList()
         return Move(directions)
     }
 
