@@ -5,7 +5,7 @@ This GUI implementation uses external [engine], were you can contribute.
 [engine]: https://github.com/lipinskipawel/game-engine
 
 ## Building from source
- - JDK 13
+ - JDK 15
  - fill `application.properties` with `token.name`, `token.value` and `storage.service` or provide environment variables
  - execute `cd prod-maven-plugin`
  - execute `mvn clean install`

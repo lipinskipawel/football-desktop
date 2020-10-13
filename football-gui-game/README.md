@@ -1,4 +1,4 @@
-This is the game
+# LAN-Game
 
-
+This module contains source code of the LAN-Game.
 
