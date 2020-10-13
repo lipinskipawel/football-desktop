@@ -8,17 +8,24 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.net.InetAddress
 import java.util.concurrent.CountDownLatch
+import java.util.function.Consumer
 
+/**
+ * This test is responsible for testing the [WaitingForConnection] class.
+ * The tests here are focus on the API methods of [Connection].
+ */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ServerTest {
+class WaitingForConnectionTest {
     companion object {
         private const val PORT = 5432
-        private val server: Server = Server.createServer(PORT)
+        private val waitingForConnection: WaitingForConnection = WaitingForConnection.waitOnPort(PORT)
+        private val connection: Connection = ConnectionManager.connectTo(InetAddress.getLocalHost(), PORT)
 
         @AfterAll
         @JvmStatic
-        internal fun closeServer() {
-            server.close()
+        internal fun closeConnections() {
+            waitingForConnection.close()
+            connection.close()
         }
     }
 
@@ -28,13 +35,11 @@ class ServerTest {
         var holder = Move(emptyList())
         val message = Move(listOf(Direction.E))
 
-        server.onReceived {
+        waitingForConnection.onReceivedData(Consumer {
             holder = it
             startAssertions.countDown()
-        }
-        val connection = ConnectionManager.connectTo(InetAddress.getByName("127.0.0.1"), PORT)
+        })
         connection.send(message)
-        connection.close()
 
         startAssertions.await()
         Assertions.assertThat(holder.move.size).isEqualTo(1)
@@ -47,17 +52,31 @@ class ServerTest {
         var holder = Move(emptyList())
         val message = Move(listOf(Direction.E, Direction.NW))
 
-        server.onReceived {
+        waitingForConnection.onReceivedData(Consumer {
             holder = it
             startAssertions.countDown()
-        }
-        val connection = ConnectionManager.connectTo(InetAddress.getByName("127.0.0.1"), PORT)
+        })
         connection.send(message)
-        connection.close()
 
         startAssertions.await()
         Assertions.assertThat(holder.move.size).isEqualTo(2)
         Assertions.assertThat(holder.move[0]).isEqualTo(Direction.E)
         Assertions.assertThat(holder.move[1]).isEqualTo(Direction.NW)
+    }
+
+    @Test
+    fun `should wait for connection and send data`() {
+        val startAssertion = CountDownLatch(1)
+        var holder = Move(emptyList())
+
+        connection.onReceivedData(Consumer {
+            holder = it
+            startAssertion.countDown()
+        })
+        waitingForConnection.send(Move(listOf(Direction.W)))
+
+        startAssertion.await()
+        Assertions.assertThat(holder.move.size).isEqualTo(1)
+        Assertions.assertThat(holder.move[0]).isEqualTo(Direction.W)
     }
 }

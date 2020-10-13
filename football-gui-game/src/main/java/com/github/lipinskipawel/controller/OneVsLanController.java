@@ -2,20 +2,24 @@ package com.github.lipinskipawel.controller;
 
 import com.github.lipinskipawel.board.engine.BoardInterface;
 import com.github.lipinskipawel.board.engine.Boards;
+import com.github.lipinskipawel.board.engine.Move;
 import com.github.lipinskipawel.board.engine.Player;
 import com.github.lipinskipawel.gui.RenderablePoint;
 import com.github.lipinskipawel.gui.Table;
-import com.github.lipinskipawel.network.Server;
+import com.github.lipinskipawel.network.Connection;
+import com.github.lipinskipawel.network.ConnectionManager;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 
 final class OneVsLanController implements PitchController {
 
     private static final int SERVER_PORT = 6090;
     private final Table table;
     private GameFlowController gameFlowController;
-    private Server server;
+    private Connection connection;
     private Socket socket;
 
     public OneVsLanController(final Table table) {
@@ -37,13 +41,25 @@ final class OneVsLanController implements PitchController {
      * invokes the {@link Table#drawBoard(BoardInterface, Player)}.
      */
     void startServer() {
-        server = Server.Companion.createServer(SERVER_PORT)
-                .onReceived(move -> {
-                    move.getMove().forEach(System.out::println);
-                    this.gameFlowController = this.gameFlowController.makeAMove(move);
-                    this.table.drawBoard(this.gameFlowController.board(), this.gameFlowController.player());
-                    return null;
+        final var executor = Executors.newSingleThreadExecutor();
+        executor
+                .submit(() -> {
+                    try {
+                        connection = ConnectionManager.Companion
+                                .waitForConnection(SERVER_PORT)
+                                .get();
+                        connection.onReceivedData(this::consumeTheMoveFromConnection);
+                    } catch (InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                    }
                 });
+        executor.shutdown();
+    }
+
+    private void consumeTheMoveFromConnection(final Move move) {
+        move.getMove().forEach(System.out::println);
+        this.gameFlowController = this.gameFlowController.makeAMove(move);
+        this.table.drawBoard(this.gameFlowController.board(), this.gameFlowController.player());
     }
 
     void connectToServer(final String ipEnemy) {
@@ -58,8 +74,8 @@ final class OneVsLanController implements PitchController {
         this.gameFlowController = new GameFlowController(Boards.immutableBoard(), false);
         this.table.drawBoard(this.gameFlowController.board(), this.gameFlowController.player());
         this.table.activePlayer(this.gameFlowController.player());
-        if (this.server != null) {
-            this.server.close();
+        if (this.connection != null) {
+            this.connection.close();
         }
         try {
             this.socket.close();
