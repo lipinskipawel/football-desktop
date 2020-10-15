@@ -2,22 +2,24 @@ package com.github.lipinskipawel.network
 
 import com.github.lipinskipawel.board.engine.Move
 import java.net.Socket
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.Future
 import java.util.function.Consumer
 
 internal class DirectConnection private constructor(private val socket: Socket) : Connection {
 
-    private val pool: ExecutorService = Executors.newSingleThreadExecutor()
     private val sendingStream = socket.getOutputStream()
     private val readingStream = socket.getInputStream()
 
     private var onData: Consumer<Move> = Consumer { }
+    private lateinit var readerTask: Future<*>
 
     companion object {
         fun of(socket: Socket): Connection {
+            val pool = Executors.newSingleThreadExecutor()
             val connection = DirectConnection(socket)
-            connection.pool.submit(connection.ReadingDataThroughSocket())
+            connection.readerTask = pool.submit(connection.ReadingDataThroughSocket())
+            pool.shutdown()
             return connection
         }
     }
@@ -32,6 +34,7 @@ internal class DirectConnection private constructor(private val socket: Socket) 
     }
 
     override fun close() {
+        readerTask.cancel(true)
         socket.close()
     }
 
