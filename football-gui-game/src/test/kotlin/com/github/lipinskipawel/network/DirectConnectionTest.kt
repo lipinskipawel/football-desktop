@@ -4,10 +4,15 @@ import com.github.lipinskipawel.board.engine.Direction
 import com.github.lipinskipawel.board.engine.Move
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.function.Executable
 import java.net.InetAddress
+import java.time.Duration
+import java.util.concurrent.Callable
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
 import java.util.function.Consumer
 
 /**
@@ -18,14 +23,26 @@ import java.util.function.Consumer
 internal class DirectConnectionTest {
     companion object {
         private const val PORT = 6767
-        private val address: InetAddress = InetAddress.getByName("127.0.0.1")
-        private val waitingForConnection: Connection = ConnectionManager.waitForConnection(PORT).get()
-        private val connection: Connection = ConnectionManager.connectTo(address, PORT)
+        private lateinit var waitingForConnection: Connection
+        private lateinit var connection: Connection
+
+        @BeforeAll
+        @JvmStatic
+        internal fun createServerAndConnection() {
+            val pool = Executors.newSingleThreadExecutor()
+            val futureServer = pool.submit(Callable {
+                ConnectionManager.waitForConnection(PORT)
+            })
+            connection = ConnectionManager.connectTo(InetAddress.getLocalHost(), PORT, Duration.ofMillis(30))
+            waitingForConnection = futureServer.get()
+            pool.shutdown()
+        }
 
         @AfterAll
         @JvmStatic
         internal fun closeConnections() {
             waitingForConnection.close()
+            connection.close()
         }
     }
 
@@ -60,5 +77,139 @@ internal class DirectConnectionTest {
         startAssertions.await()
         Assertions.assertThat(holder.move.size).isEqualTo(1)
         Assertions.assertThat(holder.move[0]).isEqualTo(Direction.W)
+    }
+
+    @Test
+    fun `should use Move as API`() {
+        val startAssertions = CountDownLatch(1)
+        var holder = Move(emptyList())
+        val message = Move(listOf(Direction.E))
+
+        waitingForConnection.onReceivedData(Consumer {
+            holder = it
+            startAssertions.countDown()
+        })
+        connection.send(message)
+
+        startAssertions.await()
+        Assertions.assertThat(holder.move.size).isEqualTo(1)
+        Assertions.assertThat(holder.move[0]).isEqualTo(Direction.E)
+    }
+
+    @Test
+    fun `should received Move with two Directions`() {
+        val startAssertions = CountDownLatch(1)
+        var holder = Move(emptyList())
+        val message = Move(listOf(Direction.E, Direction.NW))
+
+        waitingForConnection.onReceivedData(Consumer {
+            holder = it
+            startAssertions.countDown()
+        })
+        connection.send(message)
+
+        startAssertions.await()
+        Assertions.assertThat(holder.move.size).isEqualTo(2)
+        Assertions.assertThat(holder.move[0]).isEqualTo(Direction.E)
+        Assertions.assertThat(holder.move[1]).isEqualTo(Direction.NW)
+    }
+
+    @Test
+    fun `should wait for connection and send data`() {
+        val startAssertion = CountDownLatch(1)
+        var holder = Move(emptyList())
+
+        connection.onReceivedData(Consumer {
+            holder = it
+            startAssertion.countDown()
+        })
+        waitingForConnection.send(Move(listOf(Direction.W)))
+
+        startAssertion.await()
+        Assertions.assertThat(holder.move.size).isEqualTo(1)
+        Assertions.assertThat(holder.move[0]).isEqualTo(Direction.W)
+    }
+
+    @Test
+    fun `should received 3 moves`() {
+        val startAssertion = CountDownLatch(1)
+        val waitForFirstMessage = CountDownLatch(1)
+        val waitForSecondMessage = CountDownLatch(1)
+        var firstHolder = Move(emptyList())
+        var secondHolder = Move(emptyList())
+        var thirdHolder = Move(emptyList())
+
+        waitingForConnection.onReceivedData(Consumer {
+            firstHolder = it
+            waitForFirstMessage.countDown()
+        })
+        connection.send(Move(listOf(Direction.W)))
+        waitForFirstMessage.await()
+        waitingForConnection.onReceivedData(Consumer {
+            secondHolder = it
+            waitForSecondMessage.countDown()
+        })
+        connection.send(Move(listOf(Direction.NW)))
+        waitForSecondMessage.await()
+        waitingForConnection.onReceivedData(Consumer {
+            thirdHolder = it
+            startAssertion.countDown()
+        })
+        connection.send(Move(listOf(Direction.E, Direction.SE)))
+
+        startAssertion.await()
+        org.junit.jupiter.api.Assertions.assertAll(
+                Executable { Assertions.assertThat(firstHolder.move.size).isEqualTo(1) },
+                Executable { Assertions.assertThat(firstHolder.move[0]).isEqualTo(Direction.W) },
+
+                Executable { Assertions.assertThat(secondHolder.move.size).isEqualTo(1) },
+                Executable { Assertions.assertThat(secondHolder.move[0]).isEqualTo(Direction.NW) },
+
+                Executable { Assertions.assertThat(thirdHolder.move.size).isEqualTo(2) },
+                Executable { Assertions.assertThat(thirdHolder.move[0]).isEqualTo(Direction.E) },
+                Executable { Assertions.assertThat(thirdHolder.move[1]).isEqualTo(Direction.SE) }
+        )
+    }
+
+    @Test
+    fun `should exchange 2 portions of move`() {
+        val startAssertions = CountDownLatch(1)
+        val waitForFirstMessage = CountDownLatch(1)
+        val waitForSecondMessage = CountDownLatch(1)
+        var firstHolder = Move(emptyList())
+        var firstHolderAssertion = Move(emptyList())
+        var secondHolder = Move(emptyList())
+        var secondHolderAssertion = Move(emptyList())
+
+        waitingForConnection.onReceivedData(Consumer {
+            firstHolder = it
+            waitForFirstMessage.countDown()
+        })
+        connection.onReceivedData(Consumer { firstHolderAssertion = it })
+        connection.send(Move(listOf(Direction.W)))
+        waitForFirstMessage.await()
+        waitingForConnection.send(firstHolder)
+
+        waitingForConnection.onReceivedData(Consumer {
+            secondHolder = it
+            waitForSecondMessage.countDown()
+        })
+        connection.onReceivedData(Consumer {
+            secondHolderAssertion = it
+            startAssertions.countDown()
+        })
+        connection.send(Move(listOf(Direction.NW, Direction.S)))
+        waitForSecondMessage.await()
+        waitingForConnection.send(secondHolder)
+
+        startAssertions.await()
+        org.junit.jupiter.api.Assertions.assertAll(
+                Executable { Assertions.assertThat(firstHolderAssertion.move.size).isEqualTo(1) },
+                Executable { Assertions.assertThat(firstHolderAssertion.move[0]).isEqualTo(Direction.W) },
+
+                Executable { Assertions.assertThat(secondHolderAssertion.move.size).isEqualTo(2) },
+                Executable { Assertions.assertThat(secondHolderAssertion.move[0]).isEqualTo(Direction.NW) },
+                Executable { Assertions.assertThat(secondHolderAssertion.move[1]).isEqualTo(Direction.S) }
+        )
     }
 }

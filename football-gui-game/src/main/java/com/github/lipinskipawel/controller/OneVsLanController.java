@@ -11,7 +11,6 @@ import com.github.lipinskipawel.network.ConnectionManager;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 final class OneVsLanController implements PitchController {
@@ -44,14 +43,9 @@ final class OneVsLanController implements PitchController {
         final var executor = Executors.newSingleThreadExecutor();
         executor
                 .submit(() -> {
-                    try {
-                        connection = ConnectionManager.Companion
-                                .waitForConnection(SERVER_PORT)
-                                .get();
-                        connection.onReceivedData(this::consumeTheMoveFromConnection);
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                    }
+                    connection = ConnectionManager.Companion
+                            .waitForConnection(SERVER_PORT);
+                    connection.onReceivedData(this::consumeTheMoveFromConnection);
                 });
         executor.shutdown();
     }
