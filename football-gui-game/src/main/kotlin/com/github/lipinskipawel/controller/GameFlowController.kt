@@ -49,7 +49,6 @@ class GameFlowController(
     fun makeAMove(move: Move): GameFlowController {
         val afterMove = this.board.executeMove(move)
         val end = afterMove.isGoal
-        logger.info("AI kotlin | end game : $end")
         return GameFlowController(afterMove, end)
     }
 

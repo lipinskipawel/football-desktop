@@ -22,7 +22,7 @@ import static java.util.stream.Collectors.toList;
  * This class is public because when I created it I wasn't perfect at
  * that time. Now I would design it differently.
  */
-public class GameDrawer extends JPanel {
+public class GameDrawer extends JPanel implements DrawableFootballPitch {
 
     private static final Dimension GAME_BOARD_DIMENSION = new Dimension(402, 522);
     private static final Dimension BLOCK_PANEL_DIMENSION = new Dimension(10, 10);
@@ -36,7 +36,7 @@ public class GameDrawer extends JPanel {
     private BoardInterface board;
     private Player viewOfPlayer;
 
-    GameDrawer() {
+    GameDrawer(final GamePanel activePLayer) {
         super(new GridLayout(13, 9));
         this.viewOfPlayer = Player.FIRST;
 
@@ -258,6 +258,15 @@ public class GameDrawer extends JPanel {
         return i == allMoves.size() - 1;
     }
 
+    @Override
+    public void drawPitch(final BoardInterface boardInterface) {
+        drawPitch(boardInterface, Player.FIRST);
+    }
+
+    @Override
+    public void drawPitch(final BoardInterface boardInterface, final Player playerView) {
+        drawMove(boardInterface, playerView);
+    }
 
     public class PointTracker extends JPanel implements RenderablePoint {
 

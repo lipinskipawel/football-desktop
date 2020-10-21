@@ -2,6 +2,7 @@ package com.github.lipinskipawel.controller;
 
 import com.github.lipinskipawel.board.engine.BoardInterface;
 import com.github.lipinskipawel.board.engine.Boards;
+import com.github.lipinskipawel.gui.DefaultUserDialogPresenter;
 import com.github.lipinskipawel.gui.RenderablePoint;
 import com.github.lipinskipawel.gui.Table;
 import com.github.lipinskipawel.network.ConnectionChat;
@@ -11,6 +12,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.net.InetAddress;
+import java.time.Duration;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -23,7 +26,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
     private String gameState;
     private final Table table;
 
-    private String ipEnemy;
+    private InetAddress ipEnemy;
 
     /**
      * These fields are used for steering flow of the game, so this is important
@@ -52,7 +55,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
         this.warmupController = new WarmupController(table);
         this.oneVsOneController = new OneVsOneController(table);
         this.hellController = new HellController(table);
-        this.oneVsLanController = new OneVsLanController(table);
+        this.oneVsLanController = new OneVsLanController(table.gameDrawer(), new DefaultUserDialogPresenter());
         this.oneVsAiController = new OneVsAiController(table);
     }
 
@@ -105,7 +108,7 @@ public class GameController implements MouseListener, Observer, ActionListener {
         }
     }
 
-    void setIPEnemy(final String IPEnemy) {
+    void setIPEnemy(final InetAddress IPEnemy) {
         this.ipEnemy = IPEnemy;
     }
 

@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
-public class Table  {
+public class Table {
 
     private final JFrame gameFrame;
     private final GameDrawer gameDrawer;
@@ -44,9 +44,9 @@ public class Table  {
         this.gameFrame.setJMenuBar(tableMenuBar);
 
 
-        this.gameDrawer = new GameDrawer();
         this.gameChat = new GameChat();
         this.gamePanel = new GamePanel();
+        this.gameDrawer = new GameDrawer(this.gamePanel);
         this.gameChat.setMyFont(globalMenuFont);
         this.gamePanel.setFontToPlayerPanel(globalMenuFont);
         this.gamePanel.setFontToCenterAndSouth(textAreaFont);
@@ -69,40 +69,64 @@ public class Table  {
         //this.zapisz.addActionListener(actionListener);
 
     }
+
     public void addConnectListener(final ActionListener listener) {
         this.gamePanel.addButtonConnectListener(listener);
     }
+
     public void addActionChatClass(final ActionListener actionGameController) {
         this.gameChat.addActionClass(actionGameController);
     }
+
     public void addMouseClassToGameDrawer(final GameController actionClassGameBoard) {
         this.gameDrawer.addMouse(actionClassGameBoard);
     }
 
     // --------------------------------- GETer to ActionTable --------------------------------
-    public JMenuItem getMenuItemWarmup() {return this.menuItemWarmup;}
-    public JMenuItem getMenuOneVsOne() {return this.menuItemOneVsOne;}
-    public JMenuItem getMenuItemHellMove() {return this.menuItemHellMove;}
-    public JMenuItem getMenuLAN() {return this.menuItemLAN;}
-    public JMenuItem getMenuAI() {return this.menuItemAI;}
+    public JMenuItem getMenuItemWarmup() {
+        return this.menuItemWarmup;
+    }
+
+    public JMenuItem getMenuOneVsOne() {
+        return this.menuItemOneVsOne;
+    }
+
+    public JMenuItem getMenuItemHellMove() {
+        return this.menuItemHellMove;
+    }
+
+    public JMenuItem getMenuLAN() {
+        return this.menuItemLAN;
+    }
+
+    public JMenuItem getMenuAI() {
+        return this.menuItemAI;
+    }
     //public JMenuItem getZapisz() {return this.zapisz;}
 
-    public JTextField enterPressed() {return this.gameChat.getTypeTextField();}
+    public JTextField enterPressed() {
+        return this.gameChat.getTypeTextField();
+    }
     // --------------------------------- GETer to ActionTable --------------------------------
 
 
     public void appendRight(final String string) {
         this.gamePanel.getTextArea().append(string);
     }
+
     public void appendChat(String text) {
         this.gameChat.getChatArea().append(text);
         this.gameChat.getTypeTextField().setText("");
         this.gameChat.down();
     }
+
     public void setChatEditable(final boolean setChatEditable) {
         this.gameChat.setChatEditable(setChatEditable);
     }
-    public String getText() {return this.gameChat.getTypeTextField().getText();}
+
+    public String getText() {
+        return this.gameChat.getTypeTextField().getText();
+    }
 
 
     public synchronized void setWarmUp() {
@@ -110,21 +134,25 @@ public class Table  {
         this.gameFrame.setTitle(TITLE);
         this.gamePanel.setWarmUP();
     }
+
     public synchronized void setOneVsOne() {
         STATE_OF_GAME = possibility[1];
         this.gameFrame.setTitle(TITLE);
         this.gamePanel.setONEvsONE();
     }
+
     public synchronized void setHellMode() {
         STATE_OF_GAME = possibility[4];
         this.gameFrame.setTitle(TITLE);
         this.gamePanel.setHellMode();
     }
+
     public synchronized void setOneVsLAN(final String ipLocalhost) {
         STATE_OF_GAME = possibility[2];
         this.gameFrame.setTitle("Ip address: " + ipLocalhost);
         this.gamePanel.setONEvsLAN();
     }
+
     public synchronized void setOneVsAI() {
         STATE_OF_GAME = possibility[3];
         this.gameFrame.setTitle(TITLE);
@@ -136,13 +164,13 @@ public class Table  {
     }
 
 
-
     private void gameFrameSetup(final JFrame gameFrame) {
         gameFrame.setLayout(new BorderLayout());
         gameFrame.setSize(WINDOW_SIZE);
         gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         gameFrame.setLocationRelativeTo(null);
     }
+
     private JMenuBar createTableMenu() {
         // https://stackoverflow.com/questions/1951558/list-of-java-swing-ui-properties
         //UIManager.put("MenuBar.font", f);
@@ -154,20 +182,19 @@ public class Table  {
         //menuBar.add(createMenuGame());
         return menuBar;
     }
+
     private JMenu createGameStartMenu() {
         final JMenu jMenu = new JMenu("Play");
         this.menuItemWarmup = new JMenuItem("Warm-up");
         this.menuItemOneVsOne = new JMenuItem("1 vs 1");
         this.menuItemHellMove = new JMenuItem("Hell mode");
         this.menuItemLAN = new JMenuItem("1 vs LAN");
-        this.menuItemLAN.setEnabled(false);
         this.menuItemAI = new JMenuItem("1 vs AI");
-//        this.menuItemAI.setEnabled(false);
 
         jMenu.add(menuItemWarmup);
         jMenu.add(menuItemOneVsOne);
         jMenu.add(menuItemHellMove);
-//        jMenu.add(menuItemLAN);
+        jMenu.add(menuItemLAN);
         jMenu.add(menuItemAI);
         return jMenu;
     }
@@ -179,17 +206,26 @@ public class Table  {
 //        return jMenu;
 //    }
 
-    public void drawBoard(final BoardInterface board, final Player viewOfPlayer) {this.gameDrawer.drawMove(board, viewOfPlayer);}
+    public void drawBoard(final BoardInterface board, final Player viewOfPlayer) {
+        this.gameDrawer.drawMove(board, viewOfPlayer);
+    }
 
 
-    public String getSTATE_OF_GAME() {return this.STATE_OF_GAME;}
+    public String getSTATE_OF_GAME() {
+        return this.STATE_OF_GAME;
+    }
+
     public Object getConnectButton() {
         return this.gamePanel.buttonSouth;
     }
+
     public String IPEnemy() {
         return this.gamePanel.textFieldSouth.getText();
     }
-    public void activePlayer(final Player playerActive) {this.gamePanel.activePlayer(playerActive);}
+
+    public void activePlayer(final Player playerActive) {
+        this.gamePanel.activePlayer(playerActive);
+    }
 
     public GameDrawer gameDrawer() {
         return this.gameDrawer;

@@ -83,7 +83,7 @@ class GameFlowControllerTest {
 
         assertAll("after two moves and ",
                 { Assertions.assertThat(afterMoves.player()).isEqualTo(Player.SECOND) },
-                {Assertions.assertThat(afterMoves.board().ballPosition).isEqualTo(48)}
+                { Assertions.assertThat(afterMoves.board().ballPosition).isEqualTo(48) }
         )
     }
 }
