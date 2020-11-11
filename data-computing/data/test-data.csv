@@ -1,0 +1,11 @@
+uniqIdentifier, module, question, choices, answers, time
+123, 1-ai, How do you score ai?, 0:1:2:3:4:5, 0, 1200
+321, 1-1, [easy]Do you like music?, Yes:No:Cancel, Yes, 1300
+321, 1-1, [easy]Do you like music?, Yes:No:Cancel, No, 1000
+221, 1-1, [easy]Do you like pizza?, Yes:No:Cancel, Cancel, 900
+221, 1-1, [easy]Do you like pizza?, Yes:No:Cancel, Cancel, 800
+434, hell-mode, [hard]Random quesiton?, Yes:No:Cancel, Yes, 1500
+909, hell-mode, [hard]Random quesiton?, Yes:No:Cancel, Yes, 1500
+123, hell-mode, [hard]Random quesiton?, Yes:No:Cancel, No, 800
+909, 1-ai, How do you score ai?, 0:1:2:3:4:5, 5, 1200
+434, 1-ai, How do you score ai?, 0:1:2:3:4:5, 1, 1200
