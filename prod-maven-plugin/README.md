@@ -12,7 +12,7 @@ To build plugin from source the following command have to me executed
 
 ### How to use it 
 In order to bundle this plugin to your product you have to add this into your plugin section. Example in maven
-```
+```xml
 <plugin>
     <groupId>com.github.lipinskipawel</groupId>
     <artifactId>prod-maven-plugin</artifactId>
@@ -41,8 +41,7 @@ Those commands will create installer (`directory`) only when there is already bu
 file hasn't been built you can add configuration to your build life cycle and execute 
 
 `mvn clean package`
-```
-</configuration>
+```xml
 <executions>
     <execution>
         <phase>package</phase>

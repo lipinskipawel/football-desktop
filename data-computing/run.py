@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 import data_util
 from data_util import DataManipulation
 
-filename_of_gather_data = "data/test-data.csv"
+filename_of_gather_data = "data/example-data.csv"
 delimiter = ", "
 
 data = pd.read_csv(filename_of_gather_data, delimiter, engine='python')
