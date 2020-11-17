@@ -22,9 +22,13 @@ class BruteForceThinking(
     override fun doInBackground(): Move {
         logger.info("searching for move")
         val bestMove = moveStrategy.execute(board, depth)
-        gameDrawer.drawMove(board.executeMove(bestMove), board.player.opposite())
+        if (Thread.currentThread().isInterrupted) {
+            logger.info("ai has been interrupted. No more work to be done")
+        } else {
+            gameDrawer.drawMove(board.executeMove(bestMove), board.player.opposite())
+            logger.info("set canHumanMove to : $canHumanMove")
+        }
         canHumanMove.set(true)
-        logger.info("set canHumanMove to : $canHumanMove")
         return bestMove
     }
 }

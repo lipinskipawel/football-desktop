@@ -91,28 +91,12 @@ final class OneVsAiController implements PitchController {
         }
     }
 
-
     @Override
     public void rightClick(final RenderablePoint renderablePoint) {
         if (this.canHumanMove.get()) {
             this.gameFlowController = this.gameFlowController.undoOnlyCurrentPlayerMove();
-//                this.gameFlowController = this.gameFlowController.undoPlayerMove(
-//                        () -> {
-//                            if (this.bruteForce != null) {
-//                                this.bruteForce.cancel(true);
-//                            }
-//                            this.bruteForce = null;
-//                            this.canHumanMove = new AtomicBoolean(false);
-//                            return null;
-//                        }
-//                );
             this.table.drawBoard(this.gameFlowController.board(), FIRST);
         }
-        // if you decided to implement undo when ai thinks, watch out on
-        // this.canHumanMove
-        // this.bruteForce -- managing the state by operations on null
-
-        // use this.bruteForce.cancel(true);
     }
 
     private Unit winningMessage(final Player winner) {
