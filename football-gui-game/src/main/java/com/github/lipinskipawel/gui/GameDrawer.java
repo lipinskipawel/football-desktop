@@ -297,17 +297,3 @@ public class GameDrawer extends JPanel implements DrawableFootballPitch {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

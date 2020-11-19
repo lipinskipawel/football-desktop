@@ -14,11 +14,11 @@ import java.util.Observable;
  */
 public class MainController extends Observable implements ActionListener {
 
+    private final GameController actionGameController;
     private final Table table;
 
     private InetAddress ipLocalhost;
 
-    private GameController actionGameController;
     static final String[] notifyStates = createNotifyStates();
 
 
@@ -34,7 +34,6 @@ public class MainController extends Observable implements ActionListener {
 
         this.actionGameController = new GameController(this.table);
         this.table.addMouseClassToGameDrawer(actionGameController);
-        this.table.addActionChatClass(actionGameController);
         this.addObserver(actionGameController);
 
 
