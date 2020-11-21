@@ -27,7 +27,6 @@ public class Table {
     private static final Font textAreaFont = new Font("sans-serif", Font.PLAIN, 15);
 
 
-    private String STATE_OF_GAME;
     private final static String[] possibility = {"warm-up", "1vs1", "1vsLAN", "1vsAI", "hell mode"};
     private final static String TITLE = "Football game";
 
@@ -74,10 +73,6 @@ public class Table {
         this.gamePanel.addButtonConnectListener(listener);
     }
 
-    public void addActionChatClass(final ActionListener actionGameController) {
-        this.gameChat.addActionClass(actionGameController);
-    }
-
     public void addMouseClassToGameDrawer(final GameController actionClassGameBoard) {
         this.gameDrawer.addMouse(actionClassGameBoard);
     }
@@ -104,9 +99,6 @@ public class Table {
     }
     //public JMenuItem getZapisz() {return this.zapisz;}
 
-    public JTextField enterPressed() {
-        return this.gameChat.getTypeTextField();
-    }
     // --------------------------------- GETer to ActionTable --------------------------------
 
 
@@ -130,31 +122,26 @@ public class Table {
 
 
     public synchronized void setWarmUp() {
-        STATE_OF_GAME = possibility[0];
         this.gameFrame.setTitle(TITLE);
         this.gamePanel.setWarmUP();
     }
 
     public synchronized void setOneVsOne() {
-        STATE_OF_GAME = possibility[1];
         this.gameFrame.setTitle(TITLE);
         this.gamePanel.setONEvsONE();
     }
 
     public synchronized void setHellMode() {
-        STATE_OF_GAME = possibility[4];
         this.gameFrame.setTitle(TITLE);
         this.gamePanel.setHellMode();
     }
 
     public synchronized void setOneVsLAN(final String ipLocalhost) {
-        STATE_OF_GAME = possibility[2];
         this.gameFrame.setTitle("Ip address: " + ipLocalhost);
         this.gamePanel.setONEvsLAN();
     }
 
     public synchronized void setOneVsAI() {
-        STATE_OF_GAME = possibility[3];
         this.gameFrame.setTitle(TITLE);
         this.gamePanel.setONEvsAI();
     }
@@ -208,11 +195,6 @@ public class Table {
 
     public void drawBoard(final BoardInterface board, final Player viewOfPlayer) {
         this.gameDrawer.drawMove(board, viewOfPlayer);
-    }
-
-
-    public String getSTATE_OF_GAME() {
-        return this.STATE_OF_GAME;
     }
 
     public Object getConnectButton() {

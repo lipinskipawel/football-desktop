@@ -1,46 +1,45 @@
 package com.github.lipinskipawel.controller;
 
+import com.github.lipinskipawel.gui.DefaultUserDialogPresenter;
 import com.github.lipinskipawel.gui.Table;
+import com.github.lipinskipawel.network.ConnectionManager;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Observable;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * This class is Master Controller Class.
  */
-public class MainController extends Observable implements ActionListener {
+public class MainController implements ActionListener {
 
-    private final GameController actionGameController;
     private final Table table;
-
-    private InetAddress ipLocalhost;
-
-    static final String[] notifyStates = createNotifyStates();
-
+    private final Map<String, PitchController> playControllers;
+    private final GameController actionGameController;
+    private final ExecutorService pool;
 
     public MainController() {
         this.table = new Table();
+        this.playControllers = new ConcurrentHashMap<>();
+        this.playControllers.put("warm-up", new WarmupController(this.table));
+        this.playControllers.put("1vs1", new OneVsOneController(this.table));
+        this.playControllers.put("hell mode", new HellController(this.table));
+        this.playControllers.put("1vsAI", new OneVsAiController(this.table));
 
-        try {
-            this.ipLocalhost = InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            this.ipLocalhost = null;
-            e.printStackTrace();
-        }
-
-        this.actionGameController = new GameController(this.table);
+        this.actionGameController = new GameController(playControllers);
+        this.actionGameController.setGameMode("warm-up");
+        this.pool = Executors.newSingleThreadExecutor();
         this.table.addMouseClassToGameDrawer(actionGameController);
-        this.addObserver(actionGameController);
-
 
         this.table.addActionClassToTable(this);
         this.table.addConnectListener(this);
     }
-
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -48,50 +47,47 @@ public class MainController extends Observable implements ActionListener {
         if (src == table.getMenuItemWarmup()) {
             this.table.setWarmUp();
             this.table.setButtonEnabled(true);
-            nnotifyObesrvers();
+            this.actionGameController.setGameMode("warm-up");
         } else if (src == table.getMenuOneVsOne()) {
             this.table.setOneVsOne();
             this.table.setButtonEnabled(true);
-            nnotifyObesrvers();
+            this.actionGameController.setGameMode("1vs1");
 
         } else if (src == table.getMenuItemHellMove()) {
             this.table.setHellMode();
             this.table.setButtonEnabled(true);
-            nnotifyObesrvers();
+            this.actionGameController.setGameMode("hell mode");
         } else if (src == table.getMenuLAN()) {
 
             int waitingToConnect = JOptionPane.showConfirmDialog(
                     null, "Do you want to wait to connection?");
 
             if (waitingToConnect == JOptionPane.YES_OPTION) {
-                this.table.setOneVsLAN(this.ipLocalhost.getHostAddress());
-                nnotifyObesrvers();
+                this.table.setOneVsLAN(getIpAddress());
                 this.table.setButtonEnabled(false);
-
-
-                setChanged();
-                notifyObservers(notifyStates[1]);
-
+                pool.submit(() -> {
+                    final var connection = ConnectionManager.Companion.waitForConnection();
+                    this.playControllers.put("1vsLAN", new OneVsLanController(this.table.gameDrawer(),
+                            new DefaultUserDialogPresenter(),
+                            connection, false));
+                    this.actionGameController.setGameMode("1vsLAN");
+                });
             } else if (waitingToConnect == JOptionPane.NO_OPTION) {
-
-                this.table.setOneVsLAN(this.ipLocalhost.getHostAddress());
-                nnotifyObesrvers();
+                this.table.setOneVsLAN(getIpAddress());
                 this.table.setButtonEnabled(true);
-
-
-            } else {
-                nnotifyObesrvers();
             }
-
 
         } else if (src == this.table.getConnectButton()) {
             try {
-                final InetAddress address = InetAddress.getByName(this.table.IPEnemy());
                 this.table.setButtonEnabled(false);
-                this.actionGameController.setIPEnemy(address);
+                final InetAddress address = InetAddress.getByName(this.table.IPEnemy());
 
-                setChanged();
-                notifyObservers(notifyStates[2]);
+                final var connection = ConnectionManager.Companion.connectTo(address);
+                this.playControllers.put("1vsLAN", new OneVsLanController(this.table.gameDrawer(),
+                        new DefaultUserDialogPresenter(),
+                        connection, true));
+
+                this.actionGameController.setGameMode("1vsLAN");
             } catch (UnknownHostException unknownHostException) {
                 JOptionPane.showMessageDialog(null, "You have written wrong ip address!");
                 unknownHostException.printStackTrace();
@@ -99,24 +95,16 @@ public class MainController extends Observable implements ActionListener {
         } else if (src == this.table.getMenuAI()) {
             this.table.setOneVsAI();
             this.table.setButtonEnabled(true);
-            nnotifyObesrvers();
+            this.actionGameController.setGameMode("1vsAI");
         }
     }
 
-    private void nnotifyObesrvers() {
-        setChanged();
-        notifyObservers(notifyStates[0]);
-    }
-
-    private static String[] createNotifyStates() {
-        String[] states = new String[3];
-        states[0] = "kill";
-        states[1] = "createServer";
-        states[2] = "createSocket";
-        return states;
-    }
-
-    public Table getTable() {
-        return this.table;
+    private String getIpAddress() {
+        try {
+            return InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            return "Unknown";
+        }
     }
 }

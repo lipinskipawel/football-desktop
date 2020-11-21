@@ -42,7 +42,8 @@ final class WarmupController implements PitchController {
         return null;
     }
 
-    void reset() {
+    @Override
+    public void tearDown() {
         this.gameFlowController = new GameFlowController(Boards.immutableBoard(), false);
         this.table.drawBoard(this.gameFlowController.board(), this.gameFlowController.player());
         this.table.activePlayer(this.gameFlowController.player());

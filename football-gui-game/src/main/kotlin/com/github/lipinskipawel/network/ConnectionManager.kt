@@ -9,19 +9,21 @@ import java.time.Duration
 class ConnectionManager {
 
     companion object {
-        fun connectTo(ipAddress: InetAddress, port: Int): Connection {
-            return connectTo(ipAddress, port, Duration.ZERO)
+        private const val SERVER_PORT: Int = 9679
+
+        fun connectTo(ipAddress: InetAddress): Connection {
+            return connectTo(ipAddress, Duration.ZERO)
         }
 
-        fun connectTo(ipAddress: InetAddress, port: Int, timeout: Duration): Connection {
+        fun connectTo(ipAddress: InetAddress, timeout: Duration): Connection {
             val socket = Socket()
-            val socketAddress = InetSocketAddress(ipAddress, port)
+            val socketAddress = InetSocketAddress(ipAddress, SERVER_PORT)
             socket.connect(socketAddress, timeout.toMillis().toInt())
             return connect(socket)
         }
 
-        fun waitForConnection(port: Int): Connection {
-            val serverSocket = ServerSocket(port, 1, InetAddress.getLocalHost())
+        fun waitForConnection(): Connection {
+            val serverSocket = ServerSocket(SERVER_PORT, 1, InetAddress.getLocalHost())
             val socket = serverSocket.accept()
             return connect(socket)
         }

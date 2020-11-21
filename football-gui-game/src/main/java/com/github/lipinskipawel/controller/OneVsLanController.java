@@ -1,23 +1,18 @@
 package com.github.lipinskipawel.controller;
 
-import com.github.lipinskipawel.board.engine.BoardInterface;
 import com.github.lipinskipawel.board.engine.Boards;
 import com.github.lipinskipawel.board.engine.Direction;
 import com.github.lipinskipawel.board.engine.Move;
 import com.github.lipinskipawel.board.engine.Player;
 import com.github.lipinskipawel.gui.DrawableFootballPitch;
 import com.github.lipinskipawel.gui.RenderablePoint;
-import com.github.lipinskipawel.gui.Table;
 import com.github.lipinskipawel.gui.UserDialogPresenter;
 import com.github.lipinskipawel.network.Connection;
-import com.github.lipinskipawel.network.ConnectionManager;
 import kotlin.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import java.net.InetAddress;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.stream.Collectors.joining;
@@ -25,22 +20,26 @@ import static java.util.stream.Collectors.joining;
 final class OneVsLanController implements PitchController {
 
     private static final Logger logger = LoggerFactory.getLogger(OneVsLanController.class);
-    private static final int SERVER_PORT = 6090;
     private final DrawableFootballPitch drawableFootballPitch;
     private final UserDialogPresenter dialogPresenter;
     private final AtomicReference<GameFlowController> gameFlowController;
+    private final Connection connection;
     /**
      * This player is set based on the chosen policy.
      * Player can chose either waiting policy (server) or
      * active one (connecting).
      */
-    private Player currentPlayer;
-    private Connection connection;
+    private final Player currentPlayer;
 
     public OneVsLanController(final DrawableFootballPitch drawableFootballPitch,
-                              final UserDialogPresenter userDialogPresenter) {
+                              final UserDialogPresenter userDialogPresenter,
+                              final Connection connection,
+                              final boolean client) {
         this.drawableFootballPitch = drawableFootballPitch;
         this.dialogPresenter = userDialogPresenter;
+        this.connection = connection;
+        this.connection.onReceivedData(this::consumeTheMoveFromConnection);
+        this.currentPlayer = client ? Player.FIRST : Player.SECOND;
         this.gameFlowController = new AtomicReference<>(new GameFlowController(Boards.immutableBoard(), false));
     }
 
@@ -88,21 +87,6 @@ final class OneVsLanController implements PitchController {
         }
     }
 
-    /**
-     * Starting the server and starting to listen on localhost port {@link OneVsLanController#SERVER_PORT}.
-     * This method deals with the received data and mutates the {@link GameFlowController} and
-     * invokes the {@link Table#drawBoard(BoardInterface, Player)}.
-     */
-    void startServer() {
-        final var pool = Executors.newSingleThreadExecutor();
-        pool.submit(() -> {
-            this.connection = ConnectionManager.Companion.waitForConnection(SERVER_PORT);
-            this.connection.onReceivedData(this::consumeTheMoveFromConnection);
-        });
-        pool.shutdown();
-        this.currentPlayer = Player.SECOND;
-    }
-
     private void consumeTheMoveFromConnection(final Move move) {
         if (!this.gameFlowController.get().isGameOver() &&
                 canMove(this.gameFlowController.get().player())) {
@@ -127,23 +111,16 @@ final class OneVsLanController implements PitchController {
         }
     }
 
-    void connectToServer(final InetAddress ipEnemy) {
-        this.currentPlayer = Player.FIRST;
-        this.connection = ConnectionManager.Companion.connectTo(ipEnemy, SERVER_PORT);
-        this.connection.onReceivedData(this::consumeTheMoveFromConnection);
-    }
-
-    void reset() {
-        this.gameFlowController.updateAndGet(game -> new GameFlowController(Boards.immutableBoard(), false));
-        this.drawableFootballPitch.drawPitch(this.gameFlowController.get().board(), this.gameFlowController.get().player());
-//        this.drawableFootballPitch.activePlayer(this.gameFlowController.player());
-        if (this.connection != null) {
-            this.connection.close();
-        }
-    }
-
     private Unit winningMessage(final Player winner) {
         this.dialogPresenter.showMessage(null, "Player " + winner + " won he game.");
         return null;
+    }
+
+    @Override
+    public void tearDown() {
+        this.gameFlowController.updateAndGet(game -> new GameFlowController(Boards.immutableBoard(), false));
+        this.drawableFootballPitch.drawPitch(this.gameFlowController.get().board(), this.gameFlowController.get().player());
+        this.connection.close();
+//        this.drawableFootballPitch.activePlayer(this.gameFlowController.player());
     }
 }

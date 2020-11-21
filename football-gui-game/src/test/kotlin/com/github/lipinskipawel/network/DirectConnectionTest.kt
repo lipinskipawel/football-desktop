@@ -22,7 +22,6 @@ import java.util.function.Consumer
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class DirectConnectionTest {
     companion object {
-        private const val PORT = 6767
         private lateinit var waitingForConnection: Connection
         private lateinit var connection: Connection
 
@@ -31,9 +30,9 @@ internal class DirectConnectionTest {
         internal fun createServerAndConnection() {
             val pool = Executors.newSingleThreadExecutor()
             val futureServer = pool.submit(Callable {
-                ConnectionManager.waitForConnection(PORT)
+                ConnectionManager.waitForConnection()
             })
-            connection = ConnectionManager.connectTo(InetAddress.getLocalHost(), PORT, Duration.ofMillis(30))
+            connection = ConnectionManager.connectTo(InetAddress.getLocalHost(), Duration.ofMillis(30))
             waitingForConnection = futureServer.get()
             pool.shutdown()
         }
