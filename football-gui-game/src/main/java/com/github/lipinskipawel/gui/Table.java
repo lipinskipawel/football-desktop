@@ -12,7 +12,6 @@ public class Table {
 
     private final JFrame gameFrame;
     private final GameDrawer gameDrawer;
-    private final GameChat gameChat;
     private final GamePanel gamePanel;
 
     private JMenuItem menuItemWarmup;
@@ -20,14 +19,12 @@ public class Table {
     private JMenuItem menuItemHellMove;
     private JMenuItem menuItemLAN;
     private JMenuItem menuItemAI;
-    //private JMenuItem zapisz;
 
     private static final Dimension WINDOW_SIZE = new Dimension(700, 600);
     private static final Font globalMenuFont = new Font("sans-serif", Font.PLAIN, 20);
     private static final Font textAreaFont = new Font("sans-serif", Font.PLAIN, 15);
 
 
-    private final static String[] possibility = {"warm-up", "1vs1", "1vsLAN", "1vsAI", "hell mode"};
     private final static String TITLE = "Football game";
 
 
@@ -43,16 +40,13 @@ public class Table {
         this.gameFrame.setJMenuBar(tableMenuBar);
 
 
-        this.gameChat = new GameChat();
         this.gamePanel = new GamePanel();
         this.gameDrawer = new GameDrawer(this.gamePanel);
-        this.gameChat.setMyFont(globalMenuFont);
         this.gamePanel.setFontToPlayerPanel(globalMenuFont);
         this.gamePanel.setFontToCenterAndSouth(textAreaFont);
 
 
         this.gameFrame.add(gameDrawer, BorderLayout.CENTER);
-//        this.gameFrame.add(gameChat, BorderLayout.SOUTH);
         this.gameFrame.add(gamePanel, BorderLayout.EAST);
 
         setWarmUp();
@@ -65,8 +59,6 @@ public class Table {
         this.menuItemHellMove.addActionListener(actionListener);
         this.menuItemLAN.addActionListener(actionListener);
         this.menuItemAI.addActionListener(actionListener);
-        //this.zapisz.addActionListener(actionListener);
-
     }
 
     public void addConnectListener(final ActionListener listener) {
@@ -97,29 +89,7 @@ public class Table {
     public JMenuItem getMenuAI() {
         return this.menuItemAI;
     }
-    //public JMenuItem getZapisz() {return this.zapisz;}
-
     // --------------------------------- GETer to ActionTable --------------------------------
-
-
-    public void appendRight(final String string) {
-        this.gamePanel.getTextArea().append(string);
-    }
-
-    public void appendChat(String text) {
-        this.gameChat.getChatArea().append(text);
-        this.gameChat.getTypeTextField().setText("");
-        this.gameChat.down();
-    }
-
-    public void setChatEditable(final boolean setChatEditable) {
-        this.gameChat.setChatEditable(setChatEditable);
-    }
-
-    public String getText() {
-        return this.gameChat.getTypeTextField().getText();
-    }
-
 
     public synchronized void setWarmUp() {
         this.gameFrame.setTitle(TITLE);
@@ -185,13 +155,6 @@ public class Table {
         jMenu.add(menuItemAI);
         return jMenu;
     }
-//    private JMenu createMenuGame() {
-//        final JMenu jMenu = new JMenu("Options");
-//        this.zapisz = new JMenuItem("Save game history");
-//        this.zapisz.setEnabled(false);
-//        jMenu.add(zapisz);
-//        return jMenu;
-//    }
 
     public void drawBoard(final BoardInterface board, final Player viewOfPlayer) {
         this.gameDrawer.drawMove(board, viewOfPlayer);

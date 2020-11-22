@@ -46,16 +46,13 @@ public class MainController implements ActionListener {
         final var src = e.getSource();
         if (src == table.getMenuItemWarmup()) {
             this.table.setWarmUp();
-            this.table.setButtonEnabled(true);
             this.actionGameController.setGameMode("warm-up");
         } else if (src == table.getMenuOneVsOne()) {
             this.table.setOneVsOne();
-            this.table.setButtonEnabled(true);
             this.actionGameController.setGameMode("1vs1");
 
         } else if (src == table.getMenuItemHellMove()) {
             this.table.setHellMode();
-            this.table.setButtonEnabled(true);
             this.actionGameController.setGameMode("hell mode");
         } else if (src == table.getMenuLAN()) {
 
@@ -94,7 +91,6 @@ public class MainController implements ActionListener {
             }
         } else if (src == this.table.getMenuAI()) {
             this.table.setOneVsAI();
-            this.table.setButtonEnabled(true);
             this.actionGameController.setGameMode("1vsAI");
         }
     }
