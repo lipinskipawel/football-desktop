@@ -1,6 +1,7 @@
 package com.github.lipinskipawel.controller;
 
 import com.github.lipinskipawel.gui.DefaultUserDialogPresenter;
+import com.github.lipinskipawel.gui.PlayMenu;
 import com.github.lipinskipawel.gui.Table;
 import com.github.lipinskipawel.network.ConnectionManager;
 
@@ -20,41 +21,44 @@ import java.util.concurrent.Executors;
 public class MainController implements ActionListener {
 
     private final Table table;
+    private final PlayMenu playMenu;
     private final Map<String, PitchController> playControllers;
     private final GameController actionGameController;
     private final ExecutorService pool;
 
     public MainController() {
         this.table = new Table();
+        this.playMenu = this.table.getPlayMenu();
+        this.table.addActionClassForPlayMenu(this);
+
         this.playControllers = new ConcurrentHashMap<>();
         this.playControllers.put("warm-up", new WarmupController(this.table));
         this.playControllers.put("1vs1", new OneVsOneController(this.table));
         this.playControllers.put("hell mode", new HellController(this.table));
         this.playControllers.put("1vsAI", new OneVsAiController(this.table));
 
-        this.actionGameController = new GameController(playControllers);
+        this.actionGameController = new GameController(this.playControllers);
         this.actionGameController.setGameMode("warm-up");
         this.pool = Executors.newSingleThreadExecutor();
-        this.table.addMouseClassToGameDrawer(actionGameController);
+        this.table.addMouseClassToGameDrawer(this.actionGameController);
 
-        this.table.addActionClassToTable(this);
         this.table.addConnectListener(this);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         final var src = e.getSource();
-        if (src == table.getMenuItemWarmup()) {
+        if (src == this.playMenu.getMenuItemWarmup()) {
             this.table.setWarmUp();
             this.actionGameController.setGameMode("warm-up");
-        } else if (src == table.getMenuOneVsOne()) {
+        } else if (src == this.playMenu.getMenuOneVsOne()) {
             this.table.setOneVsOne();
             this.actionGameController.setGameMode("1vs1");
 
-        } else if (src == table.getMenuItemHellMove()) {
+        } else if (src == this.playMenu.getMenuItemHellMove()) {
             this.table.setHellMode();
             this.actionGameController.setGameMode("hell mode");
-        } else if (src == table.getMenuLAN()) {
+        } else if (src == this.playMenu.getMenuLAN()) {
 
             int waitingToConnect = JOptionPane.showConfirmDialog(
                     null, "Do you want to wait to connection?");
@@ -89,7 +93,7 @@ public class MainController implements ActionListener {
                 JOptionPane.showMessageDialog(null, "You have written wrong ip address!");
                 unknownHostException.printStackTrace();
             }
-        } else if (src == this.table.getMenuAI()) {
+        } else if (src == this.playMenu.getMenuAI()) {
             this.table.setOneVsAI();
             this.actionGameController.setGameMode("1vsAI");
         }

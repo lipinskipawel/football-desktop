@@ -11,14 +11,9 @@ import java.awt.event.ActionListener;
 public class Table {
 
     private final JFrame gameFrame;
+    private final PlayMenu playMenu;
     private final GameDrawer gameDrawer;
     private final GamePanel gamePanel;
-
-    private JMenuItem menuItemWarmup;
-    private JMenuItem menuItemOneVsOne;
-    private JMenuItem menuItemHellMove;
-    private JMenuItem menuItemLAN;
-    private JMenuItem menuItemAI;
 
     private static final Dimension WINDOW_SIZE = new Dimension(700, 600);
     private static final Font globalMenuFont = new Font("sans-serif", Font.PLAIN, 20);
@@ -34,31 +29,28 @@ public class Table {
      * The board is created as warm-up in GameDrawer class.
      */
     public Table() {
+        // https://stackoverflow.com/questions/1951558/list-of-java-swing-ui-properties
+        //UIManager.put("MenuBar.font", f);
+        UIManager.put("Menu.font", globalMenuFont);
+        UIManager.put("MenuItem.font", globalMenuFont);
         this.gameFrame = new JFrame(TITLE);
         gameFrameSetup(gameFrame);
-        final JMenuBar tableMenuBar = createTableMenu();
-        this.gameFrame.setJMenuBar(tableMenuBar);
 
+        final JMenuBar tableMenuBar = new JMenuBar();
+        this.playMenu = new PlayMenu();
+        tableMenuBar.add(playMenu);
+        this.gameFrame.setJMenuBar(tableMenuBar);
 
         this.gamePanel = new GamePanel();
         this.gameDrawer = new GameDrawer(this.gamePanel);
         this.gamePanel.setFontToPlayerPanel(globalMenuFont);
         this.gamePanel.setFontToCenterAndSouth(textAreaFont);
 
-
         this.gameFrame.add(gameDrawer, BorderLayout.CENTER);
         this.gameFrame.add(gamePanel, BorderLayout.EAST);
 
         setWarmUp();
         gameFrame.setVisible(true);
-    }
-
-    public void addActionClassToTable(final ActionListener actionListener) {
-        this.menuItemWarmup.addActionListener(actionListener);
-        this.menuItemOneVsOne.addActionListener(actionListener);
-        this.menuItemHellMove.addActionListener(actionListener);
-        this.menuItemLAN.addActionListener(actionListener);
-        this.menuItemAI.addActionListener(actionListener);
     }
 
     public void addConnectListener(final ActionListener listener) {
@@ -69,25 +61,8 @@ public class Table {
         this.gameDrawer.addMouse(actionClassGameBoard);
     }
 
-    // --------------------------------- GETer to ActionTable --------------------------------
-    public JMenuItem getMenuItemWarmup() {
-        return this.menuItemWarmup;
-    }
-
-    public JMenuItem getMenuOneVsOne() {
-        return this.menuItemOneVsOne;
-    }
-
-    public JMenuItem getMenuItemHellMove() {
-        return this.menuItemHellMove;
-    }
-
-    public JMenuItem getMenuLAN() {
-        return this.menuItemLAN;
-    }
-
-    public JMenuItem getMenuAI() {
-        return this.menuItemAI;
+    public void addActionClassForPlayMenu(final ActionListener actionListener) {
+        this.playMenu.addActionClassForAllMenuItems(actionListener);
     }
     // --------------------------------- GETer to ActionTable --------------------------------
 
@@ -128,32 +103,8 @@ public class Table {
         gameFrame.setLocationRelativeTo(null);
     }
 
-    private JMenuBar createTableMenu() {
-        // https://stackoverflow.com/questions/1951558/list-of-java-swing-ui-properties
-        //UIManager.put("MenuBar.font", f);
-        UIManager.put("Menu.font", globalMenuFont);
-        UIManager.put("MenuItem.font", globalMenuFont);
-
-        final JMenuBar menuBar = new JMenuBar();
-        menuBar.add(createGameStartMenu());
-        //menuBar.add(createMenuGame());
-        return menuBar;
-    }
-
-    private JMenu createGameStartMenu() {
-        final JMenu jMenu = new JMenu("Play");
-        this.menuItemWarmup = new JMenuItem("Warm-up");
-        this.menuItemOneVsOne = new JMenuItem("1 vs 1");
-        this.menuItemHellMove = new JMenuItem("Hell mode");
-        this.menuItemLAN = new JMenuItem("1 vs LAN");
-        this.menuItemAI = new JMenuItem("1 vs AI");
-
-        jMenu.add(menuItemWarmup);
-        jMenu.add(menuItemOneVsOne);
-        jMenu.add(menuItemHellMove);
-        jMenu.add(menuItemLAN);
-        jMenu.add(menuItemAI);
-        return jMenu;
+    public PlayMenu getPlayMenu() {
+        return this.playMenu;
     }
 
     public void drawBoard(final BoardInterface board, final Player viewOfPlayer) {

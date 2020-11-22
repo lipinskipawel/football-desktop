@@ -221,12 +221,7 @@ class GamePanel extends JPanel {
         }
     }
 
-
     void addButtonConnectListener(final ActionListener listener) {
         this.buttonSouth.addActionListener(listener);
-    }
-
-    JTextArea getTextArea() {
-        return this.textArea;
     }
 }
