@@ -32,10 +32,10 @@ public class MainController implements ActionListener {
         this.table.addActionClassForPlayMenu(this);
 
         this.playControllers = new ConcurrentHashMap<>();
-        this.playControllers.put("warm-up", new WarmupController(this.table));
-        this.playControllers.put("1vs1", new OneVsOneController(this.table));
-        this.playControllers.put("hell mode", new HellController(this.table));
-        this.playControllers.put("1vsAI", new OneVsAiController(this.table));
+        this.playControllers.put("warm-up", new WarmupController(this.table.getDrawableFootballPitch()));
+        this.playControllers.put("1vs1", new OneVsOneController(this.table.getDrawableFootballPitch()));
+        this.playControllers.put("hell mode", new HellController(this.table.getDrawableFootballPitch()));
+        this.playControllers.put("1vsAI", new OneVsAiController(this.table.getDrawableFootballPitch()));
 
         this.actionGameController = new GameController(this.playControllers);
         this.actionGameController.setGameMode("warm-up");
@@ -68,7 +68,7 @@ public class MainController implements ActionListener {
                 this.table.setButtonEnabled(false);
                 pool.submit(() -> {
                     final var connection = ConnectionManager.Companion.waitForConnection();
-                    this.playControllers.put("1vsLAN", new OneVsLanController(this.table.gameDrawer(),
+                    this.playControllers.put("1vsLAN", new OneVsLanController(this.table.getDrawableFootballPitch(),
                             new DefaultUserDialogPresenter(),
                             connection, false));
                     this.actionGameController.setGameMode("1vsLAN");
@@ -84,7 +84,7 @@ public class MainController implements ActionListener {
                 final InetAddress address = InetAddress.getByName(this.table.IPEnemy());
 
                 final var connection = ConnectionManager.Companion.connectTo(address);
-                this.playControllers.put("1vsLAN", new OneVsLanController(this.table.gameDrawer(),
+                this.playControllers.put("1vsLAN", new OneVsLanController(this.table.getDrawableFootballPitch(),
                         new DefaultUserDialogPresenter(),
                         connection, true));
 

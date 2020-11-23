@@ -121,6 +121,5 @@ final class OneVsLanController implements PitchController {
         this.gameFlowController.updateAndGet(game -> new GameFlowController(Boards.immutableBoard(), false));
         this.drawableFootballPitch.drawPitch(this.gameFlowController.get().board(), this.gameFlowController.get().player());
         this.connection.close();
-//        this.drawableFootballPitch.activePlayer(this.gameFlowController.player());
     }
 }

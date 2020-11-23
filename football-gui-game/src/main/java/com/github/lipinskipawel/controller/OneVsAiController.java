@@ -5,8 +5,8 @@ import com.github.lipinskipawel.board.ai.bruteforce.MiniMaxAlphaBeta;
 import com.github.lipinskipawel.board.ai.bruteforce.SmartBoardEvaluator;
 import com.github.lipinskipawel.board.engine.Boards;
 import com.github.lipinskipawel.board.engine.Player;
+import com.github.lipinskipawel.gui.DrawableFootballPitch;
 import com.github.lipinskipawel.gui.RenderablePoint;
-import com.github.lipinskipawel.gui.Table;
 import kotlin.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,15 +19,15 @@ import static com.github.lipinskipawel.board.engine.Player.FIRST;
 
 final class OneVsAiController implements PitchController {
 
+    private final DrawableFootballPitch drawableFootballPitch;
     private GameFlowController gameFlowController;
-    private final Table table;
 
     private AtomicBoolean canHumanMove;
     private BruteForceThinking bruteForce;
     private final Logger logger = LoggerFactory.getLogger(OneVsAiController.class);
 
-    public OneVsAiController(final Table table) {
-        this.table = table;
+    public OneVsAiController(final DrawableFootballPitch drawableFootballPitch) {
+        this.drawableFootballPitch = drawableFootballPitch;
         this.gameFlowController = new GameFlowController();
         this.canHumanMove = new AtomicBoolean(true);
     }
@@ -43,14 +43,14 @@ final class OneVsAiController implements PitchController {
                     var aiMove = bruteForce.get();
                     this.gameFlowController = this.gameFlowController.makeAMove(aiMove);
                     this.gameFlowController.onPlayerHitTheCorner(() -> {
-                        this.table.drawBoard(this.gameFlowController.board(), this.gameFlowController.player().opposite());
+                        this.drawableFootballPitch.drawPitch(this.gameFlowController.board(), this.gameFlowController.player().opposite());
                         JOptionPane.showMessageDialog(null, "You won the game!!!");
                         this.canHumanMove.set(false);
                         final var dataObject = new QuestionService(new InMemoryQuestions()).displayAiQuestion();
                         new HerokuService().send(dataObject);
                         return null;
                     });
-                    this.table.drawBoard(this.gameFlowController.board(), this.gameFlowController.player());
+                    this.drawableFootballPitch.drawPitch(this.gameFlowController.board(), this.gameFlowController.player());
                     this.bruteForce = null;
                     logger.info("redundant update board");
                 }
@@ -66,7 +66,7 @@ final class OneVsAiController implements PitchController {
                             return null;
                         }
                 );
-                this.table.drawBoard(this.gameFlowController.board(), FIRST);
+                this.drawableFootballPitch.drawPitch(this.gameFlowController.board(), FIRST);
                 this.gameFlowController.onWinner(this::winningMessage);
 
             } catch (CantMakeAMove ee) {
@@ -83,7 +83,7 @@ final class OneVsAiController implements PitchController {
                         new MiniMaxAlphaBeta(new SmartBoardEvaluator()),
                         this.gameFlowController.board(),
                         3,
-                        this.table.gameDrawer(),
+                        this.drawableFootballPitch,
                         this.canHumanMove
                 );
                 bruteForce.execute();
@@ -95,7 +95,7 @@ final class OneVsAiController implements PitchController {
     public void rightClick(final RenderablePoint renderablePoint) {
         if (this.canHumanMove.get()) {
             this.gameFlowController = this.gameFlowController.undoOnlyCurrentPlayerMove();
-            this.table.drawBoard(this.gameFlowController.board(), FIRST);
+            this.drawableFootballPitch.drawPitch(this.gameFlowController.board(), FIRST);
         }
     }
 
@@ -107,8 +107,7 @@ final class OneVsAiController implements PitchController {
     @Override
     public void tearDown() {
         this.gameFlowController = new GameFlowController(Boards.immutableBoard(), false);
-        this.table.drawBoard(this.gameFlowController.board(), this.gameFlowController.player());
-        this.table.activePlayer(this.gameFlowController.player());
+        this.drawableFootballPitch.drawPitch(this.gameFlowController.board(), this.gameFlowController.player());
         this.canHumanMove = new AtomicBoolean(true);
         if (this.bruteForce != null) {
             this.bruteForce.cancel(true);

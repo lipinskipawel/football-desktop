@@ -3,8 +3,8 @@ package com.github.lipinskipawel.controller;
 import com.github.lipinskipawel.board.engine.BoardInterface;
 import com.github.lipinskipawel.board.engine.Boards;
 import com.github.lipinskipawel.board.engine.Player;
+import com.github.lipinskipawel.gui.DrawableFootballPitch;
 import com.github.lipinskipawel.gui.RenderablePoint;
-import com.github.lipinskipawel.gui.Table;
 import kotlin.Unit;
 
 import javax.swing.*;
@@ -16,13 +16,13 @@ import static com.github.lipinskipawel.board.engine.Player.SECOND;
 
 final class HellController implements PitchController {
 
-    private GameFlowController gameFlowController;
-    private final Table table;
+    private final DrawableFootballPitch drawableFootballPitch;
     private final Map<Player, Integer> tokenForPlayer;
+    private GameFlowController gameFlowController;
 
 
-    public HellController(final Table table) {
-        this.table = table;
+    public HellController(final DrawableFootballPitch drawableFootballPitch) {
+        this.drawableFootballPitch = drawableFootballPitch;
         this.gameFlowController = new GameFlowController(Boards.immutableBoard(), false);
         this.tokenForPlayer = new HashMap<>();
         this.tokenForPlayer.put(FIRST, 2);
@@ -35,9 +35,8 @@ final class HellController implements PitchController {
             return;
         }
         this.gameFlowController = this.gameFlowController.makeAMove(renderablePoint.getPosition());
-        this.table.drawBoard(this.gameFlowController.board(), FIRST);
+        this.drawableFootballPitch.drawPitch(this.gameFlowController.board(), FIRST);
         this.gameFlowController.onWinner(this::winningMessage);
-        this.table.activePlayer(this.gameFlowController.player());
     }
 
     @Override
@@ -54,8 +53,6 @@ final class HellController implements PitchController {
                         return null;
                     }
             );
-            this.table.drawBoard(this.gameFlowController.board(), FIRST);
-
             this.tokenForPlayer.compute(this.gameFlowController.player(), (key, val) -> val - 1);
             this.tokenForPlayer.compute(this.gameFlowController.player().opposite(), (key, val) -> val + 1);
             final var message =
@@ -65,7 +62,7 @@ final class HellController implements PitchController {
                             " tokens : " + this.tokenForPlayer.get(this.gameFlowController.player().opposite());
             JOptionPane.showMessageDialog(null, message);
         }
-        this.table.activePlayer(this.gameFlowController.player());
+        this.drawableFootballPitch.drawPitch(this.gameFlowController.board(), FIRST);
     }
 
     private boolean playerAllowedToUndo(final BoardInterface board) {
@@ -80,8 +77,7 @@ final class HellController implements PitchController {
     @Override
     public void tearDown() {
         this.gameFlowController = new GameFlowController(Boards.immutableBoard(), false);
-        this.table.drawBoard(this.gameFlowController.board(), this.gameFlowController.player());
-        this.table.activePlayer(this.gameFlowController.player());
+        this.drawableFootballPitch.drawPitch(this.gameFlowController.board(), this.gameFlowController.player());
         this.tokenForPlayer.compute(FIRST, (currentValue, oldValue) -> 2);
         this.tokenForPlayer.compute(SECOND, (currentValue, oldValue) -> 2);
     }

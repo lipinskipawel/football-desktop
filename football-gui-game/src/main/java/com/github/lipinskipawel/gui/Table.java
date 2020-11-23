@@ -1,7 +1,5 @@
 package com.github.lipinskipawel.gui;
 
-import com.github.lipinskipawel.board.engine.BoardInterface;
-import com.github.lipinskipawel.board.engine.Player;
 import com.github.lipinskipawel.controller.GameController;
 
 import javax.swing.*;
@@ -12,6 +10,8 @@ public class Table {
 
     private final JFrame gameFrame;
     private final PlayMenu playMenu;
+
+    private final DrawableFacade drawableFacade;
     private final GameDrawer gameDrawer;
     private final GamePanel gamePanel;
 
@@ -41,8 +41,10 @@ public class Table {
         tableMenuBar.add(playMenu);
         this.gameFrame.setJMenuBar(tableMenuBar);
 
+        this.gameDrawer = new GameDrawer();
         this.gamePanel = new GamePanel();
-        this.gameDrawer = new GameDrawer(this.gamePanel);
+        this.drawableFacade = new DrawableFacade(this.gameDrawer, this.gamePanel);
+
         this.gamePanel.setFontToPlayerPanel(globalMenuFont);
         this.gamePanel.setFontToCenterAndSouth(textAreaFont);
 
@@ -64,6 +66,11 @@ public class Table {
     public void addActionClassForPlayMenu(final ActionListener actionListener) {
         this.playMenu.addActionClassForAllMenuItems(actionListener);
     }
+
+    public DrawableFootballPitch getDrawableFootballPitch() {
+        return this.drawableFacade;
+    }
+
     // --------------------------------- GETer to ActionTable --------------------------------
 
     public synchronized void setWarmUp() {
@@ -107,23 +114,11 @@ public class Table {
         return this.playMenu;
     }
 
-    public void drawBoard(final BoardInterface board, final Player viewOfPlayer) {
-        this.gameDrawer.drawMove(board, viewOfPlayer);
-    }
-
     public Object getConnectButton() {
         return this.gamePanel.buttonSouth;
     }
 
     public String IPEnemy() {
         return this.gamePanel.textFieldSouth.getText();
-    }
-
-    public void activePlayer(final Player playerActive) {
-        this.gamePanel.activePlayer(playerActive);
-    }
-
-    public GameDrawer gameDrawer() {
-        return this.gameDrawer;
     }
 }
