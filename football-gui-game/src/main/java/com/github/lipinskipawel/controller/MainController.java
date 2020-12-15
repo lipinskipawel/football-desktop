@@ -8,7 +8,10 @@ import com.github.lipinskipawel.network.ConnectionManager;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -64,7 +67,6 @@ public class MainController implements ActionListener {
                     null, "Do you want to wait to connection?");
 
             if (waitingToConnect == JOptionPane.YES_OPTION) {
-                this.table.setOneVsLAN(getIpAddress());
                 this.table.setButtonEnabled(false);
                 pool.submit(() -> {
                     final var connection = ConnectionManager.Companion.waitForConnection();
@@ -74,9 +76,9 @@ public class MainController implements ActionListener {
                     this.actionGameController.setGameMode("1vsLAN");
                 });
             } else if (waitingToConnect == JOptionPane.NO_OPTION) {
-                this.table.setOneVsLAN(getIpAddress());
                 this.table.setButtonEnabled(true);
             }
+            this.table.setOneVsLAN(getIpAddress());
 
         } else if (src == this.table.getConnectButton()) {
             try {
@@ -101,9 +103,10 @@ public class MainController implements ActionListener {
 
     private String getIpAddress() {
         try {
-            return InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
+            Socket socket = new Socket();
+            socket.connect(new InetSocketAddress("google.com", 80));
+            return socket.getLocalAddress().getHostAddress();
+        } catch (IOException e) {
             return "Unknown";
         }
     }
