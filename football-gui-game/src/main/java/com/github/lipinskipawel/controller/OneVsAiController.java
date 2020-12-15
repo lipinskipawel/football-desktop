@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,6 +29,7 @@ final class OneVsAiController implements PitchController {
     private final ExecutorService pool;
     private final AtomicBoolean canHumanMove;
     private final AtomicReference<GameFlowController> gameFlowController;
+    private final MiniMaxAlphaBeta strategy;
 
     private Future<?> findMoveForAI;
 
@@ -36,6 +38,7 @@ final class OneVsAiController implements PitchController {
         this.pool = Executors.newFixedThreadPool(4);
         this.canHumanMove = new AtomicBoolean(true);
         this.gameFlowController = new AtomicReference<>(new GameFlowController());
+        this.strategy = new MiniMaxAlphaBeta(new SmartBoardEvaluator(), 3);
         this.findMoveForAI = CompletableFuture.completedFuture(null);
     }
 
@@ -65,9 +68,13 @@ final class OneVsAiController implements PitchController {
     }
 
     private void searchForBestMoveAndDrawIt() {
-        final var strategy = new MiniMaxAlphaBeta(new SmartBoardEvaluator());
         logger.info("AI is searching for best Move");
-        final var move = strategy.execute(this.gameFlowController.get().board(), 3);
+        final var start = System.currentTimeMillis();
+        final var moves = this.gameFlowController.get().board().allLegalMoves();
+        final var endTime = System.currentTimeMillis();
+        logger.info("All moves took : " + (endTime - start) + " and size is : " + moves.size());
+        final var move = strategy.execute(this.gameFlowController.get().board(), Duration.ofSeconds(5));
+        logger.info("computed move : " + move.getMove());
         if (!Thread.currentThread().isInterrupted()) {
             this.gameFlowController.updateAndGet(it -> it.makeAMove(move));
             SwingUtilities.invokeLater(
