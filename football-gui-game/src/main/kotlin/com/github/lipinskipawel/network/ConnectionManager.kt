@@ -25,6 +25,7 @@ class ConnectionManager {
         fun waitForConnection(interAddress: InetAddress): Connection {
             val serverSocket = ServerSocket(SERVER_PORT, 1, interAddress)
             val socket = serverSocket.accept()
+            serverSocket.close()
             return connect(socket)
         }
 
