@@ -8,10 +8,7 @@ import com.github.lipinskipawel.network.ConnectionManager;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -69,7 +66,9 @@ public class MainController implements ActionListener {
             if (waitingToConnect == JOptionPane.YES_OPTION) {
                 this.table.setButtonEnabled(false);
                 pool.submit(() -> {
-                    final var connection = ConnectionManager.Companion.waitForConnection();
+                    final var connection = ConnectionManager.Companion.waitForConnection(
+                            ConnectionManager.Companion.getInetAddress()
+                    );
                     this.playControllers.put("1vsLAN", new OneVsLanController(this.table.getDrawableFootballPitch(),
                             new DefaultUserDialogPresenter(),
                             connection, false));
@@ -78,7 +77,7 @@ public class MainController implements ActionListener {
             } else if (waitingToConnect == JOptionPane.NO_OPTION) {
                 this.table.setButtonEnabled(true);
             }
-            this.table.setOneVsLAN(getIpAddress());
+            this.table.setOneVsLAN(ConnectionManager.Companion.getInetAddress().getHostAddress());
 
         } else if (src == this.table.getConnectButton()) {
             try {
@@ -98,16 +97,6 @@ public class MainController implements ActionListener {
         } else if (src == this.playMenu.getMenuAI()) {
             this.table.setOneVsAI();
             this.actionGameController.setGameMode("1vsAI");
-        }
-    }
-
-    private String getIpAddress() {
-        try {
-            Socket socket = new Socket();
-            socket.connect(new InetSocketAddress("google.com", 80));
-            return socket.getLocalAddress().getHostAddress();
-        } catch (IOException e) {
-            return "Unknown";
         }
     }
 }

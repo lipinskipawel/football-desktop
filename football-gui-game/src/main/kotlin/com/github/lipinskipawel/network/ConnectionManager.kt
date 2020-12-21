@@ -22,10 +22,18 @@ class ConnectionManager {
             return connect(socket)
         }
 
-        fun waitForConnection(): Connection {
-            val serverSocket = ServerSocket(SERVER_PORT, 1, InetAddress.getLocalHost())
+        fun waitForConnection(interAddress: InetAddress): Connection {
+            val serverSocket = ServerSocket(SERVER_PORT, 1, interAddress)
             val socket = serverSocket.accept()
             return connect(socket)
+        }
+
+        fun getInetAddress(): InetAddress {
+            val socket = Socket()
+            return socket.use {
+                it.connect(InetSocketAddress("google.com", 80))
+                it.localAddress
+            }
         }
 
         private fun connect(socket: Socket): Connection {

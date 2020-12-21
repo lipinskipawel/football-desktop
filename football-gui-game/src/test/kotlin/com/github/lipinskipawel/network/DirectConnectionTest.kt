@@ -30,7 +30,7 @@ internal class DirectConnectionTest {
         internal fun createServerAndConnection() {
             val pool = Executors.newSingleThreadExecutor()
             val futureServer = pool.submit(Callable {
-                ConnectionManager.waitForConnection()
+                ConnectionManager.waitForConnection(InetAddress.getLocalHost())
             })
             connection = ConnectionManager.connectTo(InetAddress.getLocalHost(), Duration.ofMillis(30))
             waitingForConnection = futureServer.get()
