@@ -25,7 +25,6 @@ internal class DirectConnection private constructor(private val socket: Socket) 
     }
 
     override fun send(move: Move) {
-        println("sending move")
         sendingStream.write(Envelope.of(move).toByteArray())
         sendingStream.flush()
     }

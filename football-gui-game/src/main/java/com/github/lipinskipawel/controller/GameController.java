@@ -30,11 +30,9 @@ public class GameController implements MouseListener {
 
     void setGameMode(final String gameMode) {
         if (this.controller != null) {
-            System.out.println("tear down null check");
             this.controller.tearDown();
         }
         this.controller = this.playControllers.get(gameMode);
-//        this.controller.tearDown();
     }
 
     @Override
