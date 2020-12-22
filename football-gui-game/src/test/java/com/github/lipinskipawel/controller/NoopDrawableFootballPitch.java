@@ -10,11 +10,6 @@ import static java.util.stream.Collectors.joining;
 final class NoopDrawableFootballPitch implements DrawableFootballPitch {
 
     @Override
-    public void drawPitch(final BoardInterface boardInterface) {
-
-    }
-
-    @Override
     public void drawPitch(final BoardInterface boardInterface, final Player playerView) {
         final var moves = boardInterface.moveHistory();
         if (moves.isEmpty()) {
@@ -32,5 +27,10 @@ final class NoopDrawableFootballPitch implements DrawableFootballPitch {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void activePlayer(Player activePlayer) {
+        System.out.println("No-op");
     }
 }

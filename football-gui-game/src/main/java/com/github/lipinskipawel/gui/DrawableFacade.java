@@ -14,14 +14,13 @@ final class DrawableFacade implements DrawableFootballPitch {
     }
 
     @Override
-    public void drawPitch(BoardInterface boardInterface) {
-        this.gameDrawer.drawMove(boardInterface, Player.FIRST);
+    public void drawPitch(BoardInterface boardInterface, Player playerView) {
+        this.gameDrawer.drawMove(boardInterface, playerView);
         this.gamePanel.activePlayer(boardInterface.getPlayer());
     }
 
     @Override
-    public void drawPitch(BoardInterface boardInterface, Player playerView) {
-        this.gameDrawer.drawMove(boardInterface, playerView);
-        this.gamePanel.activePlayer(boardInterface.getPlayer());
+    public void activePlayer(Player activePlayer) {
+        this.gamePanel.activePlayer(activePlayer);
     }
 }

@@ -35,6 +35,8 @@ public class MainController implements ActionListener {
         this.playControllers.put("warm-up", new WarmupController(this.table.getDrawableFootballPitch()));
         this.playControllers.put("1vs1", new OneVsOneController(this.table.getDrawableFootballPitch()));
         this.playControllers.put("hell mode", new HellController(this.table.getDrawableFootballPitch()));
+        this.playControllers.put("1vsLAN", new OneVsLanController(this.table.getDrawableFootballPitch(),
+                new DefaultUserDialogPresenter()));
         this.playControllers.put("1vsAI", new OneVsAiController(this.table.getDrawableFootballPitch()));
 
         this.actionGameController = new GameController(this.playControllers);
@@ -69,14 +71,12 @@ public class MainController implements ActionListener {
                     final var connection = ConnectionManager.Companion.waitForConnection(
                             ConnectionManager.Companion.getInetAddress()
                     );
-                    this.playControllers.put("1vsLAN", new OneVsLanController(this.table.getDrawableFootballPitch(),
-                            new DefaultUserDialogPresenter(),
-                            connection, false));
-                    this.actionGameController.setGameMode("1vsLAN");
+                    ((OneVsLanController) this.playControllers.get("1vsLAN")).injectConnection(connection, false);
                 });
             } else if (waitingToConnect == JOptionPane.NO_OPTION) {
                 this.table.setButtonEnabled(true);
             }
+            this.actionGameController.setGameMode("1vsLAN");
             this.table.setOneVsLAN(ConnectionManager.Companion.getInetAddress().getHostAddress());
 
         } else if (src == this.table.getConnectButton()) {
@@ -85,11 +85,8 @@ public class MainController implements ActionListener {
                 final InetAddress address = InetAddress.getByName(this.table.IPEnemy());
 
                 final var connection = ConnectionManager.Companion.connectTo(address);
-                this.playControllers.put("1vsLAN", new OneVsLanController(this.table.getDrawableFootballPitch(),
-                        new DefaultUserDialogPresenter(),
-                        connection, true));
+                ((OneVsLanController) this.playControllers.get("1vsLAN")).injectConnection(connection, true);
 
-                this.actionGameController.setGameMode("1vsLAN");
             } catch (UnknownHostException unknownHostException) {
                 JOptionPane.showMessageDialog(null, "You have written wrong ip address!");
                 unknownHostException.printStackTrace();

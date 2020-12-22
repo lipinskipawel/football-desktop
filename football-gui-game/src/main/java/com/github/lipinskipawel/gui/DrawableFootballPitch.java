@@ -5,8 +5,6 @@ import com.github.lipinskipawel.board.engine.Player;
 
 public interface DrawableFootballPitch {
 
-    void drawPitch(final BoardInterface boardInterface);
-
     /**
      * This method draw {@link BoardInterface} state on the Pitch.
      *
@@ -14,4 +12,11 @@ public interface DrawableFootballPitch {
      * @param playerView
      */
     void drawPitch(final BoardInterface boardInterface, final Player playerView);
+
+    /**
+     * This method set the active player in the PLayer panel.
+     *
+     * @param activePlayer
+     */
+    void activePlayer(final Player activePlayer);
 }

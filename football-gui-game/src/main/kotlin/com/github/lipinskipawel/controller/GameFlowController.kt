@@ -3,7 +3,6 @@ package com.github.lipinskipawel.controller
 import com.github.lipinskipawel.board.engine.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import kotlin.jvm.Throws
 
 class GameFlowController(
         private val board: BoardInterface = Boards.immutableBoard(),

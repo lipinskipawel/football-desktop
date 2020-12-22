@@ -23,24 +23,27 @@ final class OneVsLanController implements PitchController {
     private final DrawableFootballPitch drawableFootballPitch;
     private final UserDialogPresenter dialogPresenter;
     private final AtomicReference<GameFlowController> gameFlowController;
-    private final Connection connection;
     /**
      * This player is set based on the chosen policy.
      * Player can chose either waiting policy (server) or
      * active one (connecting).
      */
-    private final Player currentPlayer;
+    private Player currentPlayer;
+    private Connection connection;
 
     public OneVsLanController(final DrawableFootballPitch drawableFootballPitch,
-                              final UserDialogPresenter userDialogPresenter,
-                              final Connection connection,
-                              final boolean client) {
+                              final UserDialogPresenter userDialogPresenter) {
         this.drawableFootballPitch = drawableFootballPitch;
         this.dialogPresenter = userDialogPresenter;
+        this.gameFlowController = new AtomicReference<>(new GameFlowController(Boards.immutableBoard(), false));
+    }
+
+    public void injectConnection(final Connection connection, final boolean client) {
         this.connection = connection;
         this.connection.onReceivedData(this::consumeTheMoveFromConnection);
         this.currentPlayer = client ? Player.FIRST : Player.SECOND;
-        this.gameFlowController = new AtomicReference<>(new GameFlowController(Boards.immutableBoard(), false));
+//        this.gameFlowController.updateAndGet(game -> game.setPlayer(this.currentPlayer));
+        this.drawableFootballPitch.activePlayer(this.currentPlayer);
     }
 
     @Override
@@ -89,7 +92,7 @@ final class OneVsLanController implements PitchController {
 
     private void consumeTheMoveFromConnection(final Move move) {
         if (!this.gameFlowController.get().isGameOver() &&
-                canMove(this.gameFlowController.get().player())) {
+                !canMove(this.gameFlowController.get().player())) {
             final var movesInString = move
                     .getMove()
                     .stream()
