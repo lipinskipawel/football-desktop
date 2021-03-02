@@ -1,17 +1,17 @@
 package com.github.lipinskipawel.gui;
 
-import com.github.lipinskipawel.board.engine.BoardInterface;
+import com.github.lipinskipawel.board.engine.Board;
 import com.github.lipinskipawel.board.engine.Player;
 
 public interface DrawableFootballPitch {
 
     /**
-     * This method draw {@link BoardInterface} state on the Pitch.
+     * This method draw {@link Board} state on the Pitch.
      *
-     * @param boardInterface
+     * @param board
      * @param playerView
      */
-    void drawPitch(final BoardInterface boardInterface, final Player playerView);
+    void drawPitch(final Board board, final Player playerView);
 
     /**
      * This method set the active player in the PLayer panel.

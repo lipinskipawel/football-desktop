@@ -1,6 +1,6 @@
 package com.github.lipinskipawel.gui;
 
-import com.github.lipinskipawel.board.engine.BoardInterface;
+import com.github.lipinskipawel.board.engine.Board;
 import com.github.lipinskipawel.board.engine.Player;
 
 final class DrawableFacade implements DrawableFootballPitch {
@@ -14,9 +14,9 @@ final class DrawableFacade implements DrawableFootballPitch {
     }
 
     @Override
-    public void drawPitch(BoardInterface boardInterface, Player playerView) {
-        this.gameDrawer.drawMove(boardInterface, playerView);
-        this.gamePanel.activePlayer(boardInterface.getPlayer());
+    public void drawPitch(Board board, Player playerView) {
+        this.gameDrawer.drawMove(board, playerView);
+        this.gamePanel.activePlayer(board.getPlayer());
     }
 
     @Override

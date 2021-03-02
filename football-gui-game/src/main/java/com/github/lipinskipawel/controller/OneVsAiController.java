@@ -1,6 +1,6 @@
 package com.github.lipinskipawel.controller;
 
-import com.github.lipinskipawel.board.ai.bruteforce.MiniMaxAlphaBeta;
+import com.github.lipinskipawel.board.ai.MoveStrategy;
 import com.github.lipinskipawel.board.ai.bruteforce.SmartBoardEvaluator;
 import com.github.lipinskipawel.board.engine.Player;
 import com.github.lipinskipawel.gui.DrawableFootballPitch;
@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,7 +28,7 @@ final class OneVsAiController implements PitchController {
     private final ExecutorService pool;
     private final AtomicBoolean canHumanMove;
     private final AtomicReference<GameFlowController> gameFlowController;
-    private final MiniMaxAlphaBeta strategy;
+    private final MoveStrategy strategy;
 
     private Future<?> findMoveForAI;
 
@@ -38,7 +37,11 @@ final class OneVsAiController implements PitchController {
         this.pool = Executors.newFixedThreadPool(4);
         this.canHumanMove = new AtomicBoolean(true);
         this.gameFlowController = new AtomicReference<>(new GameFlowController());
-        this.strategy = new MiniMaxAlphaBeta(new SmartBoardEvaluator(), 3);
+        this.strategy = MoveStrategy
+                .defaultMoveStrategyBuilder()
+                .withBoardEvaluator(new SmartBoardEvaluator())
+                .withDepth(3)
+                .build();
         this.findMoveForAI = CompletableFuture.completedFuture(null);
     }
 
@@ -73,7 +76,7 @@ final class OneVsAiController implements PitchController {
         final var moves = this.gameFlowController.get().board().allLegalMoves();
         final var endTime = System.currentTimeMillis();
         logger.info("All moves took : " + (endTime - start) + " and size is : " + moves.size());
-        final var move = strategy.execute(this.gameFlowController.get().board(), Duration.ofSeconds(5));
+        final var move = strategy.searchForTheBestMove(this.gameFlowController.get().board());
         logger.info("computed move : " + move.getMove());
         if (!Thread.currentThread().isInterrupted()) {
             this.gameFlowController.updateAndGet(it -> it.makeAMove(move));

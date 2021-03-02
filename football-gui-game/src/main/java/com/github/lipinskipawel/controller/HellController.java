@@ -1,6 +1,6 @@
 package com.github.lipinskipawel.controller;
 
-import com.github.lipinskipawel.board.engine.BoardInterface;
+import com.github.lipinskipawel.board.engine.Board;
 import com.github.lipinskipawel.board.engine.Boards;
 import com.github.lipinskipawel.board.engine.Player;
 import com.github.lipinskipawel.gui.DrawableFootballPitch;
@@ -65,7 +65,7 @@ final class HellController implements PitchController {
         this.drawableFootballPitch.drawPitch(this.gameFlowController.board(), FIRST);
     }
 
-    private boolean playerAllowedToUndo(final BoardInterface board) {
+    private boolean playerAllowedToUndo(final Board board) {
         return this.tokenForPlayer.get(board.getPlayer()) > 0;
     }
 

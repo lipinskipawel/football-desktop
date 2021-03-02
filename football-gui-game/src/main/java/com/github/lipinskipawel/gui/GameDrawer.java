@@ -1,6 +1,6 @@
 package com.github.lipinskipawel.gui;
 
-import com.github.lipinskipawel.board.engine.BoardInterface;
+import com.github.lipinskipawel.board.engine.Board;
 import com.github.lipinskipawel.board.engine.Direction;
 import com.github.lipinskipawel.board.engine.Move;
 import com.github.lipinskipawel.board.engine.Player;
@@ -33,7 +33,7 @@ class GameDrawer extends JPanel {
     private final BasicStroke move_stroke = new BasicStroke(2f);
     private final BasicStroke last_move_stroke = new BasicStroke(4f);
 
-    private BoardInterface board;
+    private Board board;
     private Player viewOfPlayer;
 
     GameDrawer() {
@@ -74,7 +74,7 @@ class GameDrawer extends JPanel {
     }
 
 
-    public void drawMove(final BoardInterface board, final Player viewOfPlayer) {
+    public void drawMove(final Board board, final Player viewOfPlayer) {
         this.board = board;
         this.viewOfPlayer = viewOfPlayer;
         repaint();
