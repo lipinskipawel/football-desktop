@@ -1,5 +1,6 @@
 package com.github.lipinskipawel.gui;
 
+import com.github.lipinskipawel.OptionsMenu;
 import com.github.lipinskipawel.controller.GameController;
 
 import javax.swing.*;
@@ -10,6 +11,7 @@ public class Table {
 
     private final JFrame gameFrame;
     private final PlayMenu playMenu;
+    private final OptionsMenu options;
 
     private final DrawableFacade drawableFacade;
     private final GameDrawer gameDrawer;
@@ -19,9 +21,7 @@ public class Table {
     private static final Font globalMenuFont = new Font("sans-serif", Font.PLAIN, 20);
     private static final Font textAreaFont = new Font("sans-serif", Font.PLAIN, 15);
 
-
     private final static String TITLE = "Football game";
-
 
     /**
      * Default behavior of this class is to set-up warm-up mode.
@@ -38,7 +38,9 @@ public class Table {
 
         final JMenuBar tableMenuBar = new JMenuBar();
         this.playMenu = new PlayMenu();
+        this.options = new OptionsMenu();
         tableMenuBar.add(playMenu);
+        tableMenuBar.add(options);
         this.gameFrame.setJMenuBar(tableMenuBar);
 
         this.gameDrawer = new GameDrawer();
@@ -65,6 +67,10 @@ public class Table {
 
     public void addActionClassForPlayMenu(final ActionListener actionListener) {
         this.playMenu.addActionClassForAllMenuItems(actionListener);
+    }
+
+    public void addActionClassForOptionMenu(final ActionListener actionListener) {
+        this.options.addActionClassForAllMenuItems(actionListener);
     }
 
     public DrawableFootballPitch getDrawableFootballPitch() {
@@ -112,6 +118,10 @@ public class Table {
 
     public PlayMenu getPlayMenu() {
         return this.playMenu;
+    }
+
+    public OptionsMenu getOptionsMenu() {
+        return this.options;
     }
 
     public Object getConnectButton() {

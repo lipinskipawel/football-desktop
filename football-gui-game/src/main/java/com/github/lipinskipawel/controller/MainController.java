@@ -3,6 +3,7 @@ package com.github.lipinskipawel.controller;
 import com.github.lipinskipawel.gui.DefaultUserDialogPresenter;
 import com.github.lipinskipawel.gui.PlayMenu;
 import com.github.lipinskipawel.gui.Table;
+import com.github.lipinskipawel.listener.OptionListener;
 import com.github.lipinskipawel.network.ConnectionManager;
 
 import javax.swing.*;
@@ -30,6 +31,7 @@ public class MainController implements ActionListener {
         this.table = new Table();
         this.playMenu = this.table.getPlayMenu();
         this.table.addActionClassForPlayMenu(this);
+        this.table.addActionClassForOptionMenu(new OptionListener(this.table.getOptionsMenu()));
 
         this.playControllers = new ConcurrentHashMap<>();
         this.playControllers.put("warm-up", new WarmupController(this.table.getDrawableFootballPitch()));
