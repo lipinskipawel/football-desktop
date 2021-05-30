@@ -27,7 +27,11 @@ dependencies {
 group = "com.github.lipinskipawel"
 version = "1.0.0"
 description = "football-gui-game"
-java.sourceCompatibility = JavaVersion.VERSION_15
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_15
+    targetCompatibility = JavaVersion.VERSION_15
+}
 
 publishing {
     publications.create<MavenPublication>("maven") {
