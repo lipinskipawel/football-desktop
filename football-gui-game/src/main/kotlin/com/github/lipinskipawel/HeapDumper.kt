@@ -17,13 +17,12 @@ class HeapDumper {
                 server, HOTSPOT_BEAN_NAME, HotSpotDiagnosticMXBean::class.java)
     }
 
-    fun dumpHeap(fileName: String) {
+    fun dumpHeap(fileName: String): Boolean {
         try {
             this.hotspotMBean.dumpHeap(fileName, true);
-        } catch (re: java.lang.RuntimeException) {
-            throw re;
         } catch (exp: java.lang.Exception) {
-            throw RuntimeException(exp);
+            return false
         }
+        return true
     }
 }

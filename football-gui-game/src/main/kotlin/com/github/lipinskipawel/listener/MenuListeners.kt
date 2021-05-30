@@ -4,6 +4,7 @@ import com.github.lipinskipawel.HeapDumper
 import com.github.lipinskipawel.OptionsMenu
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
+import javax.swing.JOptionPane
 
 class OptionListener(private val optionMenu: OptionsMenu) : ActionListener {
     private val heapDumper: HeapDumper = HeapDumper()
@@ -15,10 +16,12 @@ class OptionListener(private val optionMenu: OptionsMenu) : ActionListener {
     }
 
     private fun saveHeapDumps() {
-        try {
-            heapDumper.dumpHeap("default.hprof")
-        } catch (ex: Exception) {
-            println("log exception to file and inform user to contact administrator")
+        val filename = "default.hprof"
+        val isHeapDumpCreated = heapDumper.dumpHeap(filename)
+        if (isHeapDumpCreated) {
+            JOptionPane.showMessageDialog(null, "Heap dump was created at: $filename")
+        } else {
+            JOptionPane.showMessageDialog(null, "Error when creating heap dump.")
         }
     }
 }
