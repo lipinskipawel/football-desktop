@@ -1,7 +1,7 @@
 plugins {
     application
     java
-    kotlin("jvm") version "1.4.0"
+    kotlin("jvm") version "1.5.0"
     `maven-publish`
 }
 
@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     implementation(project(":prod-maven-plugin"))
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.4.0")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.5.0")
     implementation("com.google.code.gson:gson:2.8.6")
     implementation("com.github.lipinskipawel:game-engine:4.0.0")
     implementation("org.slf4j:slf4j-api:2.0.0-alpha1")
@@ -31,6 +31,12 @@ description = "football-gui-game"
 java {
     sourceCompatibility = JavaVersion.VERSION_15
     targetCompatibility = JavaVersion.VERSION_15
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    kotlinOptions {
+        kotlinOptions.jvmTarget = "15"
+    }
 }
 
 publishing {
