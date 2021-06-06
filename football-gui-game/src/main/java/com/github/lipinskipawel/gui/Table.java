@@ -1,6 +1,7 @@
 package com.github.lipinskipawel.gui;
 
 import com.github.lipinskipawel.OptionsMenu;
+import com.github.lipinskipawel.PlayMenu;
 import com.github.lipinskipawel.controller.GameController;
 
 import javax.swing.*;

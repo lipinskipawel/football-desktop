@@ -1,7 +1,7 @@
 package com.github.lipinskipawel.controller;
 
+import com.github.lipinskipawel.PlayMenu;
 import com.github.lipinskipawel.gui.DefaultUserDialogPresenter;
-import com.github.lipinskipawel.gui.PlayMenu;
 import com.github.lipinskipawel.gui.Table;
 import com.github.lipinskipawel.listener.OptionListener;
 import com.github.lipinskipawel.network.ConnectionManager;
@@ -52,17 +52,17 @@ public class MainController implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         final var src = e.getSource();
-        if (src == this.playMenu.getMenuItemWarmup()) {
+        if (src == this.playMenu.getWarmupItem()) {
             this.table.setWarmUp();
             this.actionGameController.setGameMode("warm-up");
-        } else if (src == this.playMenu.getMenuOneVsOne()) {
+        } else if (src == this.playMenu.get1vs1Item()) {
             this.table.setOneVsOne();
             this.actionGameController.setGameMode("1vs1");
 
-        } else if (src == this.playMenu.getMenuItemHellMove()) {
+        } else if (src == this.playMenu.getHellModeItem()) {
             this.table.setHellMode();
             this.actionGameController.setGameMode("hell mode");
-        } else if (src == this.playMenu.getMenuLAN()) {
+        } else if (src == this.playMenu.getLanItem()) {
 
             int waitingToConnect = JOptionPane.showConfirmDialog(
                     null, "Do you want to wait to connection?");
@@ -93,7 +93,7 @@ public class MainController implements ActionListener {
                 JOptionPane.showMessageDialog(null, "You have written wrong ip address!");
                 unknownHostException.printStackTrace();
             }
-        } else if (src == this.playMenu.getMenuAI()) {
+        } else if (src == this.playMenu.getAiItem()) {
             this.table.setOneVsAI();
             this.actionGameController.setGameMode("1vsAI");
         }
