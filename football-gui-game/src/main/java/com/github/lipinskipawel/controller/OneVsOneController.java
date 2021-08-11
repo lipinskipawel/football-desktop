@@ -35,14 +35,7 @@ final class OneVsOneController implements PitchController {
         if (this.gameFlowController.isGameOver()) {
             return;
         }
-        this.gameFlowController = this.gameFlowController.undoPlayerMove(
-                () -> {
-                    final var dataObject = new QuestionService(new InMemoryQuestions())
-                            .displayYesNoCancel("1-1");
-                    new HerokuService().send(dataObject);
-                    return null;
-                }
-        );
+        this.gameFlowController = this.gameFlowController.undoPlayerMove(() -> null);
         this.drawableFootballPitch.drawPitch(this.gameFlowController.board(), FIRST);
     }
 

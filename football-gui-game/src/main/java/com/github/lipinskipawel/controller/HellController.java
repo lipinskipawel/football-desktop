@@ -45,14 +45,7 @@ final class HellController implements PitchController {
             return;
         }
         if (playerAllowedToUndo(this.gameFlowController.board())) {
-            this.gameFlowController = this.gameFlowController.undoPlayerMove(
-                    () -> {
-                        final var dataObject = new QuestionService(new InMemoryQuestions())
-                                .displayYesNoCancel("hell-mode");
-                        new HerokuService().send(dataObject);
-                        return null;
-                    }
-            );
+            this.gameFlowController = this.gameFlowController.undoPlayerMove(() -> null);
             this.tokenForPlayer.compute(this.gameFlowController.player(), (key, val) -> val - 1);
             this.tokenForPlayer.compute(this.gameFlowController.player().opposite(), (key, val) -> val + 1);
             final var message =

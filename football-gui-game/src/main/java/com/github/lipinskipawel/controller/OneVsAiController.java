@@ -101,8 +101,6 @@ final class OneVsAiController implements PitchController {
                         JOptionPane.showMessageDialog(null, message);
                     });
             this.canHumanMove.set(false);
-            final var dataObject = new QuestionService(new InMemoryQuestions()).displayAiQuestion();
-            new HerokuService().send(dataObject);
             return null;
         };
     }
