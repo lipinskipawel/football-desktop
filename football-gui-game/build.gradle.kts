@@ -19,6 +19,7 @@ dependencies {
     implementation("com.github.lipinskipawel:game-engine:4.0.0")
     implementation("org.slf4j:slf4j-api:2.0.0-alpha1")
     implementation("org.slf4j:slf4j-simple:2.0.0-alpha1")
+
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.5.2")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.2")
     testImplementation("org.assertj:assertj-core:3.12.2")
@@ -52,3 +53,5 @@ tasks.withType<JavaCompile>() {
 application {
     mainClass.set("com.github.lipinskipawel.App")
 }
+
+tasks.register("prepareKotlinBuildScriptModel") {}
