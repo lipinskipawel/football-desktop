@@ -1,15 +1,18 @@
 package com.github.lipinskipawel.network
 
-import java.net.InetAddress
-import java.net.InetSocketAddress
-import java.net.ServerSocket
-import java.net.Socket
+import java.net.*
 import java.time.Duration
 
 class ConnectionManager {
 
     companion object {
         private const val SERVER_PORT: Int = 9679
+
+        fun connectTo(webSocketServer: URI): Connection {
+            val footballClient = FootballClient(webSocketServer)
+            footballClient.connectBlocking()
+            return footballClient
+        }
 
         fun connectTo(ipAddress: InetAddress): Connection {
             return connectTo(ipAddress, Duration.ZERO)

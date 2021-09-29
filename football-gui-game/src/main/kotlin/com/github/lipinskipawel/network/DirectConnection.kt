@@ -38,6 +38,10 @@ internal class DirectConnection private constructor(private val socket: Socket) 
         socket.close()
     }
 
+    override fun isOpen(): Boolean {
+        TODO("Not yet implemented")
+    }
+
     private inner class ReadingDataThroughSocket : Runnable {
         override fun run() {
             while (!Thread.currentThread().isInterrupted) {

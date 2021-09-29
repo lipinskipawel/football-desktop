@@ -25,4 +25,9 @@ interface Connection : AutoCloseable {
      * This method is responsible for closing [Connection].
      */
     override fun close()
+
+    /**
+     * Checks whether the connection between clients is open.
+     */
+    fun isOpen(): Boolean
 }
