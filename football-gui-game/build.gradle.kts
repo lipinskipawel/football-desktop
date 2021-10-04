@@ -68,6 +68,14 @@ tasks.register<AppBuilder>("linux") {
     """.trimIndent()
 }
 
+tasks.register<AppBuilder>("windows") {
+    dependsOn("shadowJar")
+    runnableScriptName = "play.bat"
+    contentOfRunnableScript = """
+        start jdk/bin/javaw -jar --enable-preview football-gui-game-1.0.0-all.jar
+    """.trimIndent()
+}
+
 abstract class AppBuilder : DefaultTask() {
     @Input
     var installerDirectory: String = project.projectDir.resolve("bundle").absolutePath
@@ -122,10 +130,22 @@ abstract class AppBuilder : DefaultTask() {
                 .first()
                 .copyRecursively(project.file(installerDirectory).resolve("jdk"), overwrite = true)
         logger.info("Setting executable to java file")
-        project.file(installerDirectory)
-                .resolve("jdk")
-                .resolve("bin")
-                .resolve("java")
-                .setExecutable(true)
+        if (this.name == "linux") {
+            makeExecutable("java")
+        } else {
+            makeExecutable("javaw")
+        }
+    }
+
+    private fun makeExecutable(name: String) {
+        try {
+            project.file(installerDirectory)
+                    .resolve("jdk")
+                    .resolve("bin")
+                    .resolve(name)
+                    .setExecutable(true)
+        } catch (ee: Exception) {
+            logger.error(ee.toString())
+        }
     }
 }
