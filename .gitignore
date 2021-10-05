@@ -1,9 +1,6 @@
 # Gradle
 !gradle-wrapper.jar
 
-# Maven
-target/
-
 jdks/
 uuid.txt
 
