@@ -14,7 +14,6 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":prod-maven-plugin"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.5.0")
     implementation("com.google.code.gson:gson:2.8.6")
     implementation("com.github.lipinskipawel:game-engine:4.0.0")
