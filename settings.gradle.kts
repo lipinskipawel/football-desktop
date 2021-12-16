@@ -1,2 +1,2 @@
-rootProject.name = "football-game"
+rootProject.name = "football-desktop"
 include("football-gui-game")
