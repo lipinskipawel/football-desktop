@@ -1,6 +1,9 @@
 package com.github.lipinskipawel.controller
 
-import com.github.lipinskipawel.board.engine.*
+import com.github.lipinskipawel.board.engine.Board
+import com.github.lipinskipawel.board.engine.Boards
+import com.github.lipinskipawel.board.engine.Move
+import com.github.lipinskipawel.board.engine.Player
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -10,29 +13,6 @@ class GameFlowController(
 ) {
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(GameFlowController::class.java)
-    }
-
-    /**
-     * This method will thrown RuntimeException whenever ball stuck on something.
-     * Ball can stuck in the goal area, or in the point where no more moves are allowed.
-     */
-    @Throws(CantMakeAMove::class)
-    fun makeAMove(point: Int, block: () -> Unit = {}): GameFlowController {
-        val move: Direction
-        try {
-            move = this.board.ballAPI.kickBallTo(point)
-        } catch (ee: RuntimeException) {
-            throw CantMakeAMove()
-        }
-        if (this.board.isMoveAllowed(move)) {
-            val afterMove = this.board.executeMove(move)
-            if (afterMove.player != this.board.player) {
-                block()
-            }
-            val end = afterMove.isGoal
-            return GameFlowController(afterMove, end)
-        }
-        return this
     }
 
     fun makeAMove(point: Int): GameFlowController {
