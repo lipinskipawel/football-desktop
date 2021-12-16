@@ -28,7 +28,7 @@ dependencies {
 
 group = "com.github.lipinskipawel"
 version = "1.0.0"
-description = "football-gui-game"
+description = "football-desktop"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_15
@@ -54,8 +54,6 @@ tasks.withType<JavaCompile>() {
 application {
     mainClass.set("com.github.lipinskipawel.App")
 }
-
-tasks.register("prepareKotlinBuildScriptModel") {}
 
 tasks.register<AppBuilder>("linux") {
     dependsOn("shadowJar")
