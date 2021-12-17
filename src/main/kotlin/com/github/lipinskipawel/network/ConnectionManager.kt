@@ -1,5 +1,7 @@
 package com.github.lipinskipawel.network
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.net.*
 import java.time.Duration
 
@@ -7,6 +9,7 @@ class ConnectionManager {
 
     companion object {
         private const val SERVER_PORT: Int = 9679
+        private val LOGGER: Logger = LoggerFactory.getLogger(ConnectionManager::class.java)
 
         fun connectTo(webSocketServer: URI): Connection {
             val footballClient = FootballClient(webSocketServer)
@@ -28,6 +31,7 @@ class ConnectionManager {
         fun waitForConnection(interAddress: InetAddress): Connection {
             val serverSocket = ServerSocket(SERVER_PORT, 1, interAddress)
             val socket = serverSocket.accept()
+            LOGGER.info("Connection accepted.")
             serverSocket.close()
             return connect(socket)
         }

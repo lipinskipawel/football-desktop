@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.stream.Collectors.joining;
 
-final class OneVsLanController implements PitchController {
+public final class OneVsLanController implements PitchController {
 
     private static final Logger logger = LoggerFactory.getLogger(OneVsLanController.class);
     private final DrawableFootballPitch drawableFootballPitch;
