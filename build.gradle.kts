@@ -55,6 +55,10 @@ application {
     mainClass.set("com.github.lipinskipawel.App")
 }
 
+tasks.test {
+    useJUnitPlatform()
+}
+
 tasks.register<AppBuilder>("linux") {
     dependsOn("shadowJar")
     runnableScriptName = "play.sh"
