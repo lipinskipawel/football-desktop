@@ -1,4 +1,4 @@
-package com.github.lipinskipawel.controller
+package com.github.lipinskipawel.game
 
 import com.github.lipinskipawel.board.engine.Board
 import com.github.lipinskipawel.board.engine.Boards

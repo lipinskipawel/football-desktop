@@ -3,6 +3,7 @@ package com.github.lipinskipawel.controller
 import com.github.lipinskipawel.board.engine.Boards
 import com.github.lipinskipawel.board.engine.Direction
 import com.github.lipinskipawel.board.engine.Player
+import com.github.lipinskipawel.game.GameFlowController
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
