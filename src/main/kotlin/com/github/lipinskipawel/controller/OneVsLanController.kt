@@ -27,7 +27,7 @@ internal class OneVsLanController(private val drawableFootballPitch: DrawableFoo
      * Player can chose either waiting policy (server) or
      * active one (connecting).
      */
-    private var currentPlayer: Player? = null
+    private lateinit var currentPlayer: Player
     private var connection: Connection? = null
 
     init {
@@ -38,6 +38,7 @@ internal class OneVsLanController(private val drawableFootballPitch: DrawableFoo
         this.connection = connection
         this.connection!!.onReceivedData { move: Move -> consumeTheMoveFromConnection(move) }
         currentPlayer = if (client) Player.FIRST else Player.SECOND
+//        drawableFootballPitch.activePlayer(Player.FIRST)
         drawableFootballPitch.activePlayer(currentPlayer)
     }
 
