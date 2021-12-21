@@ -31,8 +31,18 @@ interface UserDialogPresenter {
     fun showMessage(parent: Component?, messagee: String?): Dialog?
 }
 
+internal class DrawableFacade(private val gameDrawer: GameDrawer, private val gamePanel: GamePanel) : DrawableFootballPitch {
+    override fun drawPitch(board: Board, playerView: Player) {
+        gameDrawer.drawMove(board, playerView)
+        gamePanel.activePlayer(board.player)
+    }
 
-class DefaultUserDialogPresenter : UserDialogPresenter {
+    override fun activePlayer(activePlayer: Player) {
+        gamePanel.activePlayer(activePlayer)
+    }
+}
+
+internal class DefaultUserDialogPresenter : UserDialogPresenter {
     override fun showMessage(parent: Component?, message: String?): Dialog? {
         val pane = JOptionPane(message)
         val dialog = pane.createDialog("Message")
