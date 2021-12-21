@@ -2,7 +2,7 @@ package com.github.lipinskipawel.gui;
 
 import com.github.lipinskipawel.OptionsMenu;
 import com.github.lipinskipawel.PlayMenu;
-import com.github.lipinskipawel.controller.GameController;
+import com.github.lipinskipawel.listener.PitchListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -62,7 +62,7 @@ public class Table {
         this.gamePanel.addButtonConnectListener(listener);
     }
 
-    public void addMouseClassToGameDrawer(final GameController actionClassGameBoard) {
+    public void addMouseClassToGameDrawer(final PitchListener actionClassGameBoard) {
         this.gameDrawer.addMouse(actionClassGameBoard);
     }
 

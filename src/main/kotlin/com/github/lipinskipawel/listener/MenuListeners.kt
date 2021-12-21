@@ -3,7 +3,6 @@ package com.github.lipinskipawel.listener
 import com.github.lipinskipawel.HeapDumper
 import com.github.lipinskipawel.OptionsMenu
 import com.github.lipinskipawel.ThreadDumper
-import com.github.lipinskipawel.controller.GameController
 import com.github.lipinskipawel.gui.Table
 import com.github.lipinskipawel.network.ConnectionManager.Companion.getInetAddress
 import java.awt.event.ActionEvent
@@ -22,7 +21,7 @@ import javax.swing.JOptionPane
  */
 
 class PlayListener(private val table: Table,
-                   private val actionGameController: GameController
+                   private val actionGameController: PitchListener
 ) : ActionListener {
 
     override fun actionPerformed(e: ActionEvent?) {
@@ -60,7 +59,7 @@ class PlayListener(private val table: Table,
  * menu bar items. It must also understand whether the user clicked on [connectionButton] in order to connect to a game.
  */
 class PlayLanListener(private val table: Table,
-                      private val actionGameController: GameController
+                      private val actionGameController: PitchListener
 ) : ActionListener {
 
     override fun actionPerformed(e: ActionEvent?) {
