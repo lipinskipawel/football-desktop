@@ -2,8 +2,9 @@ package com.github.lipinskipawel.listener
 
 import com.github.lipinskipawel.HeapDumper
 import com.github.lipinskipawel.OptionsMenu
+import com.github.lipinskipawel.PlayMenu
 import com.github.lipinskipawel.ThreadDumper
-import com.github.lipinskipawel.gui.Table
+import com.github.lipinskipawel.gui.GamePanel
 import com.github.lipinskipawel.network.ConnectionManager.Companion.getInetAddress
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
@@ -20,37 +21,42 @@ import javax.swing.JOptionPane
  * as classes that are capable of dispatch particular ActionEvent.
  */
 
-class PlayListener(private val table: Table,
+class PlayListener(private val playMenu: PlayMenu,
+                   private val gamePanel: GamePanel,
                    private val actionGameController: PitchListener
 ) : ActionListener {
 
     override fun actionPerformed(e: ActionEvent?) {
         when (e?.source) {
-            table.playMenu.getWarmupItem() -> warmup()
-            table.playMenu.get1vs1Item() -> oneVsOne()
-            table.playMenu.getHellModeItem() -> hellMode()
-            table.playMenu.getAiItem() -> oneVsAi()
+            playMenu.getWarmupItem() -> warmup()
+            playMenu.get1vs1Item() -> oneVsOne()
+            playMenu.getHellModeItem() -> hellMode()
+            playMenu.getAiItem() -> oneVsAi()
         }
     }
 
     private fun warmup() {
-        table.setWarmUp()
-        actionGameController.setGameMode("warm-up")
+        val gameMode = "warm-up"
+        gamePanel.setWarmUP()
+        actionGameController.setGameMode(gameMode)
     }
 
     private fun oneVsOne() {
-        table.setOneVsOne()
-        actionGameController.setGameMode("1vs1")
+        val gameMode = "1vs1"
+        gamePanel.setONEvsONE()
+        actionGameController.setGameMode(gameMode)
     }
 
     private fun hellMode() {
-        table.setHellMode()
-        actionGameController.setGameMode("hell mode")
+        val gameMode = "hell mode"
+        gamePanel.setHellMode()
+        actionGameController.setGameMode(gameMode)
     }
 
     private fun oneVsAi() {
-        table.setOneVsAI()
-        actionGameController.setGameMode("1vsAI")
+        val gameMode = "1vsAI"
+        gamePanel.setONEvsAI()
+        actionGameController.setGameMode(gameMode)
     }
 }
 
@@ -58,14 +64,15 @@ class PlayListener(private val table: Table,
  * This class is responsible for setting a connection over the LAN with the opponent. It knows about more than just top
  * menu bar items. It must also understand whether the user clicked on [connectionButton] in order to connect to a game.
  */
-class PlayLanListener(private val table: Table,
+class PlayLanListener(private val playMenu: PlayMenu,
+                      private val gamePanel: GamePanel,
                       private val actionGameController: PitchListener
 ) : ActionListener {
 
     override fun actionPerformed(e: ActionEvent?) {
         when (e?.source) {
-            table.playMenu.getLanItem() -> lanItem()
-            table.connectButton -> connectionButton()
+            playMenu.getLanItem() -> lanItem()
+            gamePanel.buttonSouth -> connectionButton()
         }
     }
 
@@ -74,19 +81,19 @@ class PlayLanListener(private val table: Table,
                 null, "Do you want to wait to connection?")
 
         if (waitingToConnect == JOptionPane.YES_OPTION) {
-            table.setButtonEnabled(false)
+            gamePanel.setButtonStatus(false)
             actionGameController.setGameMode("1vsLAN-server")
         } else if (waitingToConnect == JOptionPane.NO_OPTION) {
-            table.setButtonEnabled(true)
+            gamePanel.setButtonStatus(true)
             actionGameController.setGameMode("1vsLAN-client")
         }
-        table.setOneVsLAN(getInetAddress().hostAddress)
+        gamePanel.setONEvsLAN(getInetAddress().hostAddress)
     }
 
     private fun connectionButton() {
         try {
-            table.setButtonEnabled(false)
-            val address = InetAddress.getByName(table.IPEnemy())
+            gamePanel.setButtonStatus(false)
+            val address = InetAddress.getByName(gamePanel.textFieldSouth?.text!!)
             actionGameController.connectTo(address)
         } catch (unknownHostException: UnknownHostException) {
             JOptionPane.showMessageDialog(null, "You have written wrong ip address!")

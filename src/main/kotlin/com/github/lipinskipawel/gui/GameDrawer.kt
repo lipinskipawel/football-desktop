@@ -13,7 +13,7 @@ import java.util.*
 import java.util.stream.Collectors
 import javax.swing.JPanel
 
-internal class GameDrawer : JPanel(GridLayout(13, 9)) {
+class GameDrawer : JPanel(GridLayout(13, 9)) {
     private val pointTrackers: MutableList<PointTracker>
     private val pitch_COLOR = Color(0, 170, 45)
     private val pitch_stroke = BasicStroke(3f)

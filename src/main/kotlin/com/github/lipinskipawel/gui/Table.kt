@@ -1,24 +1,20 @@
 package com.github.lipinskipawel.gui
 
-import com.github.lipinskipawel.OptionsMenu
-import com.github.lipinskipawel.PlayMenu
-import com.github.lipinskipawel.listener.PitchListener
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.Font
-import java.awt.event.ActionListener
-import javax.swing.JButton
 import javax.swing.JFrame
+import javax.swing.JMenu
 import javax.swing.JMenuBar
 import javax.swing.UIManager
 
-class Table {
+/**
+ * This class is a main container that holds every GUI object.
+ * Besides, holding every GUI reference it is capable of placing them on the [gameFrame] as well as configuring global
+ * font, window dimension and others.
+ */
+class Table(jMenuBar: JMenuBar, gamePanel: GamePanel, gameDrawer: GameDrawer) {
     private val gameFrame: JFrame
-    val playMenu: PlayMenu
-    val optionsMenu: OptionsMenu
-    private val drawableFacade: DrawableFacade
-    private val gameDrawer: GameDrawer
-    private val gamePanel: GamePanel
 
     companion object {
         private val WINDOW_SIZE = Dimension(700, 600)
@@ -39,75 +35,20 @@ class Table {
         UIManager.put("MenuItem.font", globalMenuFont)
         gameFrame = JFrame(TITLE)
         gameFrameSetup(gameFrame)
-        val tableMenuBar = JMenuBar()
-        playMenu = PlayMenu()
-        optionsMenu = OptionsMenu()
-        tableMenuBar.add(playMenu)
-        tableMenuBar.add(optionsMenu)
-        gameFrame.jMenuBar = tableMenuBar
-        gameDrawer = GameDrawer()
-        gamePanel = GamePanel()
-        drawableFacade = DrawableFacade(gameDrawer, gamePanel)
+        jMenuBar
+                .components
+                .map { it as JMenu }
+                .forEach { jMenu ->
+                    jMenu.font = globalMenuFont
+                    jMenu.menuComponents.forEach { it.font = globalMenuFont }
+                }
+        gameFrame.jMenuBar = jMenuBar
+
         gamePanel.setFontToPlayerPanel(globalMenuFont)
         gamePanel.setFontToCenterAndSouth(textAreaFont)
+
         gameFrame.add(gameDrawer, BorderLayout.CENTER)
         gameFrame.add(gamePanel, BorderLayout.EAST)
-        setWarmUp()
-        gameFrame.isVisible = true
-    }
-
-    fun addConnectListener(listener: ActionListener?) {
-        gamePanel.addButtonConnectListener(listener)
-    }
-
-    fun addMouseClassToGameDrawer(actionClassGameBoard: PitchListener?) {
-        gameDrawer.addMouse(actionClassGameBoard)
-    }
-
-    fun addActionClassForPlayMenu(actionListener: ActionListener?) {
-        playMenu.addActionClassForAllMenuItems(actionListener!!)
-    }
-
-    fun addActionClassForOptionMenu(actionListener: ActionListener?) {
-        optionsMenu.addActionClassForAllMenuItems(actionListener!!)
-    }
-
-    val drawableFootballPitch: DrawableFootballPitch
-        get() = drawableFacade
-
-    // --------------------------------- GETer to ActionTable --------------------------------
-    @Synchronized
-    fun setWarmUp() {
-        gameFrame.title = TITLE
-        gamePanel.setWarmUP()
-    }
-
-    @Synchronized
-    fun setOneVsOne() {
-        gameFrame.title = TITLE
-        gamePanel.setONEvsONE()
-    }
-
-    @Synchronized
-    fun setHellMode() {
-        gameFrame.title = TITLE
-        gamePanel.setHellMode()
-    }
-
-    @Synchronized
-    fun setOneVsLAN(ipLocalhost: String) {
-        gameFrame.title = "Ip address: $ipLocalhost"
-        gamePanel.setONEvsLAN()
-    }
-
-    @Synchronized
-    fun setOneVsAI() {
-        gameFrame.title = TITLE
-        gamePanel.setONEvsAI()
-    }
-
-    fun setButtonEnabled(toBoolean: Boolean) {
-        gamePanel.buttonSouth?.isEnabled = toBoolean
     }
 
     private fun gameFrameSetup(gameFrame: JFrame) {
@@ -117,10 +58,7 @@ class Table {
         gameFrame.setLocationRelativeTo(null)
     }
 
-    val connectButton: JButton
-        get() = gamePanel.buttonSouth!!
-
-    fun IPEnemy(): String {
-        return gamePanel.textFieldSouth?.text!!
+    fun show() {
+        gameFrame.isVisible = true
     }
 }

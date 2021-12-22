@@ -5,7 +5,7 @@ import java.awt.*
 import java.awt.event.ActionListener
 import javax.swing.*
 
-internal class GamePanel : JPanel(BorderLayout()) {
+class GamePanel : JPanel(BorderLayout()) {
     // NORTH
     private var playerONE: JLabel? = null
     private var playerTWO: JLabel? = null
@@ -119,12 +119,15 @@ internal class GamePanel : JPanel(BorderLayout()) {
         repaint()
     }
 
-    fun setONEvsLAN() {
+    fun setONEvsLAN(ipAddress: String) {
         removeAll()
         playerPanel!!.removeAll()
         playerPanel!!.add(playerONE)
         playerPanel!!.add(playerTWO)
-        textArea!!.text = text1vsLAN
+        textArea!!.text = text1vsLAN.plus("""
+            
+            IP address: $ipAddress
+        """.trimIndent())
         add(playerPanel, BorderLayout.NORTH)
         add(scrollPaneText, BorderLayout.CENTER)
         add(southPanel, BorderLayout.SOUTH)
@@ -200,5 +203,9 @@ internal class GamePanel : JPanel(BorderLayout()) {
 
     fun addButtonConnectListener(listener: ActionListener?) {
         buttonSouth!!.addActionListener(listener)
+    }
+
+    fun setButtonStatus(status: Boolean) {
+        buttonSouth?.isEnabled = status
     }
 }
