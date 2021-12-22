@@ -3,22 +3,19 @@ package com.github.lipinskipawel.gui
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.Font
-import javax.swing.JFrame
-import javax.swing.JMenu
-import javax.swing.JMenuBar
-import javax.swing.UIManager
+import javax.swing.*
 
 /**
  * This class is a main container that holds every GUI object.
  * Besides, holding every GUI reference it is capable of placing them on the [gameFrame] as well as configuring global
  * font, window dimension and others.
  */
-class Table(jMenuBar: JMenuBar, gamePanel: GamePanel, gameDrawer: GameDrawer) {
+class Table(jMenuBar: JMenuBar, gamePanel: GamePanel, gameDrawer: JPanel) {
     private val gameFrame: JFrame
 
     companion object {
+        val globalMenuFont = Font("sans-serif", Font.PLAIN, 20)
         private val WINDOW_SIZE = Dimension(700, 600)
-        private val globalMenuFont = Font("sans-serif", Font.PLAIN, 20)
         private val textAreaFont = Font("sans-serif", Font.PLAIN, 15)
         private const val TITLE = "Football game"
     }

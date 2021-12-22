@@ -1,9 +1,6 @@
 package com.github.lipinskipawel.listener
 
-import com.github.lipinskipawel.HeapDumper
-import com.github.lipinskipawel.OptionsMenu
-import com.github.lipinskipawel.PlayMenu
-import com.github.lipinskipawel.ThreadDumper
+import com.github.lipinskipawel.*
 import com.github.lipinskipawel.gui.GamePanel
 import com.github.lipinskipawel.network.ConnectionManager.Companion.getInetAddress
 import java.awt.event.ActionEvent
@@ -32,6 +29,7 @@ class PlayListener(private val playMenu: PlayMenu,
             playMenu.get1vs1Item() -> oneVsOne()
             playMenu.getHellModeItem() -> hellMode()
             playMenu.getAiItem() -> oneVsAi()
+            playMenu.get1vsWeb() -> oneVsWeb()
         }
     }
 
@@ -57,6 +55,11 @@ class PlayListener(private val playMenu: PlayMenu,
         val gameMode = "1vsAI"
         gamePanel.setONEvsAI()
         actionGameController.setGameMode(gameMode)
+    }
+
+    private fun oneVsWeb() {
+        gamePanel.setPanel(gamePanelWeb())
+        actionGameController.setGameMode("1vsWeb")
     }
 }
 

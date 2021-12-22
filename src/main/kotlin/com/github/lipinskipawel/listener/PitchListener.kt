@@ -47,6 +47,7 @@ class PitchListener internal constructor(private val drawableFootballPitch: Draw
                 }
             }
             "1vsLAN-client" -> currentActiveController = OneVsLanController(drawableFootballPitch, DefaultUserDialogPresenter())
+            "1vsWeb" -> WarmupController(drawableFootballPitch)
             else -> throw RuntimeException("Should never happen")
         }
     }

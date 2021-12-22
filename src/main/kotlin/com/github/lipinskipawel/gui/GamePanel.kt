@@ -147,6 +147,13 @@ class GamePanel : JPanel(BorderLayout()) {
         repaint()
     }
 
+    fun setPanel(panelToDisplay: JPanel) {
+        removeAll()
+        add(panelToDisplay, BorderLayout.CENTER)
+        SwingUtilities.invokeLater { revalidate() }
+        repaint()
+    }
+
     private fun creatingNORTH() {
         playerONE = JLabel("FIRST")
         playerTWO = JLabel("SECOND")

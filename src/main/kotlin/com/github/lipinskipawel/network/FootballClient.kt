@@ -20,7 +20,7 @@ class FootballClient(serverUri: URI?) : Connection {
     override fun isOpen(): Boolean = this.webSocketClient.isOpen
 
     override fun send(move: Move) {
-        TODO("Not yet implemented")
+        webSocketClient.send(move.toString())
     }
 
     override fun onReceivedData(onReceivedData: Consumer<Move>) {
@@ -28,14 +28,17 @@ class FootballClient(serverUri: URI?) : Connection {
     }
 }
 
-private class WebSocketClientWrapper(serverUri: URI?) : WebSocketClient(serverUri) {
+private class WebSocketClientWrapper(
+        serverUri: URI?
+) : WebSocketClient(serverUri) {
 
     override fun onOpen(handshakedata: ServerHandshake?) {
         println("Open: $handshakedata")
     }
 
-    override fun onMessage(message: String?) {
+    override fun onMessage(message: String) {
         println("Message: $message")
+//        onMessageCallback.accept(message)
     }
 
     override fun onClose(code: Int, reason: String?, remote: Boolean) {
