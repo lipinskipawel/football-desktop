@@ -147,6 +147,20 @@ class GamePanel : JPanel(BorderLayout()) {
         repaint()
     }
 
+    /**
+     * This method will replace all elements on current [GamePanel] with the [scrollPaneText] area. Given [message] will
+     * be visible on the [scrollPaneText] through the [textArea].
+     *
+     * Given [message] will be automatically [trimIndent].
+     */
+    fun setInformationText(message: String) {
+        removeAll()
+        textArea!!.text = message.trimIndent()
+        add(scrollPaneText, BorderLayout.CENTER)
+        SwingUtilities.invokeLater { revalidate() }
+        repaint()
+    }
+
     fun setPanel(panelToDisplay: JPanel) {
         removeAll()
         add(panelToDisplay, BorderLayout.CENTER)

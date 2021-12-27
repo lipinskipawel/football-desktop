@@ -7,6 +7,8 @@ import com.github.lipinskipawel.gui.RenderablePoint
 import com.github.lipinskipawel.network.ConnectionManager
 import com.github.lipinskipawel.network.ConnectionManager.Companion.getInetAddress
 import com.github.lipinskipawel.network.ConnectionManager.Companion.waitForConnection
+import com.github.lipinskipawel.web.OneVsWebController
+import com.github.lipinskipawel.web.connectToGame
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
 import java.net.InetAddress
@@ -47,7 +49,7 @@ class PitchListener internal constructor(private val drawableFootballPitch: Draw
                 }
             }
             "1vsLAN-client" -> currentActiveController = OneVsLanController(drawableFootballPitch, DefaultUserDialogPresenter())
-            "1vsWeb" -> WarmupController(drawableFootballPitch)
+            "1vsWeb" -> currentActiveController = OneVsWebController(drawableFootballPitch, connectToGame())
             else -> throw RuntimeException("Should never happen")
         }
     }

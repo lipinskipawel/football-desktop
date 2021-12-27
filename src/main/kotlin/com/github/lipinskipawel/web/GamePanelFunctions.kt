@@ -1,4 +1,4 @@
-package com.github.lipinskipawel
+package com.github.lipinskipawel.web
 
 import com.github.lipinskipawel.gui.Table
 import java.awt.BorderLayout
@@ -8,9 +8,11 @@ import javax.swing.*
  * This method create and returns JPanel that contains all necessary elements to display.
  * It will display a list of all players.
  */
-fun gamePanelWeb(): JPanel {
+fun gamePanelWeb(onRedirect: (RedirectEndpoint) -> Unit): JPanel {
     val listModel = DefaultListModel<String>()
-    connectToLobby(listModel)
+    connectToLobby(listModel) {
+        onRedirect(it)
+    }
     return gamePanelWeb(listModel)
 }
 
@@ -25,7 +27,7 @@ private fun gamePanelWeb(dataModel: DefaultListModel<String>): JPanel {
             JOptionPane.showMessageDialog(null, "Please select only one player")
             return@addActionListener
         }
-        println(playerList.selectedValue)
+        sendRequestToPlay(playerList.selectedValue)
     }
 
     result.add(playerList, BorderLayout.CENTER)

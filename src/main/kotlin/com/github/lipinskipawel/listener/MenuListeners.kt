@@ -1,8 +1,12 @@
 package com.github.lipinskipawel.listener
 
-import com.github.lipinskipawel.*
+import com.github.lipinskipawel.HeapDumper
+import com.github.lipinskipawel.OptionsMenu
+import com.github.lipinskipawel.PlayMenu
+import com.github.lipinskipawel.ThreadDumper
 import com.github.lipinskipawel.gui.GamePanel
 import com.github.lipinskipawel.network.ConnectionManager.Companion.getInetAddress
+import com.github.lipinskipawel.web.gamePanelWeb
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import java.net.InetAddress
@@ -58,8 +62,15 @@ class PlayListener(private val playMenu: PlayMenu,
     }
 
     private fun oneVsWeb() {
-        gamePanel.setPanel(gamePanelWeb())
-        actionGameController.setGameMode("1vsWeb")
+        val jPanel = gamePanelWeb {
+            actionGameController.setGameMode("1vsWeb")
+            gamePanel.setInformationText("""
+                In this mode you will be playing
+                against any player in the world.
+                Good luck
+                """)
+        }
+        gamePanel.setPanel(jPanel)
     }
 }
 
