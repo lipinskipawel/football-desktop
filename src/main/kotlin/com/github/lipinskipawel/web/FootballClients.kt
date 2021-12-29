@@ -1,10 +1,13 @@
 package com.github.lipinskipawel.web
 
+import com.github.lipinskipawel.board.engine.Move
+import com.github.lipinskipawel.network.Connection
 import com.google.gson.Gson
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import java.net.URI
 import java.util.*
+import java.util.function.Consumer
 import javax.swing.DefaultListModel
 import javax.swing.SwingUtilities
 
@@ -20,10 +23,19 @@ private const val username = "football-desktop"
  * This method is an API of this file.
  * This method will connect asynchronously to the Football Server.
  */
-fun connectToLobby(listModel: DefaultListModel<String>, callback: (RedirectEndpoint) -> Unit) {
+fun connectToLobby(
+        listModel: DefaultListModel<String>,
+        givenUsername: String = username,
+        connectBlocking: Boolean = false,
+        callback: (RedirectEndpoint) -> Unit = {}
+) {
     lobbyConnection = Optional.of(FootballLobbyClient(URI.create("ws://localhost:8080/lobby"), listModel))
-    lobbyConnection.get().addHeader("cookie", username)
-    lobbyConnection.get().connect()
+    lobbyConnection.get().addHeader("cookie", givenUsername)
+    if (connectBlocking) {
+        lobbyConnection.get().connectBlocking()
+    } else {
+        lobbyConnection.get().connect()
+    }
     callbackOnRedirect = callback
 }
 
@@ -32,6 +44,8 @@ fun connectToLobby(listModel: DefaultListModel<String>, callback: (RedirectEndpo
  * This method will try to send an [Player] object only when a connection has been established, and it's to the /lobby
  * endpoint.
  * Connection can be established only by calling [connectToLobby] method.
+ *
+ * @param username is the username of the opponent which current user will be playing with
  */
 fun sendRequestToPlay(username: String) {
     lobbyConnection.ifPresent { it.send(Player(username)) }
@@ -42,14 +56,27 @@ fun sendRequestToPlay(username: String) {
  * This method will establish a connection with the Football Server to play a game. This method must be called after the
  * successful connection to the lobby and after choosing opponent to play. See [connectToLobby] and [sendRequestToPlay].
  *
- * @return Pair<FootballGameClient, Boolean> FootballGameClient is a connection to the Football Server. Boolean is a
+ * @param givenUsername is a string representing current player username
+ * @param connectBlocking indicates whether establishing a connection to the Football Server should block
+ * @param onData is a callback that will be triggered on every received message
+ *
+ * @return Pair<Connection, Boolean> Connection is a connection to the Football Server. Boolean is a
  * marker whether client should move first
  */
-fun connectToGame(): Pair<FootballGameClient, Boolean> {
+fun connectToGame(
+        givenUsername: String = username,
+        connectBlocking: Boolean = false,
+        onData: (Move) -> Unit = {}
+): Pair<Connection, Boolean> {
     val footballClient = FootballGameClient(URI.create("ws://localhost:8080${redirect.redirectEndpoint}"))
-    footballClient.addHeader("cookie", username)
-    footballClient.connect()
-    return Pair(footballClient, redirect.first.username == username)
+    footballClient.addHeader("cookie", givenUsername)
+    if (connectBlocking) {
+        footballClient.connectBlocking()
+    } else {
+        footballClient.connect()
+    }
+    footballClient.onReceivedData(onData)
+    return Pair(footballClient, redirect.first.username == givenUsername)
 }
 
 /**
@@ -103,7 +130,7 @@ private class FootballLobbyClient(
     }
 
     override fun onClose(code: Int, reason: String?, remote: Boolean) {
-        println("onClose: $reason")
+        println("onClose: ${this::class.java}")
     }
 
     override fun onError(ex: java.lang.Exception?) {
@@ -111,10 +138,11 @@ private class FootballLobbyClient(
     }
 }
 
-class FootballGameClient(
+private class FootballGameClient(
         serverUri: URI,
-) : WebSocketClient(serverUri) {
+) : WebSocketClient(serverUri), Connection {
     private val parser: Gson = Gson()
+    private var onData: Consumer<Move> = Consumer { }
 
     /**
      * Sends given [move] to the Football Server.
@@ -131,8 +159,25 @@ class FootballGameClient(
         println("onOpen ${this::class.java}")
     }
 
-    override fun onMessage(message: String?) {
+    override fun onMessage(message: String) {
         println("onMessage ${this::class.java}")
+        val move = parser.fromJson<Move>(message, Move::class.java)
+        if (isThisAMove(move)) {
+            this.onData.accept(move)
+        }
+    }
+
+    /**
+     * This method tries to ensure that parsing of the message to the [Move] was successful.
+     */
+    private fun isThisAMove(move: Move): Boolean {
+        return try {
+            val size = move.move.size
+            true
+        } catch (error: RuntimeException) {
+            println("Move has not been given.")
+            false
+        }
     }
 
     override fun onClose(code: Int, reason: String?, remote: Boolean) {
@@ -141,6 +186,15 @@ class FootballGameClient(
 
     override fun onError(ex: Exception?) {
         println("onError ${this::class.java}")
+    }
+
+    override fun send(move: Move) {
+        val json = parser.toJson(GameMove(move.move.map { it.toString() }))
+        send(json)
+    }
+
+    override fun onReceivedData(onReceivedData: Consumer<Move>) {
+        onData = onReceivedData
     }
 }
 
