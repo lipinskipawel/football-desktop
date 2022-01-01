@@ -70,7 +70,10 @@ internal class OneVsWebController(
         }
         if (canMove()) {
             gameFlowController = gameFlowController.makeAMove(renderablePoint.position)
-            footballClient.send(sendLastMove())
+            if (!canMove()) {
+                val move = sendLastMove()
+                footballClient.send(move)
+            }
             drawableFootballPitch.drawPitch(gameFlowController.board(), Player.FIRST)
         }
     }
