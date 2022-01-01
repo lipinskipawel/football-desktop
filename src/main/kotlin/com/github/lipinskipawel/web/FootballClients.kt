@@ -1,5 +1,6 @@
 package com.github.lipinskipawel.web
 
+import com.github.lipinskipawel.board.engine.Direction
 import com.github.lipinskipawel.board.engine.Move
 import com.github.lipinskipawel.network.Connection
 import com.google.gson.Gson
@@ -144,33 +145,22 @@ private class FootballGameClient(
     private val parser: Gson = Gson()
     private var onData: Consumer<Move> = Consumer { }
 
-    /**
-     * Sends given [move] to the Football Server.
-     * Before sending, it converts given list of strings [move] to [GameMove] object that Football Server understands.
-     *
-     * @param move should contain [N, NE, E, SE, S, SW, W, NW]
-     */
-    fun send(move: List<String>) {
-        val json = parser.toJson(GameMove(move))
-        send(json)
-    }
-
     override fun onOpen(handshakedata: ServerHandshake?) {
         println("onOpen ${this::class.java}")
     }
 
     override fun onMessage(message: String) {
-        println("onMessage ${this::class.java}")
-        val move = parser.fromJson<Move>(message, Move::class.java)
+        println("onMessage $message")
+        val move = parser.fromJson<GameMove>(message, GameMove::class.java)
         if (isThisAMove(move)) {
-            this.onData.accept(move)
+            this.onData.accept(Move(move.move.map { Direction.valueOf(it) }))
         }
     }
 
     /**
-     * This method tries to ensure that parsing of the message to the [Move] was successful.
+     * This method tries to ensure that parsing of the message to the [GameMove] was successful.
      */
-    private fun isThisAMove(move: Move): Boolean {
+    private fun isThisAMove(move: GameMove): Boolean {
         return try {
             val size = move.move.size
             true
@@ -205,4 +195,4 @@ data class Player(val username: String)
 private data class ListOfPlayers(val players: List<Player>)
 private data class RequestToPlay(val opponent: Player)
 data class RedirectEndpoint(val redirectEndpoint: String, val first: Player, val second: Player)
-private data class GameMove(private val move: List<String>)
+private data class GameMove(val move: List<String>)
