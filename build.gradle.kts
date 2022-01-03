@@ -53,7 +53,7 @@ tasks.withType<JavaCompile>() {
 }
 
 application {
-    mainClass.set("com.github.lipinskipawel.App")
+    mainClass.set("com.github.lipinskipawel.AppKt")
 }
 
 tasks.test {
