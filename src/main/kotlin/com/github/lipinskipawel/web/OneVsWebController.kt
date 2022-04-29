@@ -51,12 +51,12 @@ internal class OneVsWebController(
             gameFlowController = gameFlowController.makeAMove(move)
             if (SwingUtilities.isEventDispatchThread()) {
                 logger.info("consuming move - drawing")
-                drawableFootballPitch.drawPitch(gameFlowController.board(), gameFlowController.player())
+                drawableFootballPitch.drawPitch(gameFlowController.board(), currentPlayer)
                 gameFlowController.onWinner { winner: Player -> winningMessage(winner) }
             } else {
                 logger.info("consuming move - drawing")
                 SwingUtilities.invokeLater {
-                    drawableFootballPitch.drawPitch(gameFlowController.board(), gameFlowController.player())
+                    drawableFootballPitch.drawPitch(gameFlowController.board(), currentPlayer)
                     gameFlowController.onWinner { winner: Player -> winningMessage(winner) }
                 }
             }
@@ -66,6 +66,7 @@ internal class OneVsWebController(
     override fun leftClick(renderablePoint: RenderablePoint) {
         logger.info("left click")
         if (gameFlowController.isGameOver()) {
+            gameFlowController.onWinner { winner: Player -> winningMessage(winner) }
             return
         }
         if (canMove()) {
@@ -74,7 +75,7 @@ internal class OneVsWebController(
                 val move = sendLastMove()
                 footballClient.send(move)
             }
-            drawableFootballPitch.drawPitch(gameFlowController.board(), Player.FIRST)
+            drawableFootballPitch.drawPitch(gameFlowController.board(), currentPlayer)
         }
     }
 

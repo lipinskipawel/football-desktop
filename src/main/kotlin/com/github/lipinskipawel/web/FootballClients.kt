@@ -18,7 +18,11 @@ import javax.swing.SwingUtilities
 private var lobbyConnection: Optional<FootballLobbyClient> = Optional.empty()
 private lateinit var callbackOnRedirect: (RedirectEndpoint) -> Unit
 private lateinit var redirect: RedirectEndpoint
-private const val username = "football-desktop"
+
+/**
+ * This field holds token that that was sent by the server.
+ */
+internal val userCredentials: MutablePair<String, String> = MutablePair("none", "none")
 
 /**
  * This method is an API of this file.
@@ -26,12 +30,13 @@ private const val username = "football-desktop"
  */
 fun connectToLobby(
         listModel: DefaultListModel<String>,
-        givenUsername: String = username,
+        token: String,
         connectBlocking: Boolean = false,
         callback: (RedirectEndpoint) -> Unit = {}
 ) {
     lobbyConnection = Optional.of(FootballLobbyClient(URI.create("ws://localhost:8080/lobby"), listModel))
-    lobbyConnection.get().addHeader("cookie", givenUsername)
+    userCredentials.second = token
+    lobbyConnection.get().addHeader("cookie", userCredentials.second)
     if (connectBlocking) {
         lobbyConnection.get().connectBlocking()
     } else {
@@ -57,7 +62,6 @@ fun sendRequestToPlay(username: String) {
  * This method will establish a connection with the Football Server to play a game. This method must be called after the
  * successful connection to the lobby and after choosing opponent to play. See [connectToLobby] and [sendRequestToPlay].
  *
- * @param givenUsername is a string representing current player username
  * @param connectBlocking indicates whether establishing a connection to the Football Server should block
  * @param onData is a callback that will be triggered on every received message
  *
@@ -65,19 +69,18 @@ fun sendRequestToPlay(username: String) {
  * marker whether client should move first
  */
 fun connectToGame(
-        givenUsername: String = username,
         connectBlocking: Boolean = false,
         onData: (Move) -> Unit = {}
 ): Pair<Connection, Boolean> {
     val footballClient = FootballGameClient(URI.create("ws://localhost:8080${redirect.redirectEndpoint}"))
-    footballClient.addHeader("cookie", givenUsername)
+    footballClient.addHeader("cookie", userCredentials.second)
     if (connectBlocking) {
         footballClient.connectBlocking()
     } else {
         footballClient.connect()
     }
     footballClient.onReceivedData(onData)
-    return Pair(footballClient, redirect.first.username == givenUsername)
+    return Pair(footballClient, redirect.first.username == userCredentials.first)
 }
 
 /**
@@ -186,6 +189,13 @@ private class FootballGameClient(
     override fun onReceivedData(onReceivedData: Consumer<Move>) {
         onData = onReceivedData
     }
+}
+
+data class MutablePair<A, B>(
+        var first: A,
+        var second: B
+) {
+    override fun toString(): String = "($first, $second)"
 }
 
 /**

@@ -8,9 +8,9 @@ import javax.swing.*
  * This method create and returns JPanel that contains all necessary elements to display.
  * It will display a list of all players.
  */
-fun gamePanelWeb(onRedirect: (RedirectEndpoint) -> Unit): JPanel {
+fun gamePanelWeb(token: String, onRedirect: (RedirectEndpoint) -> Unit): JPanel {
     val listModel = DefaultListModel<String>()
-    connectToLobby(listModel) {
+    connectToLobby(listModel = listModel, token = token) {
         onRedirect(it)
     }
     return gamePanelWeb(listModel)

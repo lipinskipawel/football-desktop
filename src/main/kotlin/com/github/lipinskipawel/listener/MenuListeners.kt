@@ -6,11 +6,18 @@ import com.github.lipinskipawel.PlayMenu
 import com.github.lipinskipawel.ThreadDumper
 import com.github.lipinskipawel.gui.GamePanel
 import com.github.lipinskipawel.network.ConnectionManager.Companion.getInetAddress
+import com.github.lipinskipawel.web.LoginForm
 import com.github.lipinskipawel.web.gamePanelWeb
+import com.github.lipinskipawel.web.userCredentials
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import java.net.InetAddress
+import java.net.URI
 import java.net.UnknownHostException
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpRequest.BodyPublishers
+import java.net.http.HttpResponse.BodyHandlers
 import javax.swing.JOptionPane
 
 /**
@@ -62,15 +69,33 @@ class PlayListener(private val playMenu: PlayMenu,
     }
 
     private fun oneVsWeb() {
-        val jPanel = gamePanelWeb {
-            actionGameController.setGameMode("1vsWeb")
-            gamePanel.setInformationText("""
+        val login = LoginForm()
+        login.showLoginForm {
+            val client = HttpClient
+                    .newBuilder()
+                    .build()
+            val req = HttpRequest
+                    .newBuilder(URI.create("http://localhost:8090/register"))
+                    .expectContinue(false)
+                    .header("username", it)
+                    .POST(BodyPublishers.noBody())
+                    .build()
+
+            val response = client.send(req, BodyHandlers.ofString())
+            login.dispose()
+
+            val token = response.headers().map()["token"]?.get(0) ?: throw RuntimeException("Token was not provided")
+            userCredentials.first = it
+            val jPanel = gamePanelWeb(token) {
+                actionGameController.setGameMode("1vsWeb")
+                gamePanel.setInformationText("""
                 In this mode you will be playing
                 against any player in the world.
                 Good luck
                 """)
+            }
+            gamePanel.setPanel(jPanel)
         }
-        gamePanel.setPanel(jPanel)
     }
 }
 
