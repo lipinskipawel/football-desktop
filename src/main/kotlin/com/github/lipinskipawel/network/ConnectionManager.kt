@@ -11,12 +11,6 @@ class ConnectionManager {
         private const val SERVER_PORT: Int = 9679
         private val LOGGER: Logger = LoggerFactory.getLogger(ConnectionManager::class.java)
 
-        fun connectTo(webSocketServer: URI): Connection {
-            val footballClient = FootballClient(webSocketServer)
-            footballClient.connectBlocking()
-            return footballClient
-        }
-
         fun connectTo(ipAddress: InetAddress): Connection {
             return connectTo(ipAddress, Duration.ZERO)
         }
