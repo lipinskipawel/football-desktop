@@ -1,7 +1,7 @@
 plugins {
     application
     java
-    kotlin("jvm") version "1.5.0"
+    kotlin("jvm") version "1.6.21"
     `maven-publish`
     id("com.github.johnrengelman.shadow") version "7.0.0"
 }
@@ -32,8 +32,8 @@ version = "1.0.0"
 description = "football-desktop"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_15
-    targetCompatibility = JavaVersion.VERSION_15
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
