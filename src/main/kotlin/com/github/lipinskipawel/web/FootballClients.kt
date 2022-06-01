@@ -34,7 +34,7 @@ fun connectToLobby(
         connectBlocking: Boolean = false,
         callback: (RedirectEndpoint) -> Unit = {}
 ) {
-    lobbyConnection = Optional.of(FootballLobbyClient(URI.create("ws://localhost:8080/lobby"), listModel))
+    lobbyConnection = Optional.of(FootballLobbyClient(URI.create("ws://localhost:8080/ws/lobby"), listModel))
     userCredentials.second = token
     lobbyConnection.get().addHeader("cookie", userCredentials.second)
     if (connectBlocking) {
