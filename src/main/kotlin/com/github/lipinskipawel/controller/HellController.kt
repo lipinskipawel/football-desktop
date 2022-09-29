@@ -43,7 +43,7 @@ Player ${gameFlowController.player().opposite()} tokens : ${tokenForPlayer[gameF
         drawableFootballPitch.drawPitch(gameFlowController.board(), Player.FIRST)
     }
 
-    private fun playerAllowedToUndo(board: Board): Boolean {
+    private fun playerAllowedToUndo(board: Board<Player>): Boolean {
         return tokenForPlayer[board.player]!! > 0
     }
 

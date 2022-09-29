@@ -8,7 +8,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class GameFlowController(
-        private val board: Board = Boards.immutableBoard(),
+        private val board: Board<Player> = Boards.immutableBoard(),
         private var endGame: Boolean = false
 ) {
     companion object {
@@ -71,16 +71,16 @@ class GameFlowController(
 
     fun undo(): GameFlowController = GameFlowController(board.undo())
 
-    fun board(): Board = this.board
+    fun board(): Board<Player> = this.board
 
     fun player(): Player = this.board.player
 
     fun isGameOver(): Boolean = this.endGame
 
-    fun gameOver(board: Board, gameOver: Boolean = true) = GameFlowController(board, gameOver)
+    fun gameOver(board: Board<Player>, gameOver: Boolean = true) = GameFlowController(board, gameOver)
 
 
-    private fun undoMoves(board: Board): GameFlowController {
+    private fun undoMoves(board: Board<Player>): GameFlowController {
         var beforeUndoBoard = board
         do {
             beforeUndoBoard = beforeUndoBoard.undo()
@@ -95,7 +95,7 @@ class GameFlowController(
         return GameFlowController(after)
     }
 
-    private fun isSmallMoveUndo(afterUndo: Board): Boolean = afterUndo.player == this.board.player
+    private fun isSmallMoveUndo(afterUndo: Board<Player>): Boolean = afterUndo.player == this.board.player
 
     private fun isHitTheCorner() = this.board.allLegalMoves().isEmpty()
 }

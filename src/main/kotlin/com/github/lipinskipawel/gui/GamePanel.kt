@@ -222,6 +222,16 @@ class GamePanel : JPanel(BorderLayout()) {
         }
     }
 
+    fun activePlayer(isFirstPlayer: Boolean) {
+        if (isFirstPlayer) {
+            playerONE!!.background = activeColor
+            playerTWO!!.background = defaultColor
+        } else {
+            playerTWO!!.background = activeColor
+            playerONE!!.background = defaultColor
+        }
+    }
+
     fun addButtonConnectListener(listener: ActionListener?) {
         buttonSouth!!.addActionListener(listener)
     }

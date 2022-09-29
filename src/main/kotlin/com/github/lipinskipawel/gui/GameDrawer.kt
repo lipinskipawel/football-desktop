@@ -19,7 +19,7 @@ class GameDrawer : JPanel(GridLayout(13, 9)) {
     private val pitch_stroke = BasicStroke(3f)
     private val move_stroke = BasicStroke(2f)
     private val last_move_stroke = BasicStroke(4f)
-    private var board: Board? = null
+    private var board: Board<*>? = null
     private var viewOfPlayer: Player
 
     init {
@@ -51,7 +51,7 @@ class GameDrawer : JPanel(GridLayout(13, 9)) {
         graph2D.dispose()
     }
 
-    fun drawMove(board: Board?, viewOfPlayer: Player) {
+    fun drawMove(board: Board<*>?, viewOfPlayer: Player) {
         this.board = board
         this.viewOfPlayer = viewOfPlayer
         repaint()

@@ -17,7 +17,7 @@ interface DrawableFootballPitch {
      * @param board
      * @param playerView
      */
-    fun drawPitch(board: Board, playerView: Player)
+    fun drawPitch(board: Board<*>, playerView: Player)
 
     /**
      * This method set the active player in the PLayer panel.
@@ -32,9 +32,9 @@ interface UserDialogPresenter {
 }
 
 internal class DrawableFacade(private val gameDrawer: GameDrawer, private val gamePanel: GamePanel) : DrawableFootballPitch {
-    override fun drawPitch(board: Board, playerView: Player) {
+    override fun drawPitch(board: Board<*>, playerView: Player) {
         gameDrawer.drawMove(board, playerView)
-        gamePanel.activePlayer(board.player)
+        gamePanel.activePlayer(board.playerProvider.first() == board.player)
     }
 
     override fun activePlayer(activePlayer: Player) {
