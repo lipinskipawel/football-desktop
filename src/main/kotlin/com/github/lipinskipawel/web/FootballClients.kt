@@ -110,12 +110,11 @@ private class FootballLobbyClient(
     }
 
     private fun parseResponse(json: String?): Any {
-        val parsed = parser.fromJson<ListOfPlayers>(json, ListOfPlayers::class.java)
+        val parsed = parser.fromJson(json, ListOfPlayers::class.java)
         return try {
-            val validationOfParser = parsed.players.size
-            parsed
+            parsed.players.size
         } catch (ee: NullPointerException) {
-            parser.fromJson<RedirectEndpoint>(json, RedirectEndpoint::class.java)
+            parser.fromJson(json, RedirectEndpoint::class.java)
         }
     }
 
@@ -154,7 +153,7 @@ private class FootballGameClient(
 
     override fun onMessage(message: String) {
         println("onMessage $message")
-        val move = parser.fromJson<GameMove>(message, GameMove::class.java)
+        val move = parser.fromJson(message, GameMove::class.java)
         if (isThisAMove(move)) {
             this.onData.accept(Move(move.move.map { Direction.valueOf(it) }))
         }

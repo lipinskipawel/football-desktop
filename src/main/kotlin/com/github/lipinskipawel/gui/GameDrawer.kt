@@ -10,7 +10,7 @@ import java.awt.geom.Ellipse2D
 import java.awt.geom.Line2D
 import java.awt.geom.Rectangle2D
 import java.util.*
-import java.util.stream.Collectors
+import java.util.stream.Collectors.toList
 import javax.swing.JPanel
 
 class GameDrawer : JPanel(GridLayout(13, 9)) {
@@ -75,11 +75,11 @@ class GameDrawer : JPanel(GridLayout(13, 9)) {
             }
         } else {
             removeAll()
-            Collections.reverse(pointTrackers)
+            pointTrackers.reverse()
             for (pointTracker in pointTrackers) {
                 add(pointTracker)
             }
-            Collections.reverse(pointTrackers)
+            pointTrackers.reverse()
         }
         // according to https://docs.oracle.com/javase/7/docs/api/javax/swing/JComponent.html#revalidate()
         invalidate()
@@ -175,8 +175,8 @@ class GameDrawer : JPanel(GridLayout(13, 9)) {
             moves.add(pointTrackers[58])
             val numberOfMoves = board!!.moveHistory()
                     .stream()
-                    .map { obj: Move -> obj.move }
-                    .mapToLong { obj: List<Direction> -> obj.size.toLong() }
+                    .map { it.move }
+                    .mapToLong { it.size.toLong() }
                     .sum()
             val allDirections = board!!.allMoves()
             for (i in allDirections.indices) {
@@ -204,9 +204,9 @@ class GameDrawer : JPanel(GridLayout(13, 9)) {
                                     allDirections: List<Direction>): Boolean {
         val allMoveDirections = allMoves
                 .stream()
-                .map { obj: Move -> obj.move }
-                .flatMap { obj: List<Direction> -> obj.stream() }
-                .collect(Collectors.toList())
+                .map { it.move }
+                .flatMap { it.stream() }
+                .collect(toList())
         return allMoveDirections.size == allDirections.size
     }
 
@@ -236,8 +236,8 @@ class GameDrawer : JPanel(GridLayout(13, 9)) {
             return position.toString()
         }
 
-         val xMiddle: Int get() = x + this.width / 2
-         val yMiddle: Int get() = y + this.height / 2
+        val xMiddle: Int get() = x + this.width / 2
+        val yMiddle: Int get() = y + this.height / 2
     }
 
     companion object {

@@ -14,7 +14,7 @@ package com.github.lipinskipawel.network
 internal class ProtocolClient {
 
     companion object {
-        private val PROTOCOL_VERSION: Byte = 0x01
+        private const val PROTOCOL_VERSION: Byte = 0x01
 
         fun createClient(): ProtocolClient {
             return ProtocolClient()

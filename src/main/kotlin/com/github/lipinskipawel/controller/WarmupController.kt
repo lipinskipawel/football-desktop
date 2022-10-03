@@ -8,17 +8,13 @@ import com.github.lipinskipawel.gui.RenderablePoint
 import javax.swing.JOptionPane
 
 internal class WarmupController(private val drawableFootballPitch: DrawableFootballPitch) : PitchController {
-    private var gameFlowController: GameFlowController
-
-    init {
-        gameFlowController = GameFlowController(Boards.immutableBoard(), false)
-    }
+    private var gameFlowController = GameFlowController(Boards.immutableBoard(), false)
 
     override fun leftClick(renderablePoint: RenderablePoint) {
         try {
             gameFlowController = gameFlowController.makeAMove(renderablePoint.position)
             drawableFootballPitch.drawPitch(gameFlowController.board(), Player.FIRST)
-            gameFlowController.onWinner { winner: Player -> winningMessage(winner) }
+            gameFlowController.onWinner { winningMessage(it) }
         } catch (ee: RuntimeException) {
             JOptionPane.showMessageDialog(null, "You cannot move like that.")
         }

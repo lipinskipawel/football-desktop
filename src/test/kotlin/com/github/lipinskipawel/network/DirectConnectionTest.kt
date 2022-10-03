@@ -13,7 +13,6 @@ import java.time.Duration
 import java.util.concurrent.Callable
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
-import java.util.function.Consumer
 
 /**
  * This test is responsible for testing the [DirectConnection] class.
@@ -50,10 +49,10 @@ internal class DirectConnectionTest {
         val startAssertions = CountDownLatch(1)
         var holder = Move(emptyList())
 
-        connection.onReceivedData(Consumer {
+        connection.onReceivedData {
             holder = it
             startAssertions.countDown()
-        })
+        }
         waitingForConnection.send(Move(listOf(Direction.W)))
 
         startAssertions.await()
@@ -67,10 +66,10 @@ internal class DirectConnectionTest {
         var holder = Move(emptyList())
 
         waitingForConnection
-                .onReceivedData(Consumer {
+                .onReceivedData {
                     holder = it
                     startAssertions.countDown()
-                })
+                }
         connection.send(Move(listOf(Direction.W)))
 
         startAssertions.await()
@@ -84,10 +83,10 @@ internal class DirectConnectionTest {
         var holder = Move(emptyList())
         val message = Move(listOf(Direction.E))
 
-        waitingForConnection.onReceivedData(Consumer {
+        waitingForConnection.onReceivedData {
             holder = it
             startAssertions.countDown()
-        })
+        }
         connection.send(message)
 
         startAssertions.await()
@@ -101,10 +100,10 @@ internal class DirectConnectionTest {
         var holder = Move(emptyList())
         val message = Move(listOf(Direction.E, Direction.NW))
 
-        waitingForConnection.onReceivedData(Consumer {
+        waitingForConnection.onReceivedData {
             holder = it
             startAssertions.countDown()
-        })
+        }
         connection.send(message)
 
         startAssertions.await()
@@ -118,10 +117,10 @@ internal class DirectConnectionTest {
         val startAssertion = CountDownLatch(1)
         var holder = Move(emptyList())
 
-        connection.onReceivedData(Consumer {
+        connection.onReceivedData {
             holder = it
             startAssertion.countDown()
-        })
+        }
         waitingForConnection.send(Move(listOf(Direction.W)))
 
         startAssertion.await()
@@ -138,22 +137,22 @@ internal class DirectConnectionTest {
         var secondHolder = Move(emptyList())
         var thirdHolder = Move(emptyList())
 
-        waitingForConnection.onReceivedData(Consumer {
+        waitingForConnection.onReceivedData {
             firstHolder = it
             waitForFirstMessage.countDown()
-        })
+        }
         connection.send(Move(listOf(Direction.W)))
         waitForFirstMessage.await()
-        waitingForConnection.onReceivedData(Consumer {
+        waitingForConnection.onReceivedData {
             secondHolder = it
             waitForSecondMessage.countDown()
-        })
+        }
         connection.send(Move(listOf(Direction.NW)))
         waitForSecondMessage.await()
-        waitingForConnection.onReceivedData(Consumer {
+        waitingForConnection.onReceivedData {
             thirdHolder = it
             startAssertion.countDown()
-        })
+        }
         connection.send(Move(listOf(Direction.E, Direction.SE)))
 
         startAssertion.await()
@@ -180,23 +179,23 @@ internal class DirectConnectionTest {
         var secondHolder = Move(emptyList())
         var secondHolderAssertion = Move(emptyList())
 
-        waitingForConnection.onReceivedData(Consumer {
+        waitingForConnection.onReceivedData {
             firstHolder = it
             waitForFirstMessage.countDown()
-        })
-        connection.onReceivedData(Consumer { firstHolderAssertion = it })
+        }
+        connection.onReceivedData { firstHolderAssertion = it }
         connection.send(Move(listOf(Direction.W)))
         waitForFirstMessage.await()
         waitingForConnection.send(firstHolder)
 
-        waitingForConnection.onReceivedData(Consumer {
+        waitingForConnection.onReceivedData {
             secondHolder = it
             waitForSecondMessage.countDown()
-        })
-        connection.onReceivedData(Consumer {
+        }
+        connection.onReceivedData {
             secondHolderAssertion = it
             startAssertions.countDown()
-        })
+        }
         connection.send(Move(listOf(Direction.NW, Direction.S)))
         waitForSecondMessage.await()
         waitingForConnection.send(secondHolder)

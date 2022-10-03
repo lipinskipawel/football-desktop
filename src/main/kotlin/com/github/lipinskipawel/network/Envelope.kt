@@ -2,6 +2,7 @@ package com.github.lipinskipawel.network
 
 import com.github.lipinskipawel.board.engine.Direction
 import com.github.lipinskipawel.board.engine.Move
+import java.util.stream.Collectors.joining
 
 class Envelope private constructor(private val encodedData: ByteArray) {
 
@@ -14,7 +15,7 @@ class Envelope private constructor(private val encodedData: ByteArray) {
                     .move
                     .map { java.lang.String.valueOf(it) }
                     .stream()
-                    .collect(java.util.stream.Collectors.joining(","))
+                    .collect(joining(","))
             return Envelope(ProtocolClient.createClient().convert(data))
         }
 

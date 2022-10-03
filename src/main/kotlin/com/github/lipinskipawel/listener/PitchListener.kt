@@ -17,20 +17,15 @@ import java.util.concurrent.Executors
 import javax.swing.SwingUtilities
 
 class PitchListener internal constructor(private val drawableFootballPitch: DrawableFootballPitch) : MouseListener {
-    private val pool: ExecutorService
-    private var currentActiveController: PitchController?
-
-    init {
-        pool = Executors.newSingleThreadExecutor()
-        currentActiveController = WarmupController(drawableFootballPitch)
-    }
+    private val pool: ExecutorService = Executors.newSingleThreadExecutor()
+    private var currentActiveController: PitchController = WarmupController(drawableFootballPitch)
 
     override fun mouseClicked(e: MouseEvent) {
         val src = e.source
         if (SwingUtilities.isRightMouseButton(e)) {
-            currentActiveController!!.rightClick((src as RenderablePoint))
+            currentActiveController.rightClick((src as RenderablePoint))
         } else if (SwingUtilities.isLeftMouseButton(e)) {
-            currentActiveController!!.leftClick((src as RenderablePoint))
+            currentActiveController.leftClick((src as RenderablePoint))
         }
     }
 
@@ -48,6 +43,7 @@ class PitchListener internal constructor(private val drawableFootballPitch: Draw
                     (currentActiveController as OneVsLanController?)!!.injectConnection(connection, false)
                 }
             }
+
             "1vsLAN-client" -> currentActiveController = OneVsLanController(drawableFootballPitch, DefaultUserDialogPresenter())
             "1vsWeb" -> currentActiveController = OneVsWebController(drawableFootballPitch, connectToGame())
             else -> throw RuntimeException("Should never happen")
@@ -55,9 +51,7 @@ class PitchListener internal constructor(private val drawableFootballPitch: Draw
     }
 
     private fun tearDownActiveController() {
-        if (currentActiveController != null) {
-            currentActiveController!!.tearDown()
-        }
+        currentActiveController.tearDown()
     }
 
     fun connectTo(address: InetAddress?) {

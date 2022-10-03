@@ -9,12 +9,10 @@ import com.github.lipinskipawel.gui.RenderablePoint
 import javax.swing.JOptionPane
 
 internal class HellController(private val drawableFootballPitch: DrawableFootballPitch) : PitchController {
-    private val tokenForPlayer: MutableMap<Player, Int>
-    private var gameFlowController: GameFlowController
+    private val tokenForPlayer = mutableMapOf<Player, Int>()
+    private var gameFlowController = GameFlowController(Boards.immutableBoard(), false)
 
     init {
-        gameFlowController = GameFlowController(Boards.immutableBoard(), false)
-        tokenForPlayer = HashMap()
         tokenForPlayer[Player.FIRST] = 2
         tokenForPlayer[Player.SECOND] = 2
     }
@@ -25,7 +23,7 @@ internal class HellController(private val drawableFootballPitch: DrawableFootbal
         }
         gameFlowController = gameFlowController.makeAMove(renderablePoint.position)
         drawableFootballPitch.drawPitch(gameFlowController.board(), Player.FIRST)
-        gameFlowController.onWinner { winner: Player -> winningMessage(winner) }
+        gameFlowController.onWinner { winningMessage(it) }
     }
 
     override fun rightClick(renderablePoint: RenderablePoint) {
@@ -33,11 +31,13 @@ internal class HellController(private val drawableFootballPitch: DrawableFootbal
             return
         }
         if (playerAllowedToUndo(gameFlowController.board())) {
-            gameFlowController = gameFlowController.undoPlayerMove { null }
-            tokenForPlayer.compute(gameFlowController.player()) { key: Player?, `val`: Int? -> `val`!! - 1 }
-            tokenForPlayer.compute(gameFlowController.player().opposite()) { key: Player?, `val`: Int? -> `val`!! + 1 }
-            val message = """Player ${gameFlowController.player()} tokens : ${tokenForPlayer[gameFlowController.player()]}
-Player ${gameFlowController.player().opposite()} tokens : ${tokenForPlayer[gameFlowController.player().opposite()]}"""
+            gameFlowController = gameFlowController.undoPlayerMove { }
+            tokenForPlayer.compute(gameFlowController.player()) { _: Player?, points -> points!! - 1 }
+            tokenForPlayer.compute(gameFlowController.player().opposite()) { _: Player?, points -> points!! + 1 }
+            val message = """
+                Player ${gameFlowController.player()} tokens : ${tokenForPlayer[gameFlowController.player()]}
+                Player ${gameFlowController.player().opposite()} tokens : ${tokenForPlayer[gameFlowController.player().opposite()]}
+                """
             JOptionPane.showMessageDialog(null, message)
         }
         drawableFootballPitch.drawPitch(gameFlowController.board(), Player.FIRST)
@@ -54,7 +54,7 @@ Player ${gameFlowController.player().opposite()} tokens : ${tokenForPlayer[gameF
     override fun tearDown() {
         gameFlowController = GameFlowController(Boards.immutableBoard(), false)
         drawableFootballPitch.drawPitch(gameFlowController.board(), gameFlowController.player())
-        tokenForPlayer.compute(Player.FIRST) { currentValue: Player?, oldValue: Int? -> 2 }
-        tokenForPlayer.compute(Player.SECOND) { currentValue: Player?, oldValue: Int? -> 2 }
+        tokenForPlayer[Player.FIRST] = 2
+        tokenForPlayer[Player.SECOND] = 2
     }
 }

@@ -1,7 +1,6 @@
 package com.github.lipinskipawel.web
 
 import com.github.lipinskipawel.board.engine.Boards
-import com.github.lipinskipawel.board.engine.Direction
 import com.github.lipinskipawel.board.engine.Move
 import com.github.lipinskipawel.board.engine.Player
 import com.github.lipinskipawel.controller.PitchController
@@ -11,7 +10,7 @@ import com.github.lipinskipawel.gui.RenderablePoint
 import com.github.lipinskipawel.network.Connection
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.stream.Collectors
+import java.util.stream.Collectors.joining
 import javax.swing.JOptionPane
 import javax.swing.SwingUtilities
 
@@ -45,19 +44,19 @@ internal class OneVsWebController(
             val movesInString = move
                     .move
                     .stream()
-                    .map { obj: Direction -> obj.toString() }
-                    .collect(Collectors.joining(", "))
+                    .map { it.toString() }
+                    .collect(joining(", "))
             logger.info("consuming move from socket: $movesInString")
             gameFlowController = gameFlowController.makeAMove(move)
             if (SwingUtilities.isEventDispatchThread()) {
                 logger.info("consuming move - drawing")
                 drawableFootballPitch.drawPitch(gameFlowController.board(), currentPlayer)
-                gameFlowController.onWinner { winner: Player -> winningMessage(winner) }
+                gameFlowController.onWinner { winningMessage(it) }
             } else {
                 logger.info("consuming move - drawing")
                 SwingUtilities.invokeLater {
                     drawableFootballPitch.drawPitch(gameFlowController.board(), currentPlayer)
-                    gameFlowController.onWinner { winner: Player -> winningMessage(winner) }
+                    gameFlowController.onWinner { winningMessage(it) }
                 }
             }
         }
@@ -66,7 +65,7 @@ internal class OneVsWebController(
     override fun leftClick(renderablePoint: RenderablePoint) {
         logger.info("left click")
         if (gameFlowController.isGameOver()) {
-            gameFlowController.onWinner { winner: Player -> winningMessage(winner) }
+            gameFlowController.onWinner { winningMessage(it) }
             return
         }
         if (canMove()) {

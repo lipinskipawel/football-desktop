@@ -35,9 +35,9 @@ class Table(jMenuBar: JMenuBar, gamePanel: GamePanel, gameDrawer: JPanel) {
         jMenuBar
                 .components
                 .map { it as JMenu }
-                .forEach { jMenu ->
-                    jMenu.font = globalMenuFont
-                    jMenu.menuComponents.forEach { it.font = globalMenuFont }
+                .forEach {
+                    it.font = globalMenuFont
+                    it.menuComponents.forEach { comp -> comp.font = globalMenuFont }
                 }
         gameFrame.jMenuBar = jMenuBar
 

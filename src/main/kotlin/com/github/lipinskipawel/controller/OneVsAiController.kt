@@ -19,31 +19,27 @@ import javax.swing.SwingUtilities
 
 internal class OneVsAiController(private val drawableFootballPitch: DrawableFootballPitch) : PitchController {
     private val logger = LoggerFactory.getLogger(OneVsAiController::class.java)
-    private val pool: ExecutorService
-    private val canHumanMove: AtomicBoolean
-    private val gameFlowController: AtomicReference<GameFlowController>
-    private val strategy: MoveStrategy
+    private val pool: ExecutorService = Executors.newFixedThreadPool(4)
+    private val canHumanMove: AtomicBoolean = AtomicBoolean(true)
+    private val gameFlowController: AtomicReference<GameFlowController> = AtomicReference(GameFlowController())
+    private val strategy: MoveStrategy = MoveStrategy
+            .defaultMoveStrategyBuilder()
+            .withBoardEvaluator(SmartBoardEvaluator())
+            .withDepth(3)
+            .build()
     private var findMoveForAI: Future<*>
 
     init {
-        pool = Executors.newFixedThreadPool(4)
-        canHumanMove = AtomicBoolean(true)
-        gameFlowController = AtomicReference(GameFlowController())
-        strategy = MoveStrategy
-                .defaultMoveStrategyBuilder()
-                .withBoardEvaluator(SmartBoardEvaluator())
-                .withDepth(3)
-                .build()
         findMoveForAI = CompletableFuture.completedFuture<Any?>(null)
     }
 
     override fun leftClick(renderablePoint: RenderablePoint) {
         if (canHumanMove()) {
             logger.info("left click")
-            gameFlowController.updateAndGet { it: GameFlowController -> it.makeAMove(renderablePoint.position) }
+            gameFlowController.updateAndGet { it.makeAMove(renderablePoint.position) }
             drawableFootballPitch.drawPitch(gameFlowController.get().board(), Player.FIRST)
-            gameFlowController.get().onWinner { winner: Player -> winningMessage(winner) }
-            if (isSearchingForMoveIsNecessary) {
+            gameFlowController.get().onWinner { winningMessage(it) }
+            if (isSearchingForMoveIsNecessary()) {
                 findMoveForAI = pool.submit { searchForBestMoveAndDrawIt() }
                 canHumanMove.set(false)
             }
@@ -52,11 +48,10 @@ internal class OneVsAiController(private val drawableFootballPitch: DrawableFoot
         }
     }
 
-    private val isSearchingForMoveIsNecessary: Boolean
-        private get() {
-            val didHumanMadeFullMove = gameFlowController.get().player() !== Player.FIRST
-            return didHumanMadeFullMove && !gameFlowController.get().isGameOver()
-        }
+    private fun isSearchingForMoveIsNecessary(): Boolean {
+        val didHumanMadeFullMove = gameFlowController.get().player() !== Player.FIRST
+        return didHumanMadeFullMove && !gameFlowController.get().isGameOver()
+    }
 
     private fun canHumanMove(): Boolean {
         return canHumanMove.get()
@@ -71,7 +66,7 @@ internal class OneVsAiController(private val drawableFootballPitch: DrawableFoot
         val move = strategy.searchForTheBestMove(gameFlowController.get().board())
         logger.info("computed move : " + move.move)
         if (!Thread.currentThread().isInterrupted) {
-            gameFlowController.updateAndGet { it: GameFlowController -> it.makeAMove(move) }
+            gameFlowController.updateAndGet { it.makeAMove(move) }
             SwingUtilities.invokeLater { drawableFootballPitch.drawPitch(gameFlowController.get().board(), Player.FIRST) }
             gameFlowController.get().onPlayerHitTheCorner(displayMessageAndSendMetrics())
         } else {
@@ -86,7 +81,7 @@ internal class OneVsAiController(private val drawableFootballPitch: DrawableFoot
                     .get()
                     .board()
                     .takeTheWinner()
-                    .ifPresent { it: Player? ->
+                    .ifPresent {
                         val message = String.format("Player %s won the game.", it)
                         JOptionPane.showMessageDialog(null, message)
                     }
@@ -96,7 +91,7 @@ internal class OneVsAiController(private val drawableFootballPitch: DrawableFoot
 
     override fun rightClick(renderablePoint: RenderablePoint) {
         if (canHumanMove()) {
-            gameFlowController.updateAndGet { obj: GameFlowController -> obj.undoOnlyCurrentPlayerMove() }
+            gameFlowController.updateAndGet { it.undoOnlyCurrentPlayerMove() }
             drawableFootballPitch.drawPitch(gameFlowController.get().board(), Player.FIRST)
         }
     }

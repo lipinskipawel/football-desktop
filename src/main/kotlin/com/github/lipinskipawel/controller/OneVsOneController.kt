@@ -8,11 +8,7 @@ import com.github.lipinskipawel.gui.RenderablePoint
 import javax.swing.JOptionPane
 
 internal class OneVsOneController(private val drawableFootballPitch: DrawableFootballPitch) : PitchController {
-    private var gameFlowController: GameFlowController
-
-    init {
-        gameFlowController = GameFlowController(Boards.immutableBoard(), false)
-    }
+    private var gameFlowController = GameFlowController(Boards.immutableBoard(), false)
 
     override fun leftClick(renderablePoint: RenderablePoint) {
         if (gameFlowController.isGameOver()) {
@@ -20,14 +16,14 @@ internal class OneVsOneController(private val drawableFootballPitch: DrawableFoo
         }
         gameFlowController = gameFlowController.makeAMove(renderablePoint.position)
         drawableFootballPitch.drawPitch(gameFlowController.board(), Player.FIRST)
-        gameFlowController.onWinner { winner: Player -> winningMessage(winner) }
+        gameFlowController.onWinner { winningMessage(it) }
     }
 
     override fun rightClick(renderablePoint: RenderablePoint) {
         if (gameFlowController.isGameOver()) {
             return
         }
-        gameFlowController = gameFlowController.undoPlayerMove { null }
+        gameFlowController = gameFlowController.undoPlayerMove { }
         drawableFootballPitch.drawPitch(gameFlowController.board(), Player.FIRST)
     }
 
