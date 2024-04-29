@@ -5,8 +5,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
 abstract class AppBuilder : DefaultTask() {
-    @Input
-    var installerDirectory: String = project.projectDir.resolve("bundle").absolutePath
+    private val installer = project.layout.buildDirectory.get().dir("bundle").asFile
 
     @Input
     var runnableScriptName = "play"
@@ -30,33 +29,37 @@ abstract class AppBuilder : DefaultTask() {
     }
 
     private fun createInstallerDirectory() {
-        logger.info("Creating installer directory: $installerDirectory")
-        project.file(installerDirectory).mkdir()
+        if (!installer.exists()) {
+            installer.mkdirs()
+        }
     }
 
     private fun createExecutableScript() {
         logger.info("Creating $runnableScriptName file")
-        val executable = project.file(installerDirectory).resolve(runnableScriptName)
+        val executable = installer.resolve(runnableScriptName)
         executable.createNewFile()
         executable.writeText(contentOfRunnableScript)
         executable.setExecutable(true)
     }
 
     private fun copyJarFileToInstallerDirectory() {
-        val jarNameOfCompiledSourceCode = project.projectDir
-            .resolve("build")
-            .resolve("libs")
-            .listFiles().first { !it.endsWith(".jar") }
-        jarNameOfCompiledSourceCode
-            .copyTo(project.file(installerDirectory).resolve(jarNameOfCompiledSourceCode.name), overwrite = true)
+        project.copy { it ->
+            val shadowJar = installer
+                .parentFile
+                .resolve("libs")
+                .listFiles()
+                ?.first { it.name.endsWith(".jar") }
+            it.from(shadowJar)
+            it.into(installer)
+        }
     }
 
     private fun moveJdkToInstallerDirectory() {
-        logger.info("Copying jdk files to $installerDirectory")
+        logger.info("Copying jdk files to $installer")
         project.file(jdkDirectory)
             .listFiles()
             .first()
-            .copyRecursively(project.file(installerDirectory).resolve("jdk"), overwrite = true)
+            .copyRecursively(project.file(installer).resolve("jdk"), overwrite = true)
         logger.info("Setting executable to java file")
         if (this.name == "linux") {
             makeExecutable("java")
@@ -67,7 +70,7 @@ abstract class AppBuilder : DefaultTask() {
 
     private fun makeExecutable(name: String) {
         try {
-            project.file(installerDirectory)
+            project.file(installer)
                 .resolve("jdk")
                 .resolve("bin")
                 .resolve(name)
