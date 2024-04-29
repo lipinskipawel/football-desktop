@@ -1,9 +1,12 @@
+import com.github.lipinskipawel.AppBuilder
+
 plugins {
     application
     java
     kotlin("jvm") version "1.6.21"
     `maven-publish`
     id("com.github.johnrengelman.shadow") version "7.0.0"
+    id("com.github.lipinskipawel.football-desktop.app-builder") version ("0.1.0")
 }
 
 repositories {
@@ -76,78 +79,4 @@ tasks.register<AppBuilder>("windows") {
     contentOfRunnableScript = """
         start jdk/bin/javaw -jar --enable-preview football-gui-game-1.0.0-all.jar
     """.trimIndent()
-}
-
-abstract class AppBuilder : DefaultTask() {
-    @Input
-    var installerDirectory: String = project.projectDir.resolve("bundle").absolutePath
-
-    @Input
-    var runnableScriptName = "play"
-
-    @Input
-    var contentOfRunnableScript = ""
-
-    @Input
-    var jdkDirectory = project.rootDir.resolve("jdks").absolutePath
-
-    @TaskAction
-    fun build() {
-        logger.info("$name tasks started")
-
-        createInstallerDirectory()
-        createExecutableScript()
-        copyJarFileToInstallerDirectory()
-        moveJdkToInstallerDirectory()
-
-        logger.info("$name tasks stopped")
-    }
-
-    private fun createInstallerDirectory() {
-        logger.info("Creating installer directory: $installerDirectory")
-        project.file(installerDirectory).mkdir()
-    }
-
-    private fun createExecutableScript() {
-        logger.info("Creating $runnableScriptName file")
-        val executable = project.file(installerDirectory).resolve(runnableScriptName)
-        executable.createNewFile()
-        executable.writeText(contentOfRunnableScript)
-        executable.setExecutable(true)
-    }
-
-    private fun copyJarFileToInstallerDirectory() {
-        val jarNameOfCompiledSourceCode = project.projectDir
-                .resolve("build")
-                .resolve("libs")
-                .listFiles().first { !it.endsWith(".jar") }
-        jarNameOfCompiledSourceCode
-                .copyTo(project.file(installerDirectory).resolve(jarNameOfCompiledSourceCode.name), overwrite = true)
-    }
-
-    private fun moveJdkToInstallerDirectory() {
-        logger.info("Copying jdk files to $installerDirectory")
-        project.file(jdkDirectory)
-                .listFiles()
-                .first()
-                .copyRecursively(project.file(installerDirectory).resolve("jdk"), overwrite = true)
-        logger.info("Setting executable to java file")
-        if (this.name == "linux") {
-            makeExecutable("java")
-        } else {
-            makeExecutable("javaw")
-        }
-    }
-
-    private fun makeExecutable(name: String) {
-        try {
-            project.file(installerDirectory)
-                    .resolve("jdk")
-                    .resolve("bin")
-                    .resolve(name)
-                    .setExecutable(true)
-        } catch (ee: Exception) {
-            logger.error(ee.toString())
-        }
-    }
 }
