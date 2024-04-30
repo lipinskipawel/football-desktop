@@ -1,5 +1,3 @@
-import com.github.lipinskipawel.AppBuilder
-
 plugins {
     application
     java
@@ -67,22 +65,6 @@ val launcher = javaToolchains.launcherFor {
     languageVersion.set(JavaLanguageVersion.of(17))
 }
 
-tasks.register<AppBuilder>("linux") {
-    dependsOn("shadowJar")
-    jdkDirectoryToolchain.set(launcher.map { it.metadata.installationPath })
-    runnableScriptName = "play.sh"
-    contentOfRunnableScript = """
-        #!/usr/bin/env bash
-        
-        ./jdk/bin/java -jar football-gui-game-1.0.0-all.jar
-    """.trimIndent()
-}
-
-tasks.register<AppBuilder>("windows") {
-    dependsOn("shadowJar")
-    jdkDirectoryToolchain.set(launcher.map { it.metadata.installationPath })
-    runnableScriptName = "play.bat"
-    contentOfRunnableScript = """
-        start jdk/bin/javaw -jar --enable-preview football-gui-game-1.0.0-all.jar
-    """.trimIndent()
+appBuilder {
+    jdkDirectory.set(launcher.map { it.metadata.installationPath })
 }
