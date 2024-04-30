@@ -1,20 +1,22 @@
 package com.github.lipinskipawel
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
+import java.io.File
 
 abstract class AppBuilder : DefaultTask() {
     private val installer = project.layout.buildDirectory.get().dir("bundle").asFile
+
+    @get:Input
+    abstract val jdkDirectoryToolchain: DirectoryProperty
 
     @Input
     var runnableScriptName = "play"
 
     @Input
     var contentOfRunnableScript = ""
-
-    @Input
-    var jdkDirectory = project.rootDir.resolve("jdks").absolutePath
 
     @TaskAction
     fun build() {
@@ -55,28 +57,18 @@ abstract class AppBuilder : DefaultTask() {
     }
 
     private fun moveJdkToInstallerDirectory() {
-        logger.info("Copying jdk files to $installer")
-        project.file(jdkDirectory)
-            .listFiles()
-            .first()
-            .copyRecursively(project.file(installer).resolve("jdk"), overwrite = true)
+        val resolve = installer.resolve("jdk")
+        logger.info("Copy jdk from toolchain to installer: $resolve")
+        project.copy {
+            it.from(jdkDirectoryToolchain)
+            it.into(resolve)
+        }
         logger.info("Setting executable to java file")
-        if (this.name == "linux") {
-            makeExecutable("java")
+        val javaFilename: File = if (name == "linux") {
+            resolve.resolve("bin").resolve("java")
         } else {
-            makeExecutable("javaw")
+            resolve.resolve("bin").resolve("javaw")
         }
-    }
-
-    private fun makeExecutable(name: String) {
-        try {
-            project.file(installer)
-                .resolve("jdk")
-                .resolve("bin")
-                .resolve(name)
-                .setExecutable(true)
-        } catch (ee: Exception) {
-            logger.error(ee.toString())
-        }
+        javaFilename.setExecutable(true)
     }
 }

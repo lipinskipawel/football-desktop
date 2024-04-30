@@ -63,8 +63,13 @@ tasks.test {
     useJUnitPlatform()
 }
 
+val launcher = javaToolchains.launcherFor {
+    languageVersion.set(JavaLanguageVersion.of(17))
+}
+
 tasks.register<AppBuilder>("linux") {
     dependsOn("shadowJar")
+    jdkDirectoryToolchain.set(launcher.map { it.metadata.installationPath })
     runnableScriptName = "play.sh"
     contentOfRunnableScript = """
         #!/usr/bin/env bash
@@ -75,6 +80,7 @@ tasks.register<AppBuilder>("linux") {
 
 tasks.register<AppBuilder>("windows") {
     dependsOn("shadowJar")
+    jdkDirectoryToolchain.set(launcher.map { it.metadata.installationPath })
     runnableScriptName = "play.bat"
     contentOfRunnableScript = """
         start jdk/bin/javaw -jar --enable-preview football-gui-game-1.0.0-all.jar
