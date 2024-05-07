@@ -9,6 +9,15 @@ interface AppBuilderExtension {
 
     enum class OsName {
         LINUX,
-        WINDOWS
+        WINDOWS;
+
+        companion object {
+            fun detectOsName(): OsName {
+                return when (System.getProperty("os.name").lowercase()) {
+                    "linux" -> LINUX
+                    else -> WINDOWS
+                }
+            }
+        }
     }
 }

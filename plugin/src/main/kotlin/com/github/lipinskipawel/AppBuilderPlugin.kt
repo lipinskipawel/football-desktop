@@ -1,7 +1,9 @@
 package com.github.lipinskipawel
 
 import com.github.lipinskipawel.AppBuilderExtension.OsName
+import com.github.lipinskipawel.AppBuilderExtension.OsName.Companion.detectOsName
 import com.github.lipinskipawel.AppBuilderExtension.OsName.LINUX
+import com.github.lipinskipawel.AppBuilderExtension.OsName.WINDOWS
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.Directory
@@ -14,7 +16,7 @@ class AppBuilderPlugin : Plugin<Project> {
         project.plugins.withId("com.github.johnrengelman.shadow") {
             val extension = project.extensions.create("appBuilder", AppBuilderExtension::class.java)
             jdkFromToolchain(project)?.let { extension.jdkDirectory.convention(it) }
-            extension.osName.convention(LINUX)
+            extension.osName.convention(detectOsName())
 
             createOsSpecificAppBuilderTask(project, extension)
         }
@@ -44,10 +46,9 @@ class AppBuilderPlugin : Plugin<Project> {
     private data class OsSpecificConfig(val scriptName: String, val scriptContent: String)
 
     private fun osSpecificConfig(osName: OsName): OsSpecificConfig {
-        return if (osName == LINUX) {
-            linuxScript()
-        } else {
-            windowsScript()
+        return when (osName) {
+            LINUX -> linuxScript()
+            WINDOWS -> windowsScript()
         }
     }
 
