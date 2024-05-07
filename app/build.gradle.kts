@@ -39,11 +39,3 @@ application {
 tasks.test {
     useJUnitPlatform()
 }
-
-val launcher = javaToolchains.launcherFor {
-    languageVersion.set(JavaLanguageVersion.of(17))
-}
-
-appBuilder {
-    jdkDirectory.set(launcher.map { it.metadata.installationPath })
-}

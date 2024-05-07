@@ -4,15 +4,29 @@ import com.github.lipinskipawel.AppBuilderExtension.OsName
 import com.github.lipinskipawel.AppBuilderExtension.OsName.LINUX
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.Directory
+import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.provider.Provider
+import org.gradle.jvm.toolchain.JavaToolchainService
 
 class AppBuilderPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.plugins.withId("com.github.johnrengelman.shadow") {
             val extension = project.extensions.create("appBuilder", AppBuilderExtension::class.java)
+            jdkFromToolchain(project)?.let { extension.jdkDirectory.convention(it) }
             extension.osName.convention(LINUX)
 
             createOsSpecificAppBuilderTask(project, extension)
         }
+    }
+
+    private fun jdkFromToolchain(project: Project): Provider<Directory>? {
+        return project.extensions.findByType(JavaPluginExtension::class.java)
+            ?.toolchain
+            ?.let {
+                project.extensions.findByType(JavaToolchainService::class.java)?.launcherFor(it)
+            }
+            ?.map { it.metadata.installationPath }
     }
 
     private fun createOsSpecificAppBuilderTask(project: Project, extension: AppBuilderExtension) {
