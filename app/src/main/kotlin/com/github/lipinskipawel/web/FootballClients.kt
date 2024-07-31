@@ -29,10 +29,10 @@ internal val userCredentials: MutablePair<String, String> = MutablePair("none", 
  * This method will connect asynchronously to the Football Server.
  */
 fun connectToLobby(
-        listModel: DefaultListModel<String>,
-        token: String,
-        connectBlocking: Boolean = false,
-        callback: (RedirectEndpoint) -> Unit = {}
+    listModel: DefaultListModel<String>,
+    token: String,
+    connectBlocking: Boolean = false,
+    callback: (RedirectEndpoint) -> Unit = {}
 ) {
     lobbyConnection = Optional.of(FootballLobbyClient(URI.create("ws://localhost:8080/ws/lobby"), listModel))
     userCredentials.second = token
@@ -69,8 +69,8 @@ fun sendRequestToPlay(username: String) {
  * marker whether client should move first
  */
 fun connectToGame(
-        connectBlocking: Boolean = false,
-        onData: (Move) -> Unit = {}
+    connectBlocking: Boolean = false,
+    onData: (Move) -> Unit = {}
 ): Pair<Connection, Boolean> {
     val footballClient = FootballGameClient(URI.create("ws://localhost:8080${redirect.redirectEndpoint}"))
     footballClient.addHeader("cookie", userCredentials.second)
@@ -87,8 +87,8 @@ fun connectToGame(
  * Private helper class that will connect to /lobby endpoint of Football Server instance.
  */
 private class FootballLobbyClient(
-        serverUri: URI,
-        private val listModel: DefaultListModel<String>
+    serverUri: URI,
+    private val listModel: DefaultListModel<String>
 ) : WebSocketClient(serverUri) {
     private val parser: Gson = Gson()
 
@@ -110,9 +110,10 @@ private class FootballLobbyClient(
     }
 
     private fun parseResponse(json: String?): Any {
-        val parsed = parser.fromJson(json, ListOfPlayers::class.java)
         return try {
+            val parsed = parser.fromJson(json, ListOfPlayers::class.java)
             parsed.players.size
+            return parsed
         } catch (ee: NullPointerException) {
             parser.fromJson(json, RedirectEndpoint::class.java)
         }
@@ -142,7 +143,7 @@ private class FootballLobbyClient(
 }
 
 private class FootballGameClient(
-        serverUri: URI,
+    serverUri: URI,
 ) : WebSocketClient(serverUri), Connection {
     private val parser: Gson = Gson()
     private var onData: Consumer<Move> = Consumer { }
@@ -191,8 +192,8 @@ private class FootballGameClient(
 }
 
 data class MutablePair<A, B>(
-        var first: A,
-        var second: B
+    var first: A,
+    var second: B
 ) {
     override fun toString(): String = "($first, $second)"
 }

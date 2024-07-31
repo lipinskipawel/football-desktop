@@ -17,7 +17,7 @@ import java.net.UnknownHostException
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpRequest.BodyPublishers
-import java.net.http.HttpResponse.BodyHandlers
+import java.net.http.HttpResponse.BodyHandlers.discarding
 import javax.swing.JOptionPane
 
 /**
@@ -71,9 +71,7 @@ class PlayListener(private val playMenu: PlayMenu,
     private fun oneVsWeb() {
         val login = LoginForm()
         login.showLoginForm {
-            val client = HttpClient
-                    .newBuilder()
-                    .build()
+            val client = HttpClient.newHttpClient()
             val req = HttpRequest
                     .newBuilder(URI.create("http://localhost:8090/register"))
                     .expectContinue(false)
@@ -81,7 +79,7 @@ class PlayListener(private val playMenu: PlayMenu,
                     .POST(BodyPublishers.noBody())
                     .build()
 
-            val response = client.send(req, BodyHandlers.ofString())
+            val response = client.send(req, discarding())
             login.dispose()
 
             val token = response.headers().map()["token"]?.get(0) ?: throw RuntimeException("Token was not provided")
