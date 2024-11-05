@@ -12,6 +12,8 @@ repositories {
 }
 
 dependencies {
+    implementation(platform("com.github.lipinskipawel:football-platform:1.+"))
+
     implementation("com.google.code.gson:gson:2.8.6")
     implementation("com.github.lipinskipawel:game-engine:5.0.0")
     implementation("org.slf4j:slf4j-api:2.0.0-alpha1")
@@ -19,9 +21,9 @@ dependencies {
     implementation("org.java-websocket:Java-WebSocket:1.5.2")
     implementation("com.google.code.gson:gson:2.8.9")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.5.2")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.2")
-    testImplementation("org.assertj:assertj-core:3.12.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine")
+    testImplementation("org.junit.jupiter:junit-jupiter-api")
+    testImplementation("org.assertj:assertj-core")
 }
 
 group = "com.github.lipinskipawel"
