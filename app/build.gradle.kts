@@ -15,7 +15,7 @@ dependencies {
     implementation(platform("com.github.lipinskipawel:football-platform:1.+"))
 
     implementation("com.google.code.gson:gson:2.8.6")
-    implementation("com.github.lipinskipawel:game-engine:5.0.0")
+    implementation("io.github.lipinskipawel:football-game-engine:7.0.2")
     implementation("org.slf4j:slf4j-api:2.0.0-alpha1")
     implementation("org.slf4j:slf4j-simple:2.0.0-alpha1")
     implementation("org.java-websocket:Java-WebSocket:1.5.2")

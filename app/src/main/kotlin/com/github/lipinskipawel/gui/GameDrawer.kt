@@ -1,10 +1,18 @@
 package com.github.lipinskipawel.gui
 
-import com.github.lipinskipawel.board.engine.Board
-import com.github.lipinskipawel.board.engine.Direction
-import com.github.lipinskipawel.board.engine.Move
-import com.github.lipinskipawel.board.engine.Player
-import java.awt.*
+import io.github.lipinskipawel.board.engine.Board
+import io.github.lipinskipawel.board.engine.Direction
+import io.github.lipinskipawel.board.engine.Move
+import io.github.lipinskipawel.board.engine.Player
+import java.awt.BasicStroke
+import java.awt.Color
+import java.awt.Dimension
+import java.awt.Graphics
+import java.awt.Graphics2D
+import java.awt.GridBagLayout
+import java.awt.GridLayout
+import java.awt.RenderingHints
+import java.awt.Shape
 import java.awt.event.MouseListener
 import java.awt.geom.Ellipse2D
 import java.awt.geom.Line2D
@@ -133,18 +141,73 @@ class GameDrawer : JPanel(GridLayout(13, 9)) {
         val pointTracker102 = pointTrackers[102]
         val pointTracker99 = pointTrackers[99]
         graphics2D.stroke = pitch_stroke
-        graphics2D.drawLine(pointTracker9.xMiddle, pointTracker9.yMiddle, pointTracker12.xMiddle, pointTracker12.yMiddle)
-        graphics2D.drawLine(pointTracker9.xMiddle, pointTracker9.yMiddle, pointTracker99.xMiddle, pointTracker99.yMiddle)
-        graphics2D.drawLine(pointTracker12.xMiddle, pointTracker12.yMiddle, pointTracker3.xMiddle, pointTracker3.yMiddle)
+        graphics2D.drawLine(
+            pointTracker9.xMiddle,
+            pointTracker9.yMiddle,
+            pointTracker12.xMiddle,
+            pointTracker12.yMiddle
+        )
+        graphics2D.drawLine(
+            pointTracker9.xMiddle,
+            pointTracker9.yMiddle,
+            pointTracker99.xMiddle,
+            pointTracker99.yMiddle
+        )
+        graphics2D.drawLine(
+            pointTracker12.xMiddle,
+            pointTracker12.yMiddle,
+            pointTracker3.xMiddle,
+            pointTracker3.yMiddle
+        )
         graphics2D.drawLine(pointTracker3.xMiddle, pointTracker3.yMiddle, pointTracker5.xMiddle, pointTracker5.yMiddle)
-        graphics2D.drawLine(pointTracker5.xMiddle, pointTracker5.yMiddle, pointTracker14.xMiddle, pointTracker14.yMiddle)
-        graphics2D.drawLine(pointTracker14.xMiddle, pointTracker14.yMiddle, pointTracker17.xMiddle, pointTracker17.yMiddle)
-        graphics2D.drawLine(pointTracker17.xMiddle, pointTracker17.yMiddle, pointTracker107.xMiddle, pointTracker107.yMiddle)
-        graphics2D.drawLine(pointTracker104.xMiddle, pointTracker104.yMiddle, pointTracker107.xMiddle, pointTracker107.yMiddle)
-        graphics2D.drawLine(pointTracker104.xMiddle, pointTracker104.yMiddle, pointTracker113.xMiddle, pointTracker113.yMiddle)
-        graphics2D.drawLine(pointTracker113.xMiddle, pointTracker113.yMiddle, pointTracker111.xMiddle, pointTracker111.yMiddle)
-        graphics2D.drawLine(pointTracker111.xMiddle, pointTracker111.yMiddle, pointTracker102.xMiddle, pointTracker102.yMiddle)
-        graphics2D.drawLine(pointTracker102.xMiddle, pointTracker102.yMiddle, pointTracker99.xMiddle, pointTracker99.yMiddle)
+        graphics2D.drawLine(
+            pointTracker5.xMiddle,
+            pointTracker5.yMiddle,
+            pointTracker14.xMiddle,
+            pointTracker14.yMiddle
+        )
+        graphics2D.drawLine(
+            pointTracker14.xMiddle,
+            pointTracker14.yMiddle,
+            pointTracker17.xMiddle,
+            pointTracker17.yMiddle
+        )
+        graphics2D.drawLine(
+            pointTracker17.xMiddle,
+            pointTracker17.yMiddle,
+            pointTracker107.xMiddle,
+            pointTracker107.yMiddle
+        )
+        graphics2D.drawLine(
+            pointTracker104.xMiddle,
+            pointTracker104.yMiddle,
+            pointTracker107.xMiddle,
+            pointTracker107.yMiddle
+        )
+        graphics2D.drawLine(
+            pointTracker104.xMiddle,
+            pointTracker104.yMiddle,
+            pointTracker113.xMiddle,
+            pointTracker113.yMiddle
+        )
+        graphics2D.drawLine(
+            pointTracker113.xMiddle,
+            pointTracker113.yMiddle,
+            pointTracker111.xMiddle,
+            pointTracker111.yMiddle
+        )
+        graphics2D.drawLine(
+            pointTracker111.xMiddle,
+            pointTracker111.yMiddle,
+            pointTracker102.xMiddle,
+            pointTracker102.yMiddle
+        )
+        graphics2D.drawLine(
+            pointTracker102.xMiddle,
+            pointTracker102.yMiddle,
+            pointTracker99.xMiddle,
+            pointTracker99.yMiddle
+        )
     }
 
     private fun drawMove(graphics2D: Graphics2D) {
@@ -174,10 +237,10 @@ class GameDrawer : JPanel(GridLayout(13, 9)) {
             val moves = ArrayDeque<PointTracker?>()
             moves.add(pointTrackers[58])
             val numberOfMoves = board!!.moveHistory()
-                    .stream()
-                    .map { it.move }
-                    .mapToLong { it.size.toLong() }
-                    .sum()
+                .stream()
+                .map { it.move }
+                .mapToLong { it.size.toLong() }
+                .sum()
             val allDirections = board!!.allMoves()
             for (i in allDirections.indices) {
                 if (i >= numberOfMoves) {
@@ -200,22 +263,31 @@ class GameDrawer : JPanel(GridLayout(13, 9)) {
         graphics2D.fill(oval)
     }
 
-    private fun thisAreTheSameMoves(allMoves: List<Move>,
-                                    allDirections: List<Direction>): Boolean {
+    private fun thisAreTheSameMoves(
+        allMoves: List<Move>,
+        allDirections: List<Direction>
+    ): Boolean {
         val allMoveDirections = allMoves
-                .stream()
-                .map { it.move }
-                .flatMap { it.stream() }
-                .collect(toList())
+            .stream()
+            .map { it.move }
+            .flatMap { it.stream() }
+            .collect(toList())
         return allMoveDirections.size == allDirections.size
     }
 
-    private fun drawByDirection(graphics2D: Graphics2D,
-                                moves: ArrayDeque<PointTracker?>,
-                                direction: Direction) {
+    private fun drawByDirection(
+        graphics2D: Graphics2D,
+        moves: ArrayDeque<PointTracker?>,
+        direction: Direction
+    ) {
         val start = moves.poll()
         val next = pointTrackers[start!!.position + direction.changeToInt()]
-        val line = Line2D.Float(start.xMiddle.toFloat(), start.yMiddle.toFloat(), next.xMiddle.toFloat(), next.yMiddle.toFloat())
+        val line = Line2D.Float(
+            start.xMiddle.toFloat(),
+            start.yMiddle.toFloat(),
+            next.xMiddle.toFloat(),
+            next.yMiddle.toFloat()
+        )
         graphics2D.draw(line)
         moves.add(next)
     }

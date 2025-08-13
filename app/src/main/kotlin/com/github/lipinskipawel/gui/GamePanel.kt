@@ -1,9 +1,19 @@
 package com.github.lipinskipawel.gui
 
-import com.github.lipinskipawel.board.engine.Player
-import java.awt.*
+import io.github.lipinskipawel.board.engine.Player
+import java.awt.BorderLayout
+import java.awt.Color
+import java.awt.Dimension
+import java.awt.Font
+import java.awt.GridLayout
 import java.awt.event.ActionListener
-import javax.swing.*
+import javax.swing.JButton
+import javax.swing.JLabel
+import javax.swing.JPanel
+import javax.swing.JScrollPane
+import javax.swing.JTextArea
+import javax.swing.JTextField
+import javax.swing.SwingUtilities
 
 class GamePanel : JPanel(BorderLayout()) {
     // NORTH
@@ -27,7 +37,7 @@ class GamePanel : JPanel(BorderLayout()) {
         private val defaultColor = Color(238, 238, 238)
         private val activeColor = Color(0x64fe64)
         private val textWarUp =
-                """
+            """
                 This is Warmp-up mode.
                 You can play here and try new tactics
                 You can make a move by click on the
@@ -124,10 +134,12 @@ class GamePanel : JPanel(BorderLayout()) {
         playerPanel!!.removeAll()
         playerPanel!!.add(playerONE)
         playerPanel!!.add(playerTWO)
-        textArea!!.text = text1vsLAN.plus("""
+        textArea!!.text = text1vsLAN.plus(
+            """
             
             IP address: $ipAddress
-        """.trimIndent())
+        """.trimIndent()
+        )
         add(playerPanel, BorderLayout.NORTH)
         add(scrollPaneText, BorderLayout.CENTER)
         add(southPanel, BorderLayout.SOUTH)

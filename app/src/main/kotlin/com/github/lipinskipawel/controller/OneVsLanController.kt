@@ -1,25 +1,28 @@
 package com.github.lipinskipawel.controller
 
-import com.github.lipinskipawel.board.engine.Boards
-import com.github.lipinskipawel.board.engine.Move
-import com.github.lipinskipawel.board.engine.Player
 import com.github.lipinskipawel.game.GameFlowController
 import com.github.lipinskipawel.gui.DrawableFootballPitch
 import com.github.lipinskipawel.gui.RenderablePoint
 import com.github.lipinskipawel.gui.UserDialogPresenter
 import com.github.lipinskipawel.network.Connection
+import io.github.lipinskipawel.board.engine.Boards
+import io.github.lipinskipawel.board.engine.Move
+import io.github.lipinskipawel.board.engine.Player
 import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicReference
 import java.util.stream.Collectors.joining
 import javax.swing.SwingUtilities
 
-internal class OneVsLanController(private val drawableFootballPitch: DrawableFootballPitch,
-                                  private val dialogPresenter: UserDialogPresenter) : PitchController {
+internal class OneVsLanController(
+    private val drawableFootballPitch: DrawableFootballPitch,
+    private val dialogPresenter: UserDialogPresenter
+) : PitchController {
     companion object {
         private val logger = LoggerFactory.getLogger(OneVsLanController::class.java)
     }
 
-    private val gameFlowController: AtomicReference<GameFlowController> = AtomicReference(GameFlowController(Boards.immutableBoard(), false))
+    private val gameFlowController: AtomicReference<GameFlowController> =
+        AtomicReference(GameFlowController(Boards.immutableBoard(), false))
 
     /**
      * This player is set based on the chosen policy.
@@ -47,10 +50,10 @@ internal class OneVsLanController(private val drawableFootballPitch: DrawableFoo
                 val moves = gameFlowController.get().board().moveHistory()
                 val lastMove = moves[moves.size - 1]
                 val lastMoveInString = lastMove
-                        .move
-                        .stream()
-                        .map { it.toString() }
-                        .collect(joining(", "))
+                    .move
+                    .stream()
+                    .map { it.toString() }
+                    .collect(joining(", "))
                 logger.info("sending move $lastMoveInString")
                 gameFlowController.get().onWinner { winningMessage(it) }
                 connection!!.send(lastMove)
@@ -80,12 +83,13 @@ internal class OneVsLanController(private val drawableFootballPitch: DrawableFoo
 
     private fun consumeTheMoveFromConnection(move: Move) {
         if (!gameFlowController.get().isGameOver() &&
-                !canMove(gameFlowController.get().player())) {
+            !canMove(gameFlowController.get().player())
+        ) {
             val movesInString = move
-                    .move
-                    .stream()
-                    .map { it.toString() }
-                    .collect(joining(", "))
+                .move
+                .stream()
+                .map { it.toString() }
+                .collect(joining(", "))
             logger.info("consuming move from socket: $movesInString")
             gameFlowController.updateAndGet { it.makeAMove(move) }
             if (SwingUtilities.isEventDispatchThread()) {

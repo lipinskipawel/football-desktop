@@ -1,15 +1,15 @@
 package com.github.lipinskipawel.game
 
-import com.github.lipinskipawel.board.engine.Board
-import com.github.lipinskipawel.board.engine.Boards
-import com.github.lipinskipawel.board.engine.Move
-import com.github.lipinskipawel.board.engine.Player
+import io.github.lipinskipawel.board.engine.Board
+import io.github.lipinskipawel.board.engine.Boards
+import io.github.lipinskipawel.board.engine.Move
+import io.github.lipinskipawel.board.engine.Player
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class GameFlowController(
-        private val board: Board<Player> = Boards.immutableBoard(),
-        private var endGame: Boolean = false
+    private val board: Board<Player> = Boards.immutableBoard(),
+    private var endGame: Boolean = false
 ) {
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(GameFlowController::class.java)
@@ -60,8 +60,8 @@ class GameFlowController(
 
     fun onWinner(callback: (Player) -> Unit) {
         this.board
-                .takeTheWinner()
-                .ifPresent { callback(it) }
+            .takeTheWinner()
+            .ifPresent { callback(it) }
     }
 
     fun onPlayerHitTheCorner(runOnHitCorner: () -> Unit) {
@@ -86,12 +86,12 @@ class GameFlowController(
             beforeUndoBoard = beforeUndoBoard.undo()
         } while (beforeUndoBoard.player == board.player)
         val after = beforeUndoBoard
-                .undoPlayerMove()
-                .undoPlayerMove()
-                .undoPlayerMove()
-                .undoPlayerMove()
-                .undoPlayerMove()
-                .undoPlayerMove()
+            .undoPlayerMove()
+            .undoPlayerMove()
+            .undoPlayerMove()
+            .undoPlayerMove()
+            .undoPlayerMove()
+            .undoPlayerMove()
         return GameFlowController(after)
     }
 

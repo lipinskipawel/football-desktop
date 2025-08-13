@@ -1,9 +1,9 @@
 package com.github.lipinskipawel.web
 
-import com.github.lipinskipawel.board.engine.Direction
-import com.github.lipinskipawel.board.engine.Move
 import com.github.lipinskipawel.network.Connection
 import com.google.gson.Gson
+import io.github.lipinskipawel.board.engine.Direction
+import io.github.lipinskipawel.board.engine.Move
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import java.net.URI

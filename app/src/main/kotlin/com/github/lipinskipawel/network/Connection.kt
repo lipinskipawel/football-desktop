@@ -1,6 +1,6 @@
 package com.github.lipinskipawel.network
 
-import com.github.lipinskipawel.board.engine.Move
+import io.github.lipinskipawel.board.engine.Move
 import java.util.function.Consumer
 
 /**

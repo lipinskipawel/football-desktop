@@ -1,7 +1,7 @@
 package com.github.lipinskipawel.gui
 
-import com.github.lipinskipawel.board.engine.Board
-import com.github.lipinskipawel.board.engine.Player
+import io.github.lipinskipawel.board.engine.Board
+import io.github.lipinskipawel.board.engine.Player
 import java.awt.Component
 import java.awt.Dialog
 import javax.swing.JOptionPane
@@ -31,7 +31,8 @@ interface UserDialogPresenter {
     fun showMessage(parent: Component?, messagee: String?): Dialog?
 }
 
-internal class DrawableFacade(private val gameDrawer: GameDrawer, private val gamePanel: GamePanel) : DrawableFootballPitch {
+internal class DrawableFacade(private val gameDrawer: GameDrawer, private val gamePanel: GamePanel) :
+    DrawableFootballPitch {
     override fun drawPitch(board: Board<*>, playerView: Player) {
         gameDrawer.drawMove(board, playerView)
         gamePanel.activePlayer(board.playerProvider.first() == board.player)

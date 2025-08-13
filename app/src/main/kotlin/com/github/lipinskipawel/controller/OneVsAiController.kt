@@ -1,12 +1,12 @@
 package com.github.lipinskipawel.controller
 
-import com.github.lipinskipawel.board.ai.MoveStrategy
-import com.github.lipinskipawel.board.ai.bruteforce.SmartBoardEvaluator
-import com.github.lipinskipawel.board.engine.Boards
-import com.github.lipinskipawel.board.engine.Player
 import com.github.lipinskipawel.game.GameFlowController
 import com.github.lipinskipawel.gui.DrawableFootballPitch
 import com.github.lipinskipawel.gui.RenderablePoint
+import io.github.lipinskipawel.board.ai.MoveStrategy
+import io.github.lipinskipawel.board.ai.bruteforce.SmartBoardEvaluator
+import io.github.lipinskipawel.board.engine.Boards
+import io.github.lipinskipawel.board.engine.Player
 import org.slf4j.LoggerFactory
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
@@ -23,10 +23,10 @@ internal class OneVsAiController(private val drawableFootballPitch: DrawableFoot
     private val canHumanMove: AtomicBoolean = AtomicBoolean(true)
     private val gameFlowController: AtomicReference<GameFlowController> = AtomicReference(GameFlowController())
     private val strategy: MoveStrategy = MoveStrategy
-            .defaultMoveStrategyBuilder()
-            .withBoardEvaluator(SmartBoardEvaluator())
-            .withDepth(3)
-            .build()
+        .defaultMoveStrategyBuilder()
+        .withBoardEvaluator(SmartBoardEvaluator())
+        .withDepth(3)
+        .build()
     private var findMoveForAI: Future<*>
 
     init {
@@ -67,7 +67,12 @@ internal class OneVsAiController(private val drawableFootballPitch: DrawableFoot
         logger.info("computed move : " + move.move)
         if (!Thread.currentThread().isInterrupted) {
             gameFlowController.updateAndGet { it.makeAMove(move) }
-            SwingUtilities.invokeLater { drawableFootballPitch.drawPitch(gameFlowController.get().board(), Player.FIRST) }
+            SwingUtilities.invokeLater {
+                drawableFootballPitch.drawPitch(
+                    gameFlowController.get().board(),
+                    Player.FIRST
+                )
+            }
             gameFlowController.get().onPlayerHitTheCorner(displayMessageAndSendMetrics())
         } else {
             logger.info("Task has been interrupted")
@@ -78,13 +83,13 @@ internal class OneVsAiController(private val drawableFootballPitch: DrawableFoot
     private fun displayMessageAndSendMetrics(): Function0<Unit> {
         return {
             gameFlowController
-                    .get()
-                    .board()
-                    .takeTheWinner()
-                    .ifPresent {
-                        val message = String.format("Player %s won the game.", it)
-                        JOptionPane.showMessageDialog(null, message)
-                    }
+                .get()
+                .board()
+                .takeTheWinner()
+                .ifPresent {
+                    val message = String.format("Player %s won the game.", it)
+                    JOptionPane.showMessageDialog(null, message)
+                }
             canHumanMove.set(false)
         }
     }

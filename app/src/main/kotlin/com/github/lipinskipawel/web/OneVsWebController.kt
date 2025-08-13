@@ -1,13 +1,13 @@
 package com.github.lipinskipawel.web
 
-import com.github.lipinskipawel.board.engine.Boards
-import com.github.lipinskipawel.board.engine.Move
-import com.github.lipinskipawel.board.engine.Player
 import com.github.lipinskipawel.controller.PitchController
 import com.github.lipinskipawel.game.GameFlowController
 import com.github.lipinskipawel.gui.DrawableFootballPitch
 import com.github.lipinskipawel.gui.RenderablePoint
 import com.github.lipinskipawel.network.Connection
+import io.github.lipinskipawel.board.engine.Boards
+import io.github.lipinskipawel.board.engine.Move
+import io.github.lipinskipawel.board.engine.Player
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.stream.Collectors.joining
@@ -15,8 +15,8 @@ import javax.swing.JOptionPane
 import javax.swing.SwingUtilities
 
 internal class OneVsWebController(
-        private val drawableFootballPitch: DrawableFootballPitch,
-        pair: Pair<Connection, Boolean>
+    private val drawableFootballPitch: DrawableFootballPitch,
+    pair: Pair<Connection, Boolean>
 ) : PitchController {
     private val footballClient: Connection = pair.first
 
@@ -42,10 +42,10 @@ internal class OneVsWebController(
     private fun consumeMove(move: Move) {
         if (!gameFlowController.isGameOver() && !canMove()) {
             val movesInString = move
-                    .move
-                    .stream()
-                    .map { it.toString() }
-                    .collect(joining(", "))
+                .move
+                .stream()
+                .map { it.toString() }
+                .collect(joining(", "))
             logger.info("consuming move from socket: $movesInString")
             gameFlowController = gameFlowController.makeAMove(move)
             if (SwingUtilities.isEventDispatchThread()) {

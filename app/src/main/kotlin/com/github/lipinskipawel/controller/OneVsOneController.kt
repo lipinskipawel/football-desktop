@@ -1,10 +1,10 @@
 package com.github.lipinskipawel.controller
 
-import com.github.lipinskipawel.board.engine.Boards
-import com.github.lipinskipawel.board.engine.Player
 import com.github.lipinskipawel.game.GameFlowController
 import com.github.lipinskipawel.gui.DrawableFootballPitch
 import com.github.lipinskipawel.gui.RenderablePoint
+import io.github.lipinskipawel.board.engine.Boards
+import io.github.lipinskipawel.board.engine.Player
 import javax.swing.JOptionPane
 
 internal class OneVsOneController(private val drawableFootballPitch: DrawableFootballPitch) : PitchController {

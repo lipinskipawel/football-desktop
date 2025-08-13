@@ -1,11 +1,11 @@
 package com.github.lipinskipawel.controller
 
-import com.github.lipinskipawel.board.engine.Board
-import com.github.lipinskipawel.board.engine.Boards
-import com.github.lipinskipawel.board.engine.Player
 import com.github.lipinskipawel.game.GameFlowController
 import com.github.lipinskipawel.gui.DrawableFootballPitch
 import com.github.lipinskipawel.gui.RenderablePoint
+import io.github.lipinskipawel.board.engine.Board
+import io.github.lipinskipawel.board.engine.Boards
+import io.github.lipinskipawel.board.engine.Player
 import javax.swing.JOptionPane
 
 internal class HellController(private val drawableFootballPitch: DrawableFootballPitch) : PitchController {
@@ -36,7 +36,9 @@ internal class HellController(private val drawableFootballPitch: DrawableFootbal
             tokenForPlayer.compute(gameFlowController.player().opposite()) { _: Player?, points -> points!! + 1 }
             val message = """
                 Player ${gameFlowController.player()} tokens : ${tokenForPlayer[gameFlowController.player()]}
-                Player ${gameFlowController.player().opposite()} tokens : ${tokenForPlayer[gameFlowController.player().opposite()]}
+                Player ${gameFlowController.player().opposite()} tokens : ${
+                tokenForPlayer[gameFlowController.player().opposite()]
+            }
                 """
             JOptionPane.showMessageDialog(null, message)
         }

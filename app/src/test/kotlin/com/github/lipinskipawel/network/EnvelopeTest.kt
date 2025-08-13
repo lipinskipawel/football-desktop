@@ -1,7 +1,7 @@
 package com.github.lipinskipawel.network
 
-import com.github.lipinskipawel.board.engine.Direction
-import com.github.lipinskipawel.board.engine.Move
+import io.github.lipinskipawel.board.engine.Direction
+import io.github.lipinskipawel.board.engine.Move
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 

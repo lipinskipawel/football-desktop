@@ -1,8 +1,15 @@
 package com.github.lipinskipawel.network
 
-import com.github.lipinskipawel.board.engine.Direction
-import com.github.lipinskipawel.board.engine.Direction.*
-import com.github.lipinskipawel.board.engine.Move
+import io.github.lipinskipawel.board.engine.Direction
+import io.github.lipinskipawel.board.engine.Direction.E
+import io.github.lipinskipawel.board.engine.Direction.N
+import io.github.lipinskipawel.board.engine.Direction.NE
+import io.github.lipinskipawel.board.engine.Direction.NW
+import io.github.lipinskipawel.board.engine.Direction.S
+import io.github.lipinskipawel.board.engine.Direction.SE
+import io.github.lipinskipawel.board.engine.Direction.SW
+import io.github.lipinskipawel.board.engine.Direction.W
+import io.github.lipinskipawel.board.engine.Move
 
 /**
  * This class is able to encode Move class. This class is Thread safe.
@@ -23,14 +30,14 @@ class MoveEncoder {
     companion object {
         fun encode(move: Move): ByteArray {
             return move
-                    .move
-                    .map { encode(it) }
-                    .toByteArray()
+                .move
+                .map { encode(it) }
+                .toByteArray()
         }
 
         fun decode(byteArray: ByteArray): Move {
             val directions: List<Direction> = byteArray
-                    .mapTo(mutableListOf()) { decodeOneByte(it) }
+                .mapTo(mutableListOf()) { decodeOneByte(it) }
             return Move(directions)
         }
 

@@ -1,9 +1,9 @@
 package com.github.lipinskipawel.controller
 
-import com.github.lipinskipawel.board.engine.Boards
-import com.github.lipinskipawel.board.engine.Direction
-import com.github.lipinskipawel.board.engine.Player
 import com.github.lipinskipawel.game.GameFlowController
+import io.github.lipinskipawel.board.engine.Boards
+import io.github.lipinskipawel.board.engine.Direction
+import io.github.lipinskipawel.board.engine.Player
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
@@ -19,9 +19,9 @@ class GameFlowControllerTest {
         val followUpBoard = board.executeMove(Direction.NW)
 
         assertAll("after move",
-                { Assertions.assertThat(afterMove.isGameOver()).isFalse() },
-                { Assertions.assertThat(afterMove.player()).isEqualTo(Player.SECOND) },
-                { Assertions.assertThat(afterMove.board()).isEqualToComparingFieldByFieldRecursively(followUpBoard) }
+            { Assertions.assertThat(afterMove.isGameOver()).isFalse() },
+            { Assertions.assertThat(afterMove.player()).isEqualTo(Player.SECOND) },
+            { Assertions.assertThat(afterMove.board()).isEqualToComparingFieldByFieldRecursively(followUpBoard) }
         )
     }
 
@@ -34,9 +34,9 @@ class GameFlowControllerTest {
         val followUpBoard = board.executeMove(Direction.NW).undo()
 
         assertAll("after move and undo",
-                { Assertions.assertThat(afterMove.isGameOver()).isFalse() },
-                { Assertions.assertThat(afterMove.player()).isEqualTo(Player.FIRST) },
-                { Assertions.assertThat(afterMove.board()).isEqualToComparingFieldByFieldRecursively(followUpBoard) }
+            { Assertions.assertThat(afterMove.isGameOver()).isFalse() },
+            { Assertions.assertThat(afterMove.player()).isEqualTo(Player.FIRST) },
+            { Assertions.assertThat(afterMove.board()).isEqualToComparingFieldByFieldRecursively(followUpBoard) }
         )
     }
 
@@ -49,12 +49,12 @@ class GameFlowControllerTest {
         val gameOver2 = game.gameOver(board)
 
         assertAll("game over with/without overloading argument",
-                { Assertions.assertThat(gameOver.isGameOver()).isTrue() },
-                { Assertions.assertThat(gameOver.player()).isEqualTo(Player.FIRST) },
-                { Assertions.assertThat(gameOver.board()).isEqualToComparingFieldByFieldRecursively(board) },
-                { Assertions.assertThat(gameOver2.isGameOver()).isTrue() },
-                { Assertions.assertThat(gameOver2.player()).isEqualTo(Player.FIRST) },
-                { Assertions.assertThat(gameOver2).isEqualToComparingFieldByFieldRecursively(gameOver) }
+            { Assertions.assertThat(gameOver.isGameOver()).isTrue() },
+            { Assertions.assertThat(gameOver.player()).isEqualTo(Player.FIRST) },
+            { Assertions.assertThat(gameOver.board()).isEqualToComparingFieldByFieldRecursively(board) },
+            { Assertions.assertThat(gameOver2.isGameOver()).isTrue() },
+            { Assertions.assertThat(gameOver2.player()).isEqualTo(Player.FIRST) },
+            { Assertions.assertThat(gameOver2).isEqualToComparingFieldByFieldRecursively(gameOver) }
         )
     }
 
@@ -63,12 +63,12 @@ class GameFlowControllerTest {
         val game = GameFlowController()
 
         val afterMoves = game
-                .makeAMove(48)
-                .makeAMove(39)
-                .undoPlayerMove { }
+            .makeAMove(48)
+            .makeAMove(39)
+            .undoPlayerMove { }
 
         assertAll("after two moves and ",
-                { Assertions.assertThat(afterMoves.player()).isEqualTo(Player.FIRST) }
+            { Assertions.assertThat(afterMoves.player()).isEqualTo(Player.FIRST) }
         )
     }
 
@@ -77,14 +77,14 @@ class GameFlowControllerTest {
         val game = GameFlowController()
 
         val afterMoves = game
-                .makeAMove(48)
-                .makeAMove(39)
-                .makeAMove(40)
-                .undoPlayerMove { }
+            .makeAMove(48)
+            .makeAMove(39)
+            .makeAMove(40)
+            .undoPlayerMove { }
 
         assertAll("after two moves and ",
-                { Assertions.assertThat(afterMoves.player()).isEqualTo(Player.SECOND) },
-                { Assertions.assertThat(afterMoves.board().ballPosition).isEqualTo(48) }
+            { Assertions.assertThat(afterMoves.player()).isEqualTo(Player.SECOND) },
+            { Assertions.assertThat(afterMoves.board().ballPosition).isEqualTo(48) }
         )
     }
 }

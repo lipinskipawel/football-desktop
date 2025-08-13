@@ -1,7 +1,7 @@
 package com.github.lipinskipawel.network
 
-import com.github.lipinskipawel.board.engine.Direction
-import com.github.lipinskipawel.board.engine.Move
+import io.github.lipinskipawel.board.engine.Direction
+import io.github.lipinskipawel.board.engine.Move
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -66,10 +66,10 @@ internal class DirectConnectionTest {
         var holder = Move(emptyList())
 
         waitingForConnection
-                .onReceivedData {
-                    holder = it
-                    startAssertions.countDown()
-                }
+            .onReceivedData {
+                holder = it
+                startAssertions.countDown()
+            }
         connection.send(Move(listOf(Direction.W)))
 
         startAssertions.await()
@@ -157,15 +157,15 @@ internal class DirectConnectionTest {
 
         startAssertion.await()
         org.junit.jupiter.api.Assertions.assertAll(
-                Executable { Assertions.assertThat(firstHolder.move.size).isEqualTo(1) },
-                Executable { Assertions.assertThat(firstHolder.move[0]).isEqualTo(Direction.W) },
+            Executable { Assertions.assertThat(firstHolder.move.size).isEqualTo(1) },
+            Executable { Assertions.assertThat(firstHolder.move[0]).isEqualTo(Direction.W) },
 
-                Executable { Assertions.assertThat(secondHolder.move.size).isEqualTo(1) },
-                Executable { Assertions.assertThat(secondHolder.move[0]).isEqualTo(Direction.NW) },
+            Executable { Assertions.assertThat(secondHolder.move.size).isEqualTo(1) },
+            Executable { Assertions.assertThat(secondHolder.move[0]).isEqualTo(Direction.NW) },
 
-                Executable { Assertions.assertThat(thirdHolder.move.size).isEqualTo(2) },
-                Executable { Assertions.assertThat(thirdHolder.move[0]).isEqualTo(Direction.E) },
-                Executable { Assertions.assertThat(thirdHolder.move[1]).isEqualTo(Direction.SE) }
+            Executable { Assertions.assertThat(thirdHolder.move.size).isEqualTo(2) },
+            Executable { Assertions.assertThat(thirdHolder.move[0]).isEqualTo(Direction.E) },
+            Executable { Assertions.assertThat(thirdHolder.move[1]).isEqualTo(Direction.SE) }
         )
     }
 
@@ -202,12 +202,12 @@ internal class DirectConnectionTest {
 
         startAssertions.await()
         org.junit.jupiter.api.Assertions.assertAll(
-                Executable { Assertions.assertThat(firstHolderAssertion.move.size).isEqualTo(1) },
-                Executable { Assertions.assertThat(firstHolderAssertion.move[0]).isEqualTo(Direction.W) },
+            Executable { Assertions.assertThat(firstHolderAssertion.move.size).isEqualTo(1) },
+            Executable { Assertions.assertThat(firstHolderAssertion.move[0]).isEqualTo(Direction.W) },
 
-                Executable { Assertions.assertThat(secondHolderAssertion.move.size).isEqualTo(2) },
-                Executable { Assertions.assertThat(secondHolderAssertion.move[0]).isEqualTo(Direction.NW) },
-                Executable { Assertions.assertThat(secondHolderAssertion.move[1]).isEqualTo(Direction.S) }
+            Executable { Assertions.assertThat(secondHolderAssertion.move.size).isEqualTo(2) },
+            Executable { Assertions.assertThat(secondHolderAssertion.move[0]).isEqualTo(Direction.NW) },
+            Executable { Assertions.assertThat(secondHolderAssertion.move[1]).isEqualTo(Direction.S) }
         )
     }
 }
