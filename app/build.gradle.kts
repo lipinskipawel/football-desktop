@@ -21,8 +21,9 @@ dependencies {
     implementation("org.java-websocket:Java-WebSocket:1.5.2")
     implementation("com.google.code.gson:gson:2.8.9")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-engine")
     testImplementation("org.junit.jupiter:junit-jupiter-api")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine")
+    testImplementation("org.junit.jupiter:junit-jupiter-params")
     testImplementation("org.assertj:assertj-core")
 }
 

@@ -1,0 +1,13 @@
+[Event "?"]
+[Site "PlayOK"]
+[Date "2025.11.08"]
+[Round "-"]
+[Black "koss24"]
+[White "okinawas"]
+[Result "0-1"]
+[Time "21:50:44"]
+[TimeControl "300"]
+[BlackElo "1194"]
+[WhiteElo "1249"]
+
+1. 5 4 2. 3 4 3. 57 7 4. 53147 5 0-1
