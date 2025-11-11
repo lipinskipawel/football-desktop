@@ -4,6 +4,7 @@ import com.github.lipinskipawel.HeapDumper
 import com.github.lipinskipawel.OptionsMenu
 import com.github.lipinskipawel.PlayMenu
 import com.github.lipinskipawel.ThreadDumper
+import com.github.lipinskipawel.game.GameParser
 import com.github.lipinskipawel.gui.GamePanel
 import com.github.lipinskipawel.network.ConnectionManager.Companion.getInetAddress
 import com.github.lipinskipawel.web.LoginForm
@@ -18,7 +19,11 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpRequest.BodyPublishers
 import java.net.http.HttpResponse.BodyHandlers.discarding
+import java.nio.file.Files
+import java.nio.file.Path
+import javax.swing.JFileChooser
 import javax.swing.JOptionPane
+
 
 /**
  * This file contains all the listeners that are registered to the top Menu bar. Each JMenu item has its own class that
@@ -29,9 +34,10 @@ import javax.swing.JOptionPane
  * as classes that are capable of dispatch particular ActionEvent.
  */
 
-class PlayListener(private val playMenu: PlayMenu,
-                   private val gamePanel: GamePanel,
-                   private val actionGameController: PitchListener
+class PlayListener(
+    private val playMenu: PlayMenu,
+    private val gamePanel: GamePanel,
+    private val actionGameController: PitchListener
 ) : ActionListener {
 
     override fun actionPerformed(e: ActionEvent?) {
@@ -73,11 +79,11 @@ class PlayListener(private val playMenu: PlayMenu,
         login.showLoginForm {
             val client = HttpClient.newHttpClient()
             val req = HttpRequest
-                    .newBuilder(URI.create("http://localhost:8090/register"))
-                    .expectContinue(false)
-                    .header("username", it)
-                    .POST(BodyPublishers.noBody())
-                    .build()
+                .newBuilder(URI.create("http://localhost:8090/register"))
+                .expectContinue(false)
+                .header("username", it)
+                .POST(BodyPublishers.noBody())
+                .build()
 
             val response = client.send(req, discarding())
             login.dispose()
@@ -86,11 +92,13 @@ class PlayListener(private val playMenu: PlayMenu,
             userCredentials.first = it
             val jPanel = gamePanelWeb(token) {
                 actionGameController.setGameMode("1vsWeb")
-                gamePanel.setInformationText("""
+                gamePanel.setInformationText(
+                    """
                 In this mode you will be playing
                 against any player in the world.
                 Good luck
-                """)
+                """
+                )
             }
             gamePanel.setPanel(jPanel)
         }
@@ -101,9 +109,10 @@ class PlayListener(private val playMenu: PlayMenu,
  * This class is responsible for setting a connection over the LAN with the opponent. It knows about more than just top
  * menu bar items. It must also understand whether the user clicked on [connectionButton] in order to connect to a game.
  */
-class PlayLanListener(private val playMenu: PlayMenu,
-                      private val gamePanel: GamePanel,
-                      private val actionGameController: PitchListener
+class PlayLanListener(
+    private val playMenu: PlayMenu,
+    private val gamePanel: GamePanel,
+    private val actionGameController: PitchListener
 ) : ActionListener {
 
     override fun actionPerformed(e: ActionEvent?) {
@@ -115,7 +124,8 @@ class PlayLanListener(private val playMenu: PlayMenu,
 
     private fun lanItem() {
         val waitingToConnect = JOptionPane.showConfirmDialog(
-                null, "Do you want to wait to connection?")
+            null, "Do you want to wait to connection?"
+        )
 
         if (waitingToConnect == JOptionPane.YES_OPTION) {
             gamePanel.setButtonStatus(false)
@@ -139,14 +149,32 @@ class PlayLanListener(private val playMenu: PlayMenu,
     }
 }
 
-class OptionListener(private val optionMenu: OptionsMenu) : ActionListener {
+class OptionListener(
+    private val optionMenu: OptionsMenu,
+    private val gamePanel: GamePanel,
+    private val actionGameController: PitchListener
+) : ActionListener {
+    private val gameParser: GameParser = GameParser()
     private val heapDumper: HeapDumper = HeapDumper()
     private val threadDumper: ThreadDumper = ThreadDumper()
 
     override fun actionPerformed(e: ActionEvent?) {
         when (e?.source) {
+            optionMenu.getLoadGame() -> this.loadGame()
             optionMenu.getHeapDumpItem() -> this.saveHeapDumps()
             optionMenu.getThreadDumpItem() -> this.saveThreadDumps()
+        }
+    }
+
+    private fun loadGame() {
+        val fileChooser = JFileChooser()
+        val returnValue = fileChooser.showOpenDialog(null)
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            val selectedFile = fileChooser.selectedFile
+            val gameMode = "game-view"
+            gamePanel.setGameView()
+            val content = Files.readString(Path.of(selectedFile.absolutePath))
+            actionGameController.setGameMode(gameMode, gameParser.parse(content))
         }
     }
 

@@ -85,6 +85,11 @@ class GamePanel : JPanel(BorderLayout()) {
                 to win with it.
                 Good luck
                 """.trimIndent()
+
+        private val textGameView =
+            """
+                This is Game view.
+                """.trimIndent()
     }
 
     init {
@@ -154,6 +159,16 @@ class GamePanel : JPanel(BorderLayout()) {
         playerPanel!!.add(playerTWO)
         textArea!!.text = text1vsAI
         add(playerPanel, BorderLayout.NORTH)
+        add(scrollPaneText, BorderLayout.CENTER)
+        SwingUtilities.invokeLater { revalidate() }
+        repaint()
+    }
+
+    fun setGameView() {
+        removeAll()
+        textArea!!.text = textGameView
+        playerPanel!!.add(playerONE)
+        playerPanel!!.add(playerTWO)
         add(scrollPaneText, BorderLayout.CENTER)
         SwingUtilities.invokeLater { revalidate() }
         repaint()

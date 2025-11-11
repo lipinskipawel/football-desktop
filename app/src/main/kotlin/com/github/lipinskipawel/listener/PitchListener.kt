@@ -1,6 +1,12 @@
 package com.github.lipinskipawel.listener
 
-import com.github.lipinskipawel.controller.*
+import com.github.lipinskipawel.controller.GameViewController
+import com.github.lipinskipawel.controller.HellController
+import com.github.lipinskipawel.controller.OneVsAiController
+import com.github.lipinskipawel.controller.OneVsLanController
+import com.github.lipinskipawel.controller.OneVsOneController
+import com.github.lipinskipawel.controller.PitchController
+import com.github.lipinskipawel.controller.WarmupController
 import com.github.lipinskipawel.gui.DefaultUserDialogPresenter
 import com.github.lipinskipawel.gui.DrawableFootballPitch
 import com.github.lipinskipawel.gui.RenderablePoint
@@ -9,6 +15,7 @@ import com.github.lipinskipawel.network.ConnectionManager.Companion.getInetAddre
 import com.github.lipinskipawel.network.ConnectionManager.Companion.waitForConnection
 import com.github.lipinskipawel.web.OneVsWebController
 import com.github.lipinskipawel.web.connectToGame
+import io.github.lipinskipawel.board.engine.Move
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
 import java.net.InetAddress
@@ -30,6 +37,10 @@ class PitchListener internal constructor(private val drawableFootballPitch: Draw
     }
 
     fun setGameMode(gameMode: String?) {
+        setGameMode(gameMode, emptyList())
+    }
+
+    fun setGameMode(gameMode: String?, moves: List<Move>) {
         tearDownActiveController()
         when (gameMode) {
             "warm-up" -> currentActiveController = WarmupController(drawableFootballPitch)
@@ -46,6 +57,7 @@ class PitchListener internal constructor(private val drawableFootballPitch: Draw
 
             "1vsLAN-client" -> currentActiveController = OneVsLanController(drawableFootballPitch, DefaultUserDialogPresenter())
             "1vsWeb" -> currentActiveController = OneVsWebController(drawableFootballPitch, connectToGame())
+            "game-view" -> currentActiveController = GameViewController(drawableFootballPitch, moves)
             else -> throw RuntimeException("Should never happen")
         }
     }

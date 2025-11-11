@@ -33,7 +33,7 @@ fun main(args: Array<String>) {
     playMenu.addActionClassForAllMenuItems(playLanListener)
     gamePanel.addButtonConnectListener(playLanListener)
 
-    val optionListener = OptionListener(optionsMenu)
+    val optionListener = OptionListener(optionsMenu, gamePanel, actionGameController)
     optionsMenu.addActionClassForAllMenuItems(optionListener)
 
     table.show()
