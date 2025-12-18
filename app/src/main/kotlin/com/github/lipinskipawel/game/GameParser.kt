@@ -16,6 +16,7 @@ import java.io.DataInputStream
 class GameParser {
 
     companion object {
+        private const val DASH_BYTE = 45.toByte()      // '-'.code.toByte()
         private const val DOT_BYTE = 46.toByte()      // '.'.code.toByte()
         private const val ZERO_BYTE = 48.toByte()     // '0'.code.toByte()
         private const val NINE_BYTE = 57.toByte()     // '9'.code.toByte()
@@ -38,7 +39,9 @@ class GameParser {
 
                 skipUntilDigit(dataInputStream)
                 val blackMove = parseNumber(dataInputStream).toMove()
-                moves.add(blackMove)
+                if (blackMove.move.isNotEmpty()) {
+                    moves.add(blackMove)
+                }
             }
         }
         return moves
@@ -69,7 +72,21 @@ class GameParser {
                 break
             }
         }
+        if (isNextDash(dataInputStream)) {
+            return emptyList()
+        }
         return numbers
+    }
+
+    private fun isNextDash(dataInputStream: DataInputStream): Boolean {
+        dataInputStream.mark(1)
+        val byte = dataInputStream.readByte()
+        if (byte.compareTo(DASH_BYTE) == 0) {
+            dataInputStream.reset()
+            return true
+        } else {
+            return false
+        }
     }
 
     private fun List<Int>.toMove(): Move {

@@ -26,7 +26,8 @@ class GameParserTest : WithAssertions {
                 // Named.of() in future junit version
                 Arguments.of("win short", "kurnik/win-short.txt", winShort()),
                 Arguments.of("win by goal", "kurnik/win-by-goal.txt", winByGoal()),
-                Arguments.of("win by time", "kurnik/win-by-time.txt", winByTime())
+                Arguments.of("win by time", "kurnik/win-by-time.txt", winByTime()),
+                Arguments.of("win by trap", "kurnik/win-by-trap.txt", winByTrap())
             )
         }
 
@@ -156,6 +157,34 @@ class GameParserTest : WithAssertions {
                 Move(listOf(E)),
                 Move(listOf(NW, E, SW, S, NE, NE, S, S, NW, N, N)),
                 Move(listOf(W))
+            )
+        }
+
+        private fun winByTrap(): List<Move> {
+            return listOf(
+                Move(listOf(N)),
+                Move(listOf(NW)),
+                Move(listOf(NE)),
+                Move(listOf(W)),
+                Move(listOf(N)),
+                Move(listOf(SW)),
+                Move(listOf(SE, N, NE)),
+                Move(listOf(W, SE, N, SE)),
+                Move(listOf(N)),
+                Move(listOf(SW, E, SE)),
+                Move(listOf(N)),
+                Move(listOf(NW, NE, SE)),
+                Move(listOf(N, SW)),
+                Move(listOf(SW, E, SW)),
+                Move(listOf(SW, N)),
+                Move(listOf(N, SE, N, SW, NW, SW)),
+                Move(listOf(NW)),
+                Move(listOf(E, S, W)),
+                Move(listOf(N, NW, NE, SE)),
+                Move(listOf(S, SW, NW, E, SW, E, S)),
+                Move(listOf(NE, E, E, E, E, NE)),
+                Move(listOf(NW, W, W, NW, SW, N, SE, W, SE, W, NW)),
+                Move(listOf(N))
             )
         }
     }
