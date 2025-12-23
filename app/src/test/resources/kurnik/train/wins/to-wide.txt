@@ -1,0 +1,13 @@
+[Event "?"]
+[Site "PlayOK"]
+[Date "2025.12.18"]
+[Round "-"]
+[Black "okinawas"]
+[White "ciechanoof"]
+[Result "0-1"]
+[Time "11:30:10"]
+[TimeControl "180"]
+[BlackElo "1546"]
+[WhiteElo "1794"]
+
+1. 6 7 2. 1 1 3. 4 1 4. 3 0 5. 3 17 6. 5667 05 7. 22 0 8. 1 0-1

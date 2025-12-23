@@ -1,0 +1,14 @@
+[Event "?"]
+[Site "PlayOK"]
+[Date "2025.12.19"]
+[Round "-"]
+[Black "okinawas"]
+[White "npns"]
+[Result "1-0"]
+[Time "12:32:51"]
+[TimeControl "120"]
+[BlackElo "1491"]
+[WhiteElo "1244"]
+
+1. 4 6 2. 3 01 3. 3 0 4. 6655 2 5. 5 00 6. 33 03 7. 2 7 8. 56 161341 9. 43 4166
+10. 50 306147635 11. 67 13 12. 36050 34 1-0
