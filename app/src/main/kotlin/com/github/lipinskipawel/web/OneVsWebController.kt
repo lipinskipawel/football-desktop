@@ -96,4 +96,8 @@ internal class OneVsWebController(
     private fun winningMessage(winner: Player) {
         JOptionPane.showMessageDialog(null, "Player $winner won he game.")
     }
+
+    override fun gameMoves(): List<Move> {
+        return gameFlowController.board().moveHistory()
+    }
 }

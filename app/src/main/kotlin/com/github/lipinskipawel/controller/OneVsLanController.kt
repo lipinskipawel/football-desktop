@@ -115,4 +115,8 @@ internal class OneVsLanController(
         drawableFootballPitch.drawPitch(gameFlowController.get().board(), gameFlowController.get().player())
         connection!!.close()
     }
+
+    override fun gameMoves(): List<Move> {
+        return gameFlowController.get().board().moveHistory()
+    }
 }

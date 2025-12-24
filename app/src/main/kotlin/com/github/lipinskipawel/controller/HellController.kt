@@ -5,6 +5,7 @@ import com.github.lipinskipawel.gui.DrawableFootballPitch
 import com.github.lipinskipawel.gui.RenderablePoint
 import io.github.lipinskipawel.board.engine.Board
 import io.github.lipinskipawel.board.engine.Boards
+import io.github.lipinskipawel.board.engine.Move
 import io.github.lipinskipawel.board.engine.Player
 import javax.swing.JOptionPane
 
@@ -58,5 +59,9 @@ internal class HellController(private val drawableFootballPitch: DrawableFootbal
         drawableFootballPitch.drawPitch(gameFlowController.board(), gameFlowController.player())
         tokenForPlayer[Player.FIRST] = 2
         tokenForPlayer[Player.SECOND] = 2
+    }
+
+    override fun gameMoves(): List<Move> {
+        return gameFlowController.board().moveHistory()
     }
 }

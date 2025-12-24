@@ -62,6 +62,10 @@ class PitchListener internal constructor(private val drawableFootballPitch: Draw
         }
     }
 
+    fun gameMoves(): List<Move> {
+        return currentActiveController.gameMoves()
+    }
+
     private fun tearDownActiveController() {
         currentActiveController.tearDown()
     }

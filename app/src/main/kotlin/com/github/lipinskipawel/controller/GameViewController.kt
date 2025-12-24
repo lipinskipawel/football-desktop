@@ -51,4 +51,8 @@ class GameViewController(
         gameFlowController = GameFlowController(Boards.immutableBoard(), false)
         drawableFootballPitch.drawPitch(gameFlowController.board(), gameFlowController.player())
     }
+
+    override fun gameMoves(): List<Move> {
+        return gameFlowController.board().moveHistory()
+    }
 }

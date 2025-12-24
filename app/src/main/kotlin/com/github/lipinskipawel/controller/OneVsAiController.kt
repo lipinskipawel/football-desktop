@@ -6,6 +6,7 @@ import com.github.lipinskipawel.gui.RenderablePoint
 import io.github.lipinskipawel.board.ai.MoveStrategy
 import io.github.lipinskipawel.board.ai.bruteforce.SmartBoardEvaluator
 import io.github.lipinskipawel.board.engine.Boards
+import io.github.lipinskipawel.board.engine.Move
 import io.github.lipinskipawel.board.engine.Player
 import org.slf4j.LoggerFactory
 import java.util.concurrent.CompletableFuture
@@ -111,5 +112,9 @@ internal class OneVsAiController(private val drawableFootballPitch: DrawableFoot
         findMoveForAI.cancel(true)
         canHumanMove.set(true)
         logger.info("tear down")
+    }
+
+    override fun gameMoves(): List<Move> {
+        return gameFlowController.get().board().moveHistory()
     }
 }

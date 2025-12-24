@@ -161,6 +161,7 @@ class OptionListener(
     override fun actionPerformed(e: ActionEvent?) {
         when (e?.source) {
             optionMenu.getLoadGame() -> this.loadGame()
+            optionMenu.getExportGameMoves() -> this.exportGameMoves()
             optionMenu.getHeapDumpItem() -> this.saveHeapDumps()
             optionMenu.getThreadDumpItem() -> this.saveThreadDumps()
         }
@@ -176,6 +177,11 @@ class OptionListener(
             val content = Files.readString(Path.of(selectedFile.absolutePath))
             actionGameController.setGameMode(gameMode, gameParser.parse(content))
         }
+    }
+
+    private fun exportGameMoves() {
+        val moves = actionGameController.gameMoves()
+        gamePanel.setExportGameMoves(moves)
     }
 
     private fun saveHeapDumps() {

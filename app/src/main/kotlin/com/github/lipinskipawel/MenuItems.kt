@@ -40,22 +40,26 @@ class PlayMenu : JMenu("Play") {
 
 class OptionsMenu : JMenu("Options") {
     private val loadGame: JMenuItem = JMenuItem("Load kurnik game")
+    private val exportGameMoves: JMenuItem = JMenuItem("Export game moves")
     private val heapDump: JMenuItem = JMenuItem("Heap Dump")
     private val threadDump: JMenuItem = JMenuItem("Thread Dump")
 
     init {
         add(this.loadGame)
+        add(this.exportGameMoves)
         add(this.heapDump)
         add(this.threadDump)
     }
 
     fun addActionClassForAllMenuItems(actionListener: ActionListener) {
         this.loadGame.addActionListener(actionListener)
+        this.exportGameMoves.addActionListener(actionListener)
         this.heapDump.addActionListener(actionListener)
         this.threadDump.addActionListener(actionListener)
     }
 
     fun getLoadGame(): JMenuItem = this.loadGame
+    fun getExportGameMoves(): JMenuItem = this.exportGameMoves
     fun getHeapDumpItem(): JMenuItem = this.heapDump
     fun getThreadDumpItem(): JMenuItem = this.threadDump
 }
