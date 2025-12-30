@@ -179,6 +179,7 @@ class GamePanel : JPanel(BorderLayout()) {
         val toList = moves
             .stream()
             .map { it -> it.move.joinToString { it.name } }
+//            .map { it.plus("))") }
             .toList()
         textArea!!.text = toList.stream()
             .reduce { acc, s -> acc.plus(s).plus("\n") }
