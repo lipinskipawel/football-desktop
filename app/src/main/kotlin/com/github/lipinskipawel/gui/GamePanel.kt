@@ -1,14 +1,5 @@
 package com.github.lipinskipawel.gui
 
-import io.github.lipinskipawel.board.engine.Direction
-import io.github.lipinskipawel.board.engine.Direction.E
-import io.github.lipinskipawel.board.engine.Direction.N
-import io.github.lipinskipawel.board.engine.Direction.NE
-import io.github.lipinskipawel.board.engine.Direction.NW
-import io.github.lipinskipawel.board.engine.Direction.S
-import io.github.lipinskipawel.board.engine.Direction.SE
-import io.github.lipinskipawel.board.engine.Direction.SW
-import io.github.lipinskipawel.board.engine.Direction.W
 import io.github.lipinskipawel.board.engine.Move
 import io.github.lipinskipawel.board.engine.Player
 import java.awt.BorderLayout
@@ -187,26 +178,13 @@ class GamePanel : JPanel(BorderLayout()) {
     fun setExportGameMoves(moves: List<Move>) {
         val toList = moves
             .stream()
-            .map { it -> it.move.map { it.toNumber() }.reduce { acc, s -> acc.plus(s) } }
+            .map { it -> it.move.joinToString { it.name } }
             .toList()
         textArea!!.text = toList.stream()
             .reduce { acc, s -> acc.plus(s).plus("\n") }
             .get()
         SwingUtilities.invokeLater { revalidate() }
         repaint()
-    }
-
-    private fun Direction.toNumber(): String {
-        return when (this) {
-            N -> "0"
-            NE -> "1"
-            E -> "2"
-            SE -> "3"
-            S -> "4"
-            SW -> "5"
-            W -> "6"
-            NW -> "7"
-        }
     }
 
     /**
