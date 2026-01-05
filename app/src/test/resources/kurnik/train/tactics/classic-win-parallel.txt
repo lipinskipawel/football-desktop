@@ -1,0 +1,14 @@
+[Event "?"]
+[Site "PlayOK"]
+[Date "2026.01.03"]
+[Round "-"]
+[Black "okinawas"]
+[White "motodawcaxxx1"]
+[Result "1-0"]
+[Time "18:12:32"]
+[TimeControl "180"]
+[BlackElo "1632"]
+[WhiteElo "1420"]
+
+1. 4 7 2. 5 0 3. 223 61 4. 44 1 5. 65 0365 6. 2 2 7. 2 74747 8. 46 16 9. 46 52
+10. 01030 533 11. 57 7632503003 12. 1411 44 13. 574 4 1-0

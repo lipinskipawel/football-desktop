@@ -175,6 +175,8 @@ class GamePanel : JPanel(BorderLayout()) {
         repaint()
     }
 
+    // https://papersoccer.pl/partia/60911758/
+    // https://papersoccer.pl/schemat/114/
     fun setExportGameMoves(moves: List<Move>) {
         val toList = moves
             .stream()

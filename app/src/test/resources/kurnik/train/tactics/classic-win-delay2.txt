@@ -1,0 +1,14 @@
+[Event "9324187"]
+[Site "PlayOK"]
+[Date "2026.01.03"]
+[Round "6"]
+[Black "okinawas"]
+[White "wyhylylybymy"]
+[Result "0-1"]
+[Time "20:40:42"]
+[TimeControl "180"]
+[BlackElo "1618"]
+[WhiteElo "1243"]
+
+1. 0 5 2. 6 0 3. 1 31 4. 0 6 5. 31 2 6. 35 6 7. 74 60 8. 05235670 20 9. 6 7 10.
+0524 3034 11. 71317 75 12. 5611441 20 13. 1 0-1
