@@ -1,0 +1,14 @@
+[Event "?"]
+[Site "PlayOK"]
+[Date "2026.02.07"]
+[Round "-"]
+[Black "gls3"]
+[White "kreslenie"]
+[Result "1-0"]
+[Time "14:18:04"]
+[TimeControl "180"]
+[BlackElo "1997"]
+[WhiteElo "1718"]
+
+1. 4 4 2. 4 6 3. 12 57 4. 23 02 5. 52 3 6. 417 250745 7. 41 02565 8. 67 13 9. 6
+43 1-0

@@ -1,0 +1,14 @@
+[Event "?"]
+[Site "PlayOK"]
+[Date "2026.02.21"]
+[Round "-"]
+[Black "narcyzreaktyw"]
+[White "kreslenie"]
+[Result "0-1"]
+[Time "19:37:35"]
+[TimeControl "180"]
+[BlackElo "1602"]
+[WhiteElo "1513"]
+
+1. 7 6 2. 3 00 3. 54 11 4. 2 7 5. 521 647 6. 47 6 7. 52 06314 8. 161 42705 9.
+5713031 23 10. 57 03 11. 07 0-1

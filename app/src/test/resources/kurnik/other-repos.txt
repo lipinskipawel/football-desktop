@@ -1,0 +1,8 @@
+
+https://github.com/MateuszJanda/paper-soccer
+
+https://deepwiki.com/jdermont/QtPaperSoccer
+https://github.com/jdermont/YaPaperSoccer
+https://github.com/jdermont/QtPaperSoccer
+
+https://github.com/jdermont/tictactoe-ntuple.git
