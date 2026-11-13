@@ -24,7 +24,7 @@ class Envelope private constructor(private val encodedData: ByteArray) {
          */
         fun toMove(bytes: ByteArray): Move {
             val directions = bytes
-                .map { it.toChar() }
+                .map { it.toInt().toChar() }
                 .map { java.lang.String.valueOf(it) }
                 .reduceRight { s, acc -> s.plus(acc) }
                 .split(",")
@@ -37,7 +37,7 @@ class Envelope private constructor(private val encodedData: ByteArray) {
     fun move(): Move {
         val directions = ProtocolReader(encodedData)
             .data()
-            .map { it.toChar() }
+            .map { it.toInt().toChar() }
             .map { java.lang.String.valueOf(it) }
             .reduceRight { s, acc -> s.plus(acc) }
             .split(",")

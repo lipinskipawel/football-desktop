@@ -1,8 +1,8 @@
 plugins {
     application
     java
-    kotlin("jvm") version "1.9.23"
-    id("com.github.johnrengelman.shadow") version "7.0.0"
+    kotlin("jvm") version "2.4.21"
+    id("com.gradleup.shadow") version "9.6.1"
     id("com.github.lipinskipawel.football-desktop.app-builder") version ("0.1.0")
 }
 
@@ -25,6 +25,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-engine")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
     testImplementation("org.assertj:assertj-core")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 group = "com.github.lipinskipawel"
@@ -32,7 +33,7 @@ version = "1.0.0"
 description = "football-desktop"
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(25)
 }
 
 application {
